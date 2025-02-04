@@ -1,11 +1,24 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include "Steinhardt.h"
-#include "ManagedArray.h"
-#include "NeighborComputeFunctional.h"
-#include "utils.h"
+#include <algorithm>
+#include <cmath>
+#include <complex>
+#include <cstddef>
+#include <memory>
 #include <vector>
+
+#include "Box.h"
+#include "ManagedArray.h"
+#include "NeighborBond.h"
+#include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborPerPointIterator.h"
+#include "NeighborQuery.h"
+#include "Steinhardt.h"
+#include "VectorMath.h"
+#include "Wigner3j.h"
+#include "utils.h"
 
 /*! \file Steinhardt.cc
     \brief Computes variants of Steinhardt order parameters.
@@ -17,6 +30,7 @@ namespace freud { namespace order {
 void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi,
                             YlmsType& Ylms) const
 {
+    // NOLINTNEXTLINE(readability-suspicious-call-argument)
     sph_eval.compute(theta, phi);
 
     for (size_t i = 0; i < m_ls.size(); ++i)
@@ -25,6 +39,7 @@ void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const floa
         const auto l = m_ls[i];
         size_t m_index(0);
 
+        // NOLINTNEXTLINE: fsph uses deprecated apis
         const auto end_iter(sph_eval.begin_l(l + 1, 0, true));
         for (auto iter(sph_eval.begin_l(l, 0, true)); iter != end_iter; ++iter, ++m_index)
         {

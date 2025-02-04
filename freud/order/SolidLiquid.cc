@@ -1,11 +1,19 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <complex>
+#include <cstddef>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
+#include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "SolidLiquid.h"
+#include "utils.h"
 
 namespace freud { namespace order {
 

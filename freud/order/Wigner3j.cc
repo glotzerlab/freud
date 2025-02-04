@@ -2,6 +2,8 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
+#include <complex>
+#include <stdexcept>
 #include <vector>
 
 #include "Wigner3j.h"
@@ -56,6 +58,7 @@ float reduceWigner3j(const std::complex<float>* source, unsigned int l_, const s
 
 std::vector<double> getWigner3j(unsigned int l)
 {
+    // NOLINTNEXTLINE
     switch (l)
     {
     case 0: {

@@ -5,10 +5,12 @@
 #define STATIC_STRUCTURE_FACTOR_DEBYE_H
 
 #include <limits>
+#include <memory>
 
 #include "Histogram.h"
 #include "NeighborQuery.h"
 #include "StaticStructureFactor.h"
+#include "VectorMath.h"
 
 /*! \file StaticStructureFactorDebye.h
     \brief Computes structure factor using the Debye scattering equation.

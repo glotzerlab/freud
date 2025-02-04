@@ -4,15 +4,17 @@
 #ifndef SOLID_LIQUID_H
 #define SOLID_LIQUID_H
 
+#include <algorithm>
 #include <complex>
 #include <iterator>
+#include <memory>
 #include <vector>
 
 #include "../cluster/Cluster.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "Steinhardt.h"
-#include "utils.h"
 
 namespace freud { namespace order {
 
@@ -108,13 +110,13 @@ public:
 
     //! Get a reference to the last computed set of solid-like cluster
     //  indices for each particle
-    const std::shared_ptr<util::ManagedArray<unsigned int>> getClusterIdx() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getClusterIdx() const
     {
         return m_cluster.getClusterIdx();
     }
 
     //! Get a reference to the number of connections per particle
-    const std::shared_ptr<util::ManagedArray<unsigned int>> getNumberOfConnections() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getNumberOfConnections() const
     {
         return m_number_of_connections;
     }
@@ -131,13 +133,13 @@ public:
     }
 
     //! Get the last calculated qlm for each particle
-    const std::shared_ptr<util::ManagedArray<std::complex<float>>> getQlm() const
+    std::shared_ptr<util::ManagedArray<std::complex<float>>> getQlm() const
     {
         return m_steinhardt.getQlm()[0];
     }
 
     //! Return the ql_ij values.
-    const std::shared_ptr<util::ManagedArray<float>> getQlij() const
+    std::shared_ptr<util::ManagedArray<float>> getQlij() const
     {
         return m_ql_ij;
     }

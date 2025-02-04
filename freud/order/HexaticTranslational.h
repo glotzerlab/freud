@@ -48,7 +48,7 @@ public:
 protected:
     //! Compute the order parameter
     template<typename Func>
-    void computeGeneral(Func func, const std::shared_ptr<locality::NeighborList> nlist,
+    void computeGeneral(Func func, const std::shared_ptr<locality::NeighborList>& nlist,
                         // const vec3<float>* points,
                         const std::shared_ptr<locality::NeighborQuery>& points,
                         const freud::locality::QueryArgs qargs, bool normalize_by_k);
@@ -73,7 +73,7 @@ public:
 
     //! Compute the hexatic order parameter
 
-    void compute(std::shared_ptr<locality::NeighborList> nlist,
+    void compute(const std::shared_ptr<locality::NeighborList>& nlist,
                  const std::shared_ptr<locality::NeighborQuery>& points,
                  const freud::locality::QueryArgs& qargs);
 };

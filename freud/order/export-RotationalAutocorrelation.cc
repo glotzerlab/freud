@@ -5,9 +5,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-#include <utility>
 
-#include "ManagedArray.h"
 #include "RotationalAutocorrelation.h"
 #include "VectorMath.h"
 

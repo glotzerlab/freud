@@ -3,12 +3,11 @@
 
 #include <vector>
 
+#include "Steinhardt.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/stl/vector.h>
-
-#include "Steinhardt.h"
+#include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 namespace freud { namespace order {
 

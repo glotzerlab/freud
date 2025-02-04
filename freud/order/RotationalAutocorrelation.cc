@@ -1,11 +1,16 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include "RotationalAutocorrelation.h"
+#include <algorithm>
+#include <complex>
+#include <cstddef>
+#include <memory>
+#include <vector>
 
+#include "ManagedArray.h"
+#include "RotationalAutocorrelation.h"
 #include "VectorMath.h"
 #include "utils.h"
-#include <cmath>
 
 /*! \file RotationalAutocorrelation.cc
     \brief Implements the RotationalAutocorrelation class.
@@ -44,7 +49,7 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
     std::complex<float> sum_tracker(0, 0);
     for (unsigned int k = (m1 + m2 < m_l ? 0 : m1 + m2 - m_l); k <= std::min(m1, m2); k++)
     {
-        float fact_product = static_cast<float>((*m_factorials)[k])
+        const float fact_product = static_cast<float>((*m_factorials)[k])
             * static_cast<float>((*m_factorials)[m_l + k - m1 - m2])
             * static_cast<float>((*m_factorials)[m1 - k]) * static_cast<float>((*m_factorials)[m2 - k]);
         sum_tracker += cpow(xi_conj, k) * cpow(zeta, m2 - k) * cpow(zeta_conj, m1 - k)
@@ -62,8 +67,8 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
     // default quaternion constructor gives a unit quaternion. We will assume
     // the same iteration order here as in the loop below to save ourselves
     // from having to use a more expensive process (i.e. a map).
-    std::complex<float> xi = std::complex<float>(0, 0);
-    std::complex<float> zeta = std::complex<float>(0, 1);
+    const std::complex<float> xi = std::complex<float>(0, 0);
+    const std::complex<float> zeta = std::complex<float>(0, 1);
     std::vector<std::complex<float>> unit_harmonics;
     std::vector<std::vector<float>> prefactors(m_l + 1, std::vector<float>(m_l + 1, float(0)));
     for (unsigned int a = 0; a <= m_l; a++)
@@ -83,8 +88,8 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
         {
             // Transform the orientation quaternions into Xi/Zeta coordinates;
             quat<float> qq_1 = conj(ref_orientations[i]) * orientations[i];
-            std::complex<float> xi = std::complex<float>(qq_1.v.x, qq_1.v.y);
-            std::complex<float> zeta = std::complex<float>(qq_1.v.z, qq_1.s);
+            const std::complex<float> xi = std::complex<float>(qq_1.v.x, qq_1.v.y);
+            const std::complex<float> zeta = std::complex<float>(qq_1.v.z, qq_1.s);
 
             // Loop through the valid quantum numbers.
             (*m_RA_array)[i] = std::complex<float>(0, 0);
@@ -93,7 +98,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
             {
                 for (unsigned int b = 0; b <= m_l; b++)
                 {
-                    std::complex<float> combined_value
+                    const std::complex<float> combined_value
                         = unit_harmonics[uh_index] * hypersphere_harmonic(xi, zeta, a, b);
                     (*m_RA_array)[i] += prefactors[a][b] * combined_value;
                     uh_index += 1;

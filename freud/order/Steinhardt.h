@@ -6,15 +6,14 @@
 
 #include <algorithm>
 #include <complex>
+#include <cstddef>
 #include <memory>
+#include <vector>
 
-#include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
-#include "VectorMath.h"
-#include "Wigner3j.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
 /*! \file Steinhardt.h
