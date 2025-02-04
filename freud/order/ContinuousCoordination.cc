@@ -2,11 +2,19 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
+#include <cstddef>
 #include <functional>
+#include <memory>
 #include <numeric>
+#include <utility>
+#include <vector>
 
 #include "ContinuousCoordination.h"
+#include "ManagedArray.h"
+#include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborPerPointIterator.h"
+#include "Voronoi.h"
 
 /*! \file ContinuousCoordination.cc
     \brief Routines for computing local density around a point.
@@ -21,7 +29,7 @@ ContinuousCoordination::ContinuousCoordination(std::vector<float> powers, bool c
 void ContinuousCoordination::compute(const std::shared_ptr<freud::locality::Voronoi>& voronoi)
 {
     auto nlist = voronoi->getNeighborList();
-    size_t num_points = nlist->getNumQueryPoints();
+    const size_t num_points = nlist->getNumQueryPoints();
     m_coordination = std::make_shared<util::ManagedArray<float>>(
         std::vector<size_t> {num_points, getNumberOfCoordinations()});
     const auto& volumes = voronoi->getVolumes();
@@ -45,7 +53,7 @@ void ContinuousCoordination::compute(const std::shared_ptr<freud::locality::Voro
                 i_volumes.emplace_back(prefactor * nb.getWeight() * nb.getDistance());
             }
             size_t coordination_number {0};
-            float num_neighbors_i {static_cast<float>((*num_neighbors)[particle_index])};
+            const float num_neighbors_i {static_cast<float>((*num_neighbors)[particle_index])};
             for (size_t k {0}; k < powers.size(); ++k)
             {
                 float coordination = std::transform_reduce(
@@ -56,7 +64,7 @@ void ContinuousCoordination::compute(const std::shared_ptr<freud::locality::Voro
             }
             if (m_compute_log)
             {
-                float coordination
+                const float coordination
                     = std::transform_reduce(i_volumes.begin(), i_volumes.end(), 0.0F, std::plus<>(), logf);
                 (*m_coordination)(particle_index, coordination_number++)
                     = -coordination / std::log(num_neighbors_i);

@@ -45,7 +45,7 @@ public:
     }
 
     //! Get a shared pointer to the last computed number of neighbors
-    const std::shared_ptr<util::ManagedArray<float>> getCoordination() const
+    std::shared_ptr<util::ManagedArray<float>> getCoordination() const
     {
         return m_coordination;
     }

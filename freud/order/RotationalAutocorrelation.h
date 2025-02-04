@@ -6,6 +6,7 @@
 
 #include <complex>
 #include <memory>
+#include <utility>
 
 #include "ManagedArray.h"
 #include "VectorMath.h"

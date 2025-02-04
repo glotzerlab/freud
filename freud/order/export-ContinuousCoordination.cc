@@ -1,13 +1,12 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <memory>
+#include <vector>
+
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/stl/vector.h>
-
-#include <utility>
+#include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "ContinuousCoordination.h"
 

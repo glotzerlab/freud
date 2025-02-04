@@ -5,13 +5,11 @@
 #define HEXATIC_TRANSLATIONAL_H
 
 #include <complex>
+#include <memory>
 
-#include "Box.h"
 #include "ManagedArray.h"
-#include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "VectorMath.h"
 
 /*! \file HexaticTranslational.h
     \brief Compute the hexatic/translational order parameter for each particle.
@@ -42,7 +40,7 @@ public:
     }
 
     //! Get a reference to the order parameter array
-    const std::shared_ptr<util::ManagedArray<std::complex<float>>> getOrder() const
+    std::shared_ptr<util::ManagedArray<std::complex<float>>> getOrder() const
     {
         return m_psi_array;
     }

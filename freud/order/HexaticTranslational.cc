@@ -3,6 +3,7 @@
 
 #include "HexaticTranslational.h"
 #include "ManagedArray.h"
+#include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
 #include "NeighborPerPointIterator.h"
 #include "NeighborQuery.h"
