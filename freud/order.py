@@ -330,8 +330,7 @@ class Hexatic(_PairCompute):
 
     def __repr__(self):
         return (
-            f"freud.order.{type(self).__name__}(k={self.k}, "
-            f"weighted={self.weighted})"
+            f"freud.order.{type(self).__name__}(k={self.k}, weighted={self.weighted})"
         )
 
     def plot(self, ax=None):
@@ -858,9 +857,9 @@ class RotationalAutocorrelation(_Compute):
             orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """
-        assert len(ref_orientations) == len(
-            orientations
-        ), "orientations and ref_orientations must have the same shape."
+        assert len(ref_orientations) == len(orientations), (
+            "orientations and ref_orientations must have the same shape."
+        )
         self._cpp_obj.compute(ref_orientations, orientations)
         return self
 

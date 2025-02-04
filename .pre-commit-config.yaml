@@ -6,7 +6,7 @@ exclude: (?:^extern/)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v4.6.0'
+    rev: 'v5.0.0'
     hooks:
       - id: end-of-file-fixer
         exclude: |
@@ -30,7 +30,7 @@ repos:
       - id: debug-statements
       - id: requirements-txt-fixer
   - repo: https://github.com/glotzerlab/fix-license-header
-    rev: v0.4.0
+    rev: v0.4.1
     hooks:
       - id: fix-license-header
         name: Fix License Headers (Python)
@@ -48,13 +48,13 @@ repos:
           - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --keep-before=#!
   - repo: https://github.com/asottile/pyupgrade
-    rev: 'v3.16.0'
+    rev: 'v3.19.1'
     hooks:
       - id: pyupgrade
         args:
           - --py39-plus
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.6.3'
+    rev: 'v0.9.4'
     hooks:
     - id: ruff-format
     - id: ruff
@@ -63,7 +63,7 @@ repos:
     hooks:
       - id: cmake-format
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v18.1.6'
+    rev: 'v19.1.7'
     hooks:
       - id: clang-format
         types_or: [c, c++]
@@ -83,8 +83,6 @@ repos:
         (?x)^(
           ^extern/|
           ^freud/density/|
-          ^freud/diffraction/|
-          ^freud/order/
         )
       args:
       - --warnings-as-errors=*

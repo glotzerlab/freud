@@ -382,18 +382,18 @@ class TestLocalDescriptors:
                     # uses internally).
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = (-1) ** abs(m) * ld.sph[idx, count]
-                    assert np.isclose(
-                        scipy_val, ld_val, atol=atol
-                    ), f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    assert np.isclose(scipy_val, ld_val, atol=atol), (
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1
 
                 for neg_m in range(1, l + 1):
                     m = -neg_m
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = ld.sph[idx, count]
-                    assert np.isclose(
-                        scipy_val, ld_val, atol=atol
-                    ), f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    assert np.isclose(scipy_val, ld_val, atol=atol), (
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1
 
     def test_query_point_ne_points(self):
@@ -436,16 +436,16 @@ class TestLocalDescriptors:
                     # uses internally).
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = (-1) ** abs(m) * ld.sph[idx, count]
-                    assert np.isclose(
-                        scipy_val, ld_val, atol=atol
-                    ), f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    assert np.isclose(scipy_val, ld_val, atol=atol), (
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1
 
                 for neg_m in range(1, l + 1):
                     m = -neg_m
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = ld.sph[idx, count]
-                    assert np.isclose(
-                        scipy_val, ld_val, atol=atol
-                    ), f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    assert np.isclose(scipy_val, ld_val, atol=atol), (
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1
