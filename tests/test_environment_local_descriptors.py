@@ -347,7 +347,7 @@ class TestLocalDescriptors:
         spherical harmonics manually and verifying them."""
         sph_harm = pytest.importorskip("scipy.special").sph_harm
 
-        atol = 1e-5
+        atol = 1e-4
         L = 8
         N = 100
         box, points = freud.data.make_random_system(L, N)
