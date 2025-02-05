@@ -41,13 +41,13 @@ public:
                  const locality::QueryArgs& qargs);
 
     //! Get a reference to the last computed maximal local bond projection array
-    std::shared_ptr<util::ManagedArray<float>> getProjections() const
+    std::shared_ptr<const util::ManagedArray<float>> getProjections() const
     {
         return m_local_bond_proj;
     }
 
     //! Get a reference to the last computed normalized maximal local bond projection array
-    std::shared_ptr<util::ManagedArray<float>> getNormedProjections() const
+    std::shared_ptr<const util::ManagedArray<float>> getNormedProjections() const
     {
         return m_local_bond_proj_norm;
     }

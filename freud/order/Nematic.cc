@@ -23,12 +23,12 @@ float Nematic::getNematicOrderParameter() const
     return m_nematic_order_parameter;
 }
 
-std::shared_ptr<util::ManagedArray<float>> Nematic::getParticleTensor() const
+std::shared_ptr<const util::ManagedArray<float>> Nematic::getParticleTensor() const
 {
     return m_particle_tensor;
 }
 
-std::shared_ptr<util::ManagedArray<float>> Nematic::getNematicTensor() const
+std::shared_ptr<const util::ManagedArray<float>> Nematic::getNematicTensor() const
 {
     return m_nematic_tensor;
 }

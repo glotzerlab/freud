@@ -36,7 +36,7 @@ public:
     virtual void reset() {}; // Note: this should be pure
 
     //! Get the structure factor
-    std::shared_ptr<util::ManagedArray<float>> getStructureFactor()
+    std::shared_ptr<const util::ManagedArray<float>> getStructureFactor()
     {
         // reduceAndReturn requires a reference, but can't get it from an unnamed temporary variable
         auto bin_counts = m_structure_factor.getBinCounts();

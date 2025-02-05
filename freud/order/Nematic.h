@@ -39,9 +39,9 @@ public:
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter() const;
 
-    std::shared_ptr<util::ManagedArray<float>> getParticleTensor() const;
+    std::shared_ptr<const util::ManagedArray<float>> getParticleTensor() const;
 
-    std::shared_ptr<util::ManagedArray<float>> getNematicTensor() const;
+    std::shared_ptr<const util::ManagedArray<float>> getNematicTensor() const;
 
     unsigned int getNumParticles() const;
 

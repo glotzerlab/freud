@@ -32,7 +32,7 @@ public:
         return m_polytopes;
     }
 
-    std::shared_ptr<util::ManagedArray<double>> getVolumes() const
+    std::shared_ptr<const util::ManagedArray<double>> getVolumes() const
     {
         return m_volumes;
     }

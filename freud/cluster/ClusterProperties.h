@@ -42,37 +42,37 @@ public:
                  const float* masses = nullptr);
 
     //! Get a reference to the last computed cluster centers
-    std::shared_ptr<util::ManagedArray<vec3<float>>> getClusterCenters() const
+    std::shared_ptr<const util::ManagedArray<vec3<float>>> getClusterCenters() const
     {
         return m_cluster_centers;
     }
 
     //! Get a reference to the last computed cluster centers of mass
-    std::shared_ptr<util::ManagedArray<vec3<float>>> getClusterCentersOfMass() const
+    std::shared_ptr<const util::ManagedArray<vec3<float>>> getClusterCentersOfMass() const
     {
         return m_cluster_centers_of_mass;
     }
 
     //! Get a reference to the last computed cluster moments of inertia
-    std::shared_ptr<util::ManagedArray<float>> getClusterMomentsOfInertia() const
+    std::shared_ptr<const util::ManagedArray<float>> getClusterMomentsOfInertia() const
     {
         return m_cluster_moments_of_inertia;
     }
 
     //! Get a reference to the last computed cluster gyration tensors
-    std::shared_ptr<util::ManagedArray<float>> getClusterGyrations() const
+    std::shared_ptr<const util::ManagedArray<float>> getClusterGyrations() const
     {
         return m_cluster_gyrations;
     }
 
     //! Get a reference to the last computed cluster sizes
-    std::shared_ptr<util::ManagedArray<unsigned int>> getClusterSizes() const
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getClusterSizes() const
     {
         return m_cluster_sizes;
     }
 
     //! Get a reference to the last computed cluster masses
-    std::shared_ptr<util::ManagedArray<float>> getClusterMasses() const
+    std::shared_ptr<const util::ManagedArray<float>> getClusterMasses() const
     {
         return m_cluster_masses;
     }

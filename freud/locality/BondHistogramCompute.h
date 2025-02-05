@@ -69,7 +69,7 @@ public:
     }
 
     //! Get a reference to the bin counts array
-    std::shared_ptr<util::ManagedArray<unsigned int>> getBinCounts()
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getBinCounts()
     {
         return reduceAndReturn(m_histogram.getBinCounts());
     }

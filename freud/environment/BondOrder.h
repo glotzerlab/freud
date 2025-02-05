@@ -51,7 +51,7 @@ public:
     std::vector<std::vector<float>> getBinCenters();
 
     //! Get a shared_ptr to the last computed bond order
-    std::shared_ptr<util::ManagedArray<float>> getBondOrder();
+    std::shared_ptr<const util::ManagedArray<float>> getBondOrder();
 
     BondOrderMode getMode() const
     {

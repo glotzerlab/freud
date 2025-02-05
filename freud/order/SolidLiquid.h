@@ -110,13 +110,13 @@ public:
 
     //! Get a reference to the last computed set of solid-like cluster
     //  indices for each particle
-    std::shared_ptr<util::ManagedArray<unsigned int>> getClusterIdx() const
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getClusterIdx() const
     {
         return m_cluster.getClusterIdx();
     }
 
     //! Get a reference to the number of connections per particle
-    std::shared_ptr<util::ManagedArray<unsigned int>> getNumberOfConnections() const
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getNumberOfConnections() const
     {
         return m_number_of_connections;
     }
@@ -133,13 +133,13 @@ public:
     }
 
     //! Get the last calculated qlm for each particle
-    std::shared_ptr<util::ManagedArray<std::complex<float>>> getQlm() const
+    std::shared_ptr<const util::ManagedArray<std::complex<float>>> getQlm() const
     {
         return m_steinhardt.getQlm()[0];
     }
 
     //! Return the ql_ij values.
-    std::shared_ptr<util::ManagedArray<float>> getQlij() const
+    std::shared_ptr<const util::ManagedArray<float>> getQlij() const
     {
         return m_ql_ij;
     }
