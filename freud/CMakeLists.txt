@@ -139,10 +139,6 @@ nanobind_add_module(
 target_link_libraries(_cluster PUBLIC freud TBB::tbb)
 target_set_install_rpath(_cluster)
 
-# density nanobind_add_module(_density density/...)
-# target_link_libraries(_density PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_density)
-
 nanobind_add_module(
   _diffraction
   diffraction/module-diffraction.cc
@@ -205,9 +201,8 @@ nanobind_add_module(
   _density 
   
   density/module-density.cc 
-  # density/export-CorrelationFunction.cc
+  density/export-CorrelationFunction.cc
   density/export-GaussianDensity.cc 
-  
   density/export-RDF.cc
   density/export-LocalDensity.cc
   density/export-SphereVoxelization.cc)

@@ -40,12 +40,17 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : Bo
     m_local_correlation_function = CFThreadHistogram(m_correlation_function);
 }
 
+
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 template<typename T> void CorrelationFunction<T>::reduce()
 {
-    m_histogram = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>getAxisSizes()[0]);
-    m_correlation_function = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>getAxisSizes()[0]);
+    m_histogram.reset();
+    m_correlation_function.reset();
+    // m_histogram = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{getAxisSizes()[0]});
+    // m_correlation_function = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{getAxisSizes()[0]});
+    // m_N_r = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
+    
 
     // Reduce the bin counts over all threads, then use them to normalize the
     // RDF when computing.
@@ -61,10 +66,8 @@ template<typename T> void CorrelationFunction<T>::reduce()
 template<typename T> void CorrelationFunction<T>::reset()
 {
     BondHistogramCompute::reset();
-
-    // Zero the correlation function in addition to the bin counts that are
-    // reset by the parent.
-    m_local_correlation_function.reset();
+    // m_correlation_function = std::make_shared<util::ManagedArray<float>>(m_correlation_function.shape());
+    m_correlation_function.reset();
 }
 
 // Define an overloaded pair of product functions to deal with complex conjugation if necessary.
