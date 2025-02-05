@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef LOCAL_DESCRIPTORS_H
@@ -58,7 +58,7 @@ public:
                  unsigned int max_num_neighbor);
 
     //! Get a reference to the last computed spherical harmonic array
-    std::shared_ptr<util::ManagedArray<std::complex<float>>> getSph() const
+    std::shared_ptr<const util::ManagedArray<std::complex<float>>> getSph() const
     {
         return m_sphArray;
     }

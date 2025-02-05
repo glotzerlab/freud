@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef VORONOI_H
@@ -32,7 +32,7 @@ public:
         return m_polytopes;
     }
 
-    std::shared_ptr<util::ManagedArray<double>> getVolumes() const
+    std::shared_ptr<const util::ManagedArray<double>> getVolumes() const
     {
         return m_volumes;
     }

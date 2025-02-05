@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
@@ -94,7 +94,7 @@ std::vector<std::vector<float>> BondOrder::getBinCenters()
     return m_histogram.getBinCenters();
 }
 
-std::shared_ptr<util::ManagedArray<float>> BondOrder::getBondOrder()
+std::shared_ptr<const util::ManagedArray<float>> BondOrder::getBondOrder()
 {
     return reduceAndReturn(m_bo_array);
 }

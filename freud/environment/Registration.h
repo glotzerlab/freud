@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef REGISTRATION_H
@@ -31,7 +31,7 @@
 
 namespace freud { namespace environment {
 
-// NOLINTNEXTLINE(misc-include-cleaner) - Eigen's include structure confuses clang-tidy
+// NOLINTNEXTLINE(misc-include-cleaner): Eigen's include structure confuses clang-tidy
 using matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
 inline matrix makeEigenMatrix(const std::vector<vec3<float>>& vecs)
@@ -118,7 +118,7 @@ inline void KabschAlgorithm(const matrix& P, const matrix& Q, matrix& Rotation)
     // Preconditions: P and Q have been translated to have the same center of mass.
     const matrix A = P.transpose() * Q;
     // singular value decomposition (~ eigen decomposition)
-    // NOLINTNEXTLINE(misc-include-cleaner) - Eigen's include structure confuses clang-tidy
+    // NOLINTNEXTLINE(misc-include-cleaner): Eigen's include structure confuses clang-tidy
     const Eigen::JacobiSVD<matrix> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
     // A = USV^T
     matrix U = svd.matrixU();
@@ -442,7 +442,7 @@ private:
         }
         int random_int(int a, int b)
         {
-            // NOLINTNEXTLINE(misc-const-correctness) - const causes a compile error
+            // NOLINTNEXTLINE(misc-const-correctness): const causes a compile error
             std::uniform_int_distribution<int> distribution(a, b);
             return distribution(m_generator);
         }

@@ -1,11 +1,16 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <cmath>
+#include <cstddef>
 #include <memory>
-#include <stdexcept>
+#include <vector>
 
+#include "ManagedArray.h"
 #include "Nematic.h"
+#include "VectorMath.h"
 #include "diagonalize.h"
+#include "utils.h"
 
 /*! \file Nematic.h
     \brief Compute the nematic order parameter for each particle
@@ -18,12 +23,12 @@ float Nematic::getNematicOrderParameter() const
     return m_nematic_order_parameter;
 }
 
-const std::shared_ptr<util::ManagedArray<float>> Nematic::getParticleTensor() const
+std::shared_ptr<const util::ManagedArray<float>> Nematic::getParticleTensor() const
 {
     return m_particle_tensor;
 }
 
-const std::shared_ptr<util::ManagedArray<float>> Nematic::getNematicTensor() const
+std::shared_ptr<const util::ManagedArray<float>> Nematic::getNematicTensor() const
 {
     return m_nematic_tensor;
 }
@@ -54,15 +59,15 @@ void Nematic::compute(vec3<float>* orientations, unsigned int n)
 
             util::ManagedArray<float> Q_ab({3, 3});
 
-            Q_ab(0, 0) = 1.5f * u_i.x * u_i.x - 0.5f;
-            Q_ab(0, 1) = 1.5f * u_i.x * u_i.y;
-            Q_ab(0, 2) = 1.5f * u_i.x * u_i.z;
-            Q_ab(1, 0) = 1.5f * u_i.y * u_i.x;
-            Q_ab(1, 1) = 1.5f * u_i.y * u_i.y - 0.5f;
-            Q_ab(1, 2) = 1.5f * u_i.y * u_i.z;
-            Q_ab(2, 0) = 1.5f * u_i.z * u_i.x;
-            Q_ab(2, 1) = 1.5f * u_i.z * u_i.y;
-            Q_ab(2, 2) = 1.5f * u_i.z * u_i.z - 0.5f;
+            Q_ab(0, 0) = 1.5F * u_i.x * u_i.x - 0.5F;
+            Q_ab(0, 1) = 1.5F * u_i.x * u_i.y;
+            Q_ab(0, 2) = 1.5F * u_i.x * u_i.z;
+            Q_ab(1, 0) = 1.5F * u_i.y * u_i.x;
+            Q_ab(1, 1) = 1.5F * u_i.y * u_i.y - 0.5F;
+            Q_ab(1, 2) = 1.5F * u_i.y * u_i.z;
+            Q_ab(2, 0) = 1.5F * u_i.z * u_i.x;
+            Q_ab(2, 1) = 1.5F * u_i.z * u_i.y;
+            Q_ab(2, 2) = 1.5F * u_i.z * u_i.z - 0.5F;
 
             // Set the values. The nematic tensor is reduced later.
             for (unsigned int j = 0; j < 3; j++)

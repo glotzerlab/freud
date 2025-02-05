@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -107,10 +107,7 @@ class UnitCell:
             nz = 1 if self.box.is2D else num_replicas
 
         if not all(int(n) == n and n > 0 for n in (nx, ny, nz)):
-            msg = (
-                "The number of replicas must be a positive "
-                "integer in each dimension."
-            )
+            msg = "The number of replicas must be a positive integer in each dimension."
             raise ValueError(msg)
 
         if self.box.is2D and nz != 1:

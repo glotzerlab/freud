@@ -1,11 +1,19 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstring>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <memory>
 #include <random>
 #include <stdexcept>
+#include <vector>
 
 #include "Cubatic.h"
+#include "ManagedArray.h"
+#include "VectorMath.h"
 #include "utils.h"
 
 /*! \file Cubatic.h
@@ -17,14 +25,14 @@ namespace freud { namespace order {
 tensor4::tensor4(const vec3<float>& vector)
 {
     unsigned int cnt = 0;
-    std::array<float, 3> v = {vector.x, vector.y, vector.z};
-    for (float vi : v)
+    const std::array<float, 3> v = {vector.x, vector.y, vector.z};
+    for (const float vi : v)
     {
-        for (float vj : v)
+        for (const float vj : v)
         {
-            for (float vk : v)
+            for (const float vk : v)
             {
-                for (float vl : v)
+                for (const float vl : v)
                 {
                     data[cnt] = vi * vj * vk * vl;
                     cnt++;
@@ -165,19 +173,19 @@ tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)
 
 float Cubatic::calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor)
 {
-    tensor4 diff = global_tensor - cubatic_tensor;
+    const tensor4 diff = global_tensor - cubatic_tensor;
     return float(1.0) - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
 }
 
 template<typename T> quat<float> Cubatic::calcRandomQuaternion(T& dist, float angle_multiplier) const
 {
-    float theta = 2.0 * M_PI * dist();
-    float phi = std::acos(2.0 * dist() - 1.0);
+    const float theta = 2.0 * M_PI * dist();
+    const float phi = std::acos(2.0 * dist() - 1.0);
     vec3<float> axis
         = vec3<float>(std::cos(theta) * std::sin(phi), std::sin(theta) * std::sin(phi), std::cos(phi));
-    float axis_norm = std::sqrt(dot(axis, axis));
+    const float axis_norm = std::sqrt(dot(axis, axis));
     axis /= axis_norm;
-    float angle = angle_multiplier * dist();
+    const float angle = angle_multiplier * dist();
     return quat<float>::fromAxisAngle(axis, angle);
 }
 
@@ -194,8 +202,8 @@ util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float
             {
                 // Calculate the homogeneous tensor H for each vector then add
                 // to the per-particle value.
-                vec3<float> v_r = rotate(orientations[i], m_system_vector);
-                tensor4 r4_tensor(v_r);
+                const vec3<float> v_r = rotate(orientations[i], m_system_vector);
+                const tensor4 r4_tensor(v_r);
                 l_mbar += r4_tensor;
             }
 
@@ -284,7 +292,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                 ++loop_count;
                 new_orientation = calcRandomQuaternion(dist, 0.1) * (cubatic_orientation);
                 // now calculate the cubatic tensor
-                tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
+                const tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
                 new_order_parameter = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
                 if (new_order_parameter > cubatic_order_parameter)
                 {
@@ -294,7 +302,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                 }
                 else
                 {
-                    float boltzmann_factor
+                    const float boltzmann_factor
                         = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
                     if (boltzmann_factor >= dist())
                     {

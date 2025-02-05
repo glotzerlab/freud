@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef CLUSTER_H
@@ -55,7 +55,7 @@ public:
     }
 
     //! Get a reference to the cluster ids.
-    std::shared_ptr<util::ManagedArray<unsigned int>> getClusterIdx() const
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getClusterIdx() const
     {
         return m_cluster_idx;
     }

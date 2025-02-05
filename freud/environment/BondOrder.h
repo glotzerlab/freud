@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef BOND_ORDER_H
@@ -51,7 +51,7 @@ public:
     std::vector<std::vector<float>> getBinCenters();
 
     //! Get a shared_ptr to the last computed bond order
-    std::shared_ptr<util::ManagedArray<float>> getBondOrder();
+    std::shared_ptr<const util::ManagedArray<float>> getBondOrder();
 
     BondOrderMode getMode() const
     {

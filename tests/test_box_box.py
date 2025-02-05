@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import warnings
@@ -447,8 +447,8 @@ class TestBox:
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = box.to_dict()
         box_dict = {"Lx": 2, "Ly": 2, "Lz": 2, "xy": 1, "xz": 0.5, "yz": 0.1}
-        for k in box_dict:
-            npt.assert_allclose(box_dict[k], box2[k])
+        for k, v in box_dict.items():
+            npt.assert_allclose(v, box2[k])
 
     def test_from_box(self):
         """Test various methods of initializing a box"""

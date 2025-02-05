@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
@@ -140,7 +140,7 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery>& n
 
                 sph_eval.compute(phi, theta);
                 // copy results from sph_eval to the sphArray
-                // NOLINTNEXTLINE - fsph uses deprecated C++ features
+                // NOLINTNEXTLINE: fsph uses deprecated C++ features
                 std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), m_sphArray->data() + sphCount);
             }
         }

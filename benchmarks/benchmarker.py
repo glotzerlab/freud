@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import argparse
@@ -387,8 +387,7 @@ if __name__ == "__main__":
         "filename",
         default="benchmark.json",
         nargs="?",
-        help="The collection that contains the benchmark data"
-        "default='benchmark.json'.",
+        help="The collection that contains the benchmark datadefault='benchmark.json'.",
     )
     parser_report.set_defaults(func=main_report)
 
@@ -426,8 +425,7 @@ if __name__ == "__main__":
         "--filename",
         default="benchmark.json",
         nargs="?",
-        help="The collection that contains the benchmark data"
-        "default='benchmark.json'.",
+        help="The collection that contains the benchmark datadefault='benchmark.json'.",
     )
     parser_compare.add_argument(
         "-f",
