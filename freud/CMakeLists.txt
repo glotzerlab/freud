@@ -25,8 +25,8 @@ add_library(
   cluster/ClusterProperties.h
   cluster/ClusterProperties.cc
   # density
-  # density/CorrelationFunction.h
-  # density/CorrelationFunction.cc
+  density/CorrelationFunction.h
+  density/CorrelationFunction.cc
   density/GaussianDensity.h
   density/GaussianDensity.cc
   density/LocalDensity.h
