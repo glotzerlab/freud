@@ -4,9 +4,10 @@
 #ifndef NEMATIC_H
 #define NEMATIC_H
 
+#include <cstddef>
 #include <memory>
+#include <vector>
 
-#include "Box.h"
 #include "ManagedArray.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"

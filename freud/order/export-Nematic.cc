@@ -6,7 +6,6 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/tuple.h>      // NOLINT(misc-include-cleaner): used implicitly
-#include <utility>
 
 #include "Nematic.h"
 #include "VectorMath.h"

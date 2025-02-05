@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <complex>
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
@@ -9,6 +8,7 @@
 
 #include "NeighborQuery.h"
 #include "StaticStructureFactor.h"
+#include "VectorMath.h"
 
 namespace freud::diffraction {
 

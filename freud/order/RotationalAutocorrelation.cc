@@ -87,7 +87,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
         for (size_t i = begin; i < end; ++i)
         {
             // Transform the orientation quaternions into Xi/Zeta coordinates;
-            quat<float> qq_1 = conj(ref_orientations[i]) * orientations[i];
+            const quat<float> qq_1 = conj(ref_orientations[i]) * orientations[i];
             const std::complex<float> xi = std::complex<float>(qq_1.v.x, qq_1.v.y);
             const std::complex<float> zeta = std::complex<float>(qq_1.v.z, qq_1.s);
 

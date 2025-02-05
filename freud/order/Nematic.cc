@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 
+#include "ManagedArray.h"
 #include "Nematic.h"
 #include "VectorMath.h"
 #include "diagonalize.h"
