@@ -142,7 +142,8 @@ class CorrelationFunction(_SpatialHistogram1D):
 
     def __repr__(self):
         return (
-            f"freud.density.{type(self).__name__}(bins={self.bins}, r_max={self.r_max})"
+            f"freud.density.{type(self).__name__}(bins={self.nbins}, "
+            f"r_max={self.r_max})"
         )
 
     def plot(self, ax=None):
