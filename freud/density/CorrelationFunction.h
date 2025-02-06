@@ -4,7 +4,6 @@
 #ifndef CORRELATION_FUNCTION_H
 #define CORRELATION_FUNCTION_H
 
-#include <complex>
 #include "BondHistogramCompute.h"
 #include "Box.h"
 #include "Histogram.h"
@@ -12,6 +11,7 @@
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
+#include <complex>
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
@@ -57,8 +57,9 @@ public:
     void reset() override;
 
     //! accumulate the correlation function
-    void accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const std::complex<double>* values,
-                    const vec3<float>* query_points, const std::complex<double>* query_values, unsigned int n_query_points,
+    void accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query,
+                    const std::complex<double>* values, const vec3<float>* query_points,
+                    const std::complex<double>* query_values, unsigned int n_query_points,
                     std::shared_ptr<freud::locality::NeighborList> nlist,
                     const freud::locality::QueryArgs& qargs);
 
@@ -76,7 +77,7 @@ private:
     // Typedef thread local histogram type for use in code.
     using CFThreadHistogram = typename util::Histogram<std::complex<double>>::ThreadLocalHistogram;
 
-    util::Histogram<std::complex<double>> m_correlation_function;      //!< The correlation function
+    util::Histogram<std::complex<double>> m_correlation_function; //!< The correlation function
     CFThreadHistogram m_local_correlation_function; //!< Thread local copy of the correlation function
 };
 

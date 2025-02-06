@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
@@ -46,9 +46,9 @@ void export_CorrelationFunction(nanobind::module_& m)
     nanobind::class_<CorrelationFunction>(m, "CorrelationFunction")
         .def(nanobind::init<unsigned int, float>(), nanobind::arg("bins"), nanobind::arg("r_max"))
         .def("reset", &CorrelationFunction::reset)
-        .def("accumulate", &wrap::accumulateCF, nanobind::arg("neighbor_query"),
-             nanobind::arg("values"), nanobind::arg("query_points"), nanobind::arg("query_values"),
-             nanobind::arg("nlist").none(), nanobind::arg("qargs"))
+        .def("accumulate", &wrap::accumulateCF, nanobind::arg("neighbor_query"), nanobind::arg("values"),
+             nanobind::arg("query_points"), nanobind::arg("query_values"), nanobind::arg("nlist").none(),
+             nanobind::arg("qargs"))
         .def("getBinCenters", &CorrelationFunction::getBinCenters)
         .def("getAxisSizes", &CorrelationFunction::getAxisSizes)
         .def("getBinCounts", &CorrelationFunction::getBinCounts)

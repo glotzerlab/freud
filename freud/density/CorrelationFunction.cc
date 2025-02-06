@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
@@ -72,10 +72,10 @@ inline double product(double x, double y)
 }
 
 void CorrelationFunction::accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query,
-                                        const std::complex<double>* values, const vec3<float>* query_points,
-                                        const std::complex<double>* query_values, unsigned int n_query_points,
-                                        std::shared_ptr<freud::locality::NeighborList> nlist,
-                                        const freud::locality::QueryArgs& qargs)
+                                     const std::complex<double>* values, const vec3<float>* query_points,
+                                     const std::complex<double>* query_values, unsigned int n_query_points,
+                                     std::shared_ptr<freud::locality::NeighborList> nlist,
+                                     const freud::locality::QueryArgs& qargs)
 {
     accumulateGeneral(
         neighbor_query, query_points, n_query_points, nlist, qargs,
