@@ -6,7 +6,6 @@
 
 namespace freud::density::detail {
 
-// void export_CorrelationFunction(nanobind::module_& m);
 void export_GaussianDensity(nanobind::module_& m);
 void export_RDF(nanobind::module_& m);
 void export_LocalDensity(nanobind::module_& m);

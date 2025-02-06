@@ -23,7 +23,6 @@ void computeLocalDensity(const std::shared_ptr<LocalDensity>& self,
                          const unsigned int num_query_points, std::shared_ptr<locality::NeighborList> nlist,
                          const locality::QueryArgs& qargs)
 {
-    // unsigned int const num_query_points = query_points.shape(0);
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
     self->compute(points, query_points_data, num_query_points, std::move(nlist), qargs);
 }

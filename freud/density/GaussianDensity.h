@@ -25,7 +25,6 @@ class GaussianDensity
 {
 public:
     //! Constructor
-    // GaussianDensity(vec3<unsigned int> width, float r_max, float sigma);
     GaussianDensity(vec3<unsigned int> width, float r_max, float sigma);
 
     // Destructor
@@ -55,16 +54,14 @@ public:
     //! Get a reference to the last computed density.
     std::shared_ptr<util::ManagedArray<float>> getDensity() const;
 
-    // vec3<unsigned int> getWidth();
     vec3<unsigned int> getWidth();
 
 private:
-    box::Box m_box; //!< Simulation box containing the points.
-    // vec3<unsigned int> m_width; //!< Number of bins in the grid in each dimension.
-    vec3<unsigned int> m_width;
-    float m_r_max;       //!< Max distance at which to compute density.
-    float m_sigma;       //!< Gaussian width sigma.
-    bool m_has_computed; //!< Tracks whether a call to compute has been made.
+    box::Box m_box;             //!< Simulation box containing the points.
+    vec3<unsigned int> m_width; //!< Number of bins in the grid in each dimension.
+    float m_r_max;              //!< Max distance at which to compute density.
+    float m_sigma;              //!< Gaussian width sigma.
+    bool m_has_computed;        //!< Tracks whether a call to compute has been made.
 
     std::shared_ptr<util::ManagedArray<float>> m_density_array; //! Computed density array.
 };

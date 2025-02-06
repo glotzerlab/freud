@@ -12,9 +12,7 @@
 
 namespace freud { namespace density {
 
-// GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
 GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
-    // : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
     : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
 {
     if (r_max <= 0)
@@ -30,7 +28,6 @@ std::shared_ptr<util::ManagedArray<float>> GaussianDensity::getDensity() const
 }
 
 //! Get width.
-// vec3<unsigned int> GaussianDensity::getWidth()
 vec3<unsigned int> GaussianDensity::getWidth()
 {
     return m_width;
@@ -146,10 +143,6 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
-                            // const unsigned int ni = (i + m_width.x) % m_width.x;
-                            // const unsigned int nj = (j + m_width.y) % m_width.y;
-                            // const unsigned int nk = (k + m_width.z) % m_width.z;
-
                             const float ni = (i + m_width.x) % m_width.x;
                             const float nj = (j + m_width.y) % m_width.y;
                             const float nk = (k + m_width.z) % m_width.z;

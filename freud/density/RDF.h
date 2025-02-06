@@ -23,11 +23,6 @@ class RDF : public locality::BondHistogramCompute
 {
 public:
     //! Enum for each normalization mode
-    // enum class NormalizationMode
-    // {
-    //     exact,
-    //     finite_size
-    // };
     NormalizationMode mode {NormalizationMode::exact};
 
     //! Constructor
