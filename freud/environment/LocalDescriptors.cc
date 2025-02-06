@@ -1,11 +1,25 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
+#include <cmath>
+#include <complex>
+#include <cstddef>
+#include <limits>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <memory>
+#include <stdexcept>
 #include <vector>
 
+#include "Box.h"
 #include "LocalDescriptors.h"
+#include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 #include "diagonalize.h"
+#include "utils.h"
 
 /*! \file LocalDescriptors.cc
   \brief Computes local descriptors.
@@ -18,10 +32,11 @@ LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m,
     : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0), m_orientation(orientation)
 {}
 
-void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<float>* query_points,
-                               unsigned int n_query_points, const quat<float>* orientations,
-                               const freud::locality::NeighborList* nlist, locality::QueryArgs qargs,
-                               unsigned int max_num_neighbors)
+void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery>& nq,
+                               const vec3<float>* query_points, unsigned int n_query_points,
+                               const quat<float>* orientations,
+                               const std::shared_ptr<locality::NeighborList>& nlist,
+                               const locality::QueryArgs& qargs, unsigned int max_num_neighbors)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
@@ -30,14 +45,15 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
     {
         max_num_neighbors = std::numeric_limits<unsigned int>::max();
     }
-    m_sphArray.prepare({m_nlist.getNumBonds(), getSphWidth()});
+    m_sphArray = std::make_shared<util::ManagedArray<std::complex<float>>>(
+        std::vector<size_t> {m_nlist->getNumBonds(), getSphWidth()});
 
     util::forLoopWrapper(0, nq->getNPoints(), [&](size_t begin, size_t end) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
 
         for (size_t i = begin; i < end; ++i)
         {
-            size_t bond(m_nlist.find_first_index(i));
+            size_t bond(m_nlist->find_first_index(i));
             unsigned int neighbor_count(0);
 
             vec3<float> rotation_0;
@@ -47,12 +63,11 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
             if (m_orientation == LocalNeighborhood)
             {
                 util::ManagedArray<float> inertiaTensor = util::ManagedArray<float>({3, 3});
-
-                for (size_t bond_copy(bond); bond_copy < m_nlist.getNumBonds()
-                     && m_nlist.getNeighbors()(bond_copy, 0) == i && neighbor_count < max_num_neighbors;
+                for (size_t bond_copy(bond); bond_copy < m_nlist->getNumBonds()
+                     && (*m_nlist->getNeighbors())(bond_copy, 0) == i && neighbor_count < max_num_neighbors;
                      ++bond_copy, ++neighbor_count)
                 {
-                    const vec3<float> r_ij(m_nlist.getVectors()[bond_copy]);
+                    const vec3<float> r_ij((*m_nlist->getVectors())(bond_copy));
                     const float r_sq(dot(r_ij, r_ij));
 
                     for (size_t ii(0); ii < 3; ++ii)
@@ -99,13 +114,13 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
             }
 
             neighbor_count = 0;
-            for (; bond < m_nlist.getNumBonds() && m_nlist.getNeighbors()(bond, 0) == i
+            for (; bond < m_nlist->getNumBonds() && (*m_nlist->getNeighbors())(bond, 0) == i
                  && neighbor_count < max_num_neighbors;
                  ++bond, ++neighbor_count)
             {
                 const unsigned int sphCount(bond * getSphWidth());
-                const vec3<float> r_ij(m_nlist.getVectors()[bond]);
-                const float magR(m_nlist.getDistances()[bond]);
+                const vec3<float> r_ij((*m_nlist->getVectors())(bond));
+                const float magR((*m_nlist->getDistances())(bond));
                 const vec3<float> bond_ij(dot(rotation_0, r_ij), dot(rotation_1, r_ij),
                                           dot(rotation_2, r_ij));
 
@@ -124,14 +139,15 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
                 }
 
                 sph_eval.compute(phi, theta);
-
-                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray[sphCount]);
+                // copy results from sph_eval to the sphArray
+                // NOLINTNEXTLINE: fsph uses deprecated C++ features
+                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), m_sphArray->data() + sphCount);
             }
         }
     });
 
     // save the last computed number of particles
-    m_nSphs = m_nlist.getNumBonds();
+    m_nSphs = m_nlist->getNumBonds();
 }
 
 }; }; // end namespace freud::environment

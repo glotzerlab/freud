@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -63,7 +63,9 @@ class Box:
         elif not (Lx and Ly and Lz):
             msg = "Lx, Ly, and Lz must be nonzero for 3D boxes."
             raise ValueError(msg)
-        self._cpp_obj = freud._box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
+        self._cpp_obj = freud._box.Box(
+            *[float(x) for x in [Lx, Ly, Lz, xy, xz, yz]], bool(is2D)
+        )
 
     @property
     def L(self):

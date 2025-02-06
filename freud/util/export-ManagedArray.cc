@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
@@ -13,10 +13,12 @@ void export_ManagedArray(nanobind::module_& module)
 { // python wrapper classes for ManagedArray
     export_ManagedArray<float>(module, "ManagedArray_float");
     export_ManagedArray<double>(module, "ManagedArray_double");
+    export_ManagedArray<std::complex<float>>(module, "ManagedArray_complexfloat");
     export_ManagedArray<unsigned int>(module, "ManagedArray_unsignedint");
     export_ManagedArray<vec3<float>>(module, "ManagedArrayVec3_float");
     export_ManagedArray<std::complex<float>>(module, "ManagedArray_complexfloat");
     export_ManagedArray<std::complex<double>>(module, "ManagedArray_complexdouble");
+    export_ManagedArray<char>(module, "ManagedArray_char");
 };
 
 }; // namespace freud::util::detail

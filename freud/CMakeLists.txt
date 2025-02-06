@@ -42,17 +42,17 @@ add_library(
   diffraction/StaticStructureFactorDirect.h
   diffraction/StaticStructureFactorDirect.cc
   # environment
-  # environment/AngularSeparation.h
-  # environment/AngularSeparation.cc
-  # environment/BondOrder.h
-  # environment/BondOrder.cc
-  # environment/LocalBondProjection.h
-  # environment/LocalBondProjection.cc
-  # environment/LocalDescriptors.h
-  # environment/LocalDescriptors.cc
-  # environment/MatchEnv.h
-  # environment/MatchEnv.cc
-  # environment/Registration.h
+  environment/AngularSeparation.h
+  environment/AngularSeparation.cc
+  environment/BondOrder.h
+  environment/BondOrder.cc
+  environment/LocalBondProjection.h
+  environment/LocalBondProjection.cc
+  environment/LocalDescriptors.h
+  environment/LocalDescriptors.cc
+  environment/MatchEnv.h
+  environment/MatchEnv.cc
+  environment/Registration.h
   # locality
   locality/AABB.h
   locality/AABBQuery.cc
@@ -148,14 +148,23 @@ nanobind_add_module(
 target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
 target_set_install_rpath(_diffraction)
 
-# environment nanobind_add_module(_environment environment/...)
-# target_link_libraries(_environment PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_environment)
-
 # box
 nanobind_add_module(_box box/module-box.cc box/export-Box.cc box/export-Box.h)
 target_link_libraries(_box PUBLIC TBB::tbb)
 target_set_install_rpath(_box)
+
+# environment
+nanobind_add_module(
+  _environment
+  environment/module-environment.cc
+  environment/export-AngularSeparationNeighbor.cc
+  environment/export-AngularSeparationGlobal.cc
+  environment/export-LocalBondProjection.cc
+  environment/export-LocalDescriptors.cc
+  environment/export-BondOrder.cc
+  environment/export-MatchEnv.cc)
+target_link_libraries(_environment PUBLIC freud TBB::tbb)
+target_set_install_rpath(_environment)
 
 # locality
 nanobind_add_module(
@@ -223,6 +232,7 @@ set(python_files
     data.py
     density.py
     diffraction.py
+    environment.py
     errors.py
     locality.py
     msd.py
@@ -232,7 +242,6 @@ set(python_files
     interface.py
     plot.py
     util.py)
-# cluster.py density.py diffraction.py environment.py interface.py msd.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
@@ -240,10 +249,10 @@ copy_files_to_build("${python_files}" "freud" "*.py")
 if(SKBUILD)
   install(FILES ${python_files} DESTINATION freud)
   install(TARGETS _box DESTINATION freud)
-  install(TARGETS _density DESTINATION freud)
   install(TARGETS _cluster DESTINATION freud)
+  install(TARGETS _density DESTINATION freud)
   install(TARGETS _diffraction DESTINATION freud)
-  # install(TARGETS _environment DESTINATION freud)
+  install(TARGETS _environment DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)

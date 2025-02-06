@@ -1,12 +1,13 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef NEMATIC_H
 #define NEMATIC_H
 
+#include <cstddef>
 #include <memory>
+#include <vector>
 
-#include "Box.h"
 #include "ManagedArray.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
@@ -38,9 +39,9 @@ public:
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter() const;
 
-    const std::shared_ptr<util::ManagedArray<float>> getParticleTensor() const;
+    std::shared_ptr<const util::ManagedArray<float>> getParticleTensor() const;
 
-    const std::shared_ptr<util::ManagedArray<float>> getNematicTensor() const;
+    std::shared_ptr<const util::ManagedArray<float>> getNematicTensor() const;
 
     unsigned int getNumParticles() const;
 

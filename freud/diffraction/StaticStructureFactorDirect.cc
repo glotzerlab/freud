@@ -1,19 +1,25 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <cmath>
 #include <complex>
+#include <cstddef>
 #include <limits>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <memory>
 #include <random>
 #include <stdexcept>
 #include <tbb/concurrent_vector.h>
+#include <vector>
 
 #include "Eigen/Eigen/Dense"
 
 #include "Box.h"
-#include "ManagedArray.h"
 #include "NeighborQuery.h"
+#include "StaticStructureFactor.h"
 #include "StaticStructureFactorDirect.h"
+#include "VectorMath.h"
 #include "utils.h"
 
 /*! \file StaticStructureFactorDirect.cc
@@ -47,7 +53,7 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
     }
 }
 
-void StaticStructureFactorDirect::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+void StaticStructureFactorDirect::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                                              const vec3<float>* query_points, unsigned int n_query_points,
                                              unsigned int n_total)
 {
@@ -114,8 +120,8 @@ void StaticStructureFactorDirect::reduce()
     // points. Unlike some other methods in freud, no frame counter is needed
     // because the binned mean accounts for accumulation over frames.
     m_k_histogram.reduceOverThreads(m_local_k_histograms);
-    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor,
-                                               [&](size_t i) { m_structure_factor[i] /= m_k_histogram[i]; });
+    m_structure_factor.reduceOverThreadsPerBin(
+        m_local_structure_factor, [&](size_t i) { m_structure_factor[i] /= float(m_k_histogram[i]); });
 }
 
 std::vector<std::complex<float>>
@@ -158,6 +164,7 @@ StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>&
     return S_k;
 }
 
+// NOLINTNEXTLINE(misc-include-cleaner)
 inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
 {
     // Build an Eigen matrix from the provided box.
@@ -224,6 +231,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     // result of the random pruning procedure. Therefore, we cannot allocate a
     // fixed size for the data. Also, reserving capacity for the concurrent
     // vector had no measureable effect on performance.
+    // NOLINTNEXTLINE(misc-include-cleaner)
     tbb::concurrent_vector<vec3<float>> k_points;
 
     // This is a 3D loop but we parallelize in 1D because we only need to seed

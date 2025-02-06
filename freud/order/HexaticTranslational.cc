@@ -1,18 +1,27 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
+
+#include <cmath>
+#include <complex>
+#include <cstddef>
+#include <memory>
+#include <vector>
 
 #include "HexaticTranslational.h"
 #include "ManagedArray.h"
+#include "NeighborBond.h"
+#include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
 #include "NeighborPerPointIterator.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
 
 namespace freud { namespace order {
 
 //! Compute the order parameter
 template<typename T>
 template<typename Func>
-void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<locality::NeighborList> nlist,
+void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<locality::NeighborList>& nlist,
                                              const std::shared_ptr<locality::NeighborQuery>& points,
                                              const freud::locality::QueryArgs qargs, bool normalize_by_k)
 {
@@ -52,7 +61,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<lo
 
 Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) {}
 
-void Hexatic::compute(std::shared_ptr<locality::NeighborList> nlist,
+void Hexatic::compute(const std::shared_ptr<locality::NeighborList>& nlist,
                       const std::shared_ptr<locality::NeighborQuery>& points,
                       const freud::locality::QueryArgs& qargs)
 {

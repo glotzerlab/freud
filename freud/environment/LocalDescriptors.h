@@ -1,12 +1,12 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef LOCAL_DESCRIPTORS_H
 #define LOCAL_DESCRIPTORS_H
 
 #include <complex>
+#include <memory>
 
-#include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
@@ -52,13 +52,13 @@ public:
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const locality::NeighborQuery* nq, const vec3<float>* query_points,
+    void compute(const std::shared_ptr<locality::NeighborQuery>& nq, const vec3<float>* query_points,
                  unsigned int n_query_points, const quat<float>* orientations,
-                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs,
-                 unsigned int max_num_neighbors = 0);
+                 const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
+                 unsigned int max_num_neighbor);
 
     //! Get a reference to the last computed spherical harmonic array
-    const util::ManagedArray<std::complex<float>>& getSph() const
+    std::shared_ptr<const util::ManagedArray<std::complex<float>>> getSph() const
     {
         return m_sphArray;
     }
@@ -70,9 +70,9 @@ public:
     }
 
     //! Return a pointer to the NeighborList used in the last call to compute.
-    locality::NeighborList* getNList()
+    std::shared_ptr<locality::NeighborList> getNList()
     {
-        return &m_nlist;
+        return m_nlist;
     }
 
     bool getNegativeM() const
@@ -86,14 +86,14 @@ public:
     }
 
 private:
-    unsigned int m_l_max;                     //!< Maximum spherical harmonic l to calculate
-    bool m_negative_m;                        //!< true if we should compute Ylm for negative m
-    unsigned int m_nSphs;                     //!< Last number of bond spherical harmonics computed
-    locality::NeighborList m_nlist;           //!< The NeighborList used in the last call to compute.
-    LocalDescriptorOrientation m_orientation; //!< The orientation mode to compute with.
+    unsigned int m_l_max;                            //!< Maximum spherical harmonic l to calculate
+    bool m_negative_m;                               //!< true if we should compute Ylm for negative m
+    unsigned int m_nSphs;                            //!< Last number of bond spherical harmonics computed
+    std::shared_ptr<locality::NeighborList> m_nlist; //!< The NeighborList used in the last call to compute.
+    LocalDescriptorOrientation m_orientation;        //!< The orientation mode to compute with.
 
     //! Spherical harmonics for each neighbor
-    util::ManagedArray<std::complex<float>> m_sphArray;
+    std::shared_ptr<util::ManagedArray<std::complex<float>>> m_sphArray;
 };
 
 }; }; // end namespace freud::environment

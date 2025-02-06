@@ -1,15 +1,17 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef STATIC_STRUCTURE_FACTOR_H
 #define STATIC_STRUCTURE_FACTOR_H
 
 #include <limits>
+#include <memory>
 #include <vector>
 
 #include "Histogram.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file StaticStructureFactor.h
     \brief Base class for structure factor classes.
@@ -27,14 +29,14 @@ protected:
 public:
     virtual ~StaticStructureFactor() = default;
 
-    virtual void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+    virtual void accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                             const vec3<float>* query_points, unsigned int n_query_points,
                             unsigned int n_total) {}; // Note: this should be pure
 
     virtual void reset() {}; // Note: this should be pure
 
     //! Get the structure factor
-    std::shared_ptr<util::ManagedArray<float>> getStructureFactor()
+    std::shared_ptr<const util::ManagedArray<float>> getStructureFactor()
     {
         // reduceAndReturn requires a reference, but can't get it from an unnamed temporary variable
         auto bin_counts = m_structure_factor.getBinCounts();

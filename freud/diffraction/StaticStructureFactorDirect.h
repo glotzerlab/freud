@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef STATIC_STRUCTURE_FACTOR_DIRECT_H
@@ -6,13 +6,14 @@
 
 #include <complex>
 #include <limits>
+#include <memory>
 #include <vector>
 
 #include "Box.h"
 #include "Histogram.h"
-#include "ManagedArray.h"
 #include "NeighborQuery.h"
 #include "StaticStructureFactor.h"
+#include "VectorMath.h"
 
 /*! \file StaticStructureFactorDirect.h
     \brief Routines for computing static structure factors.
@@ -51,8 +52,9 @@ public:
                                 unsigned int num_sampled_k_points = 0);
 
     //! Compute the structure factor S(k) using the direct formula
-    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, unsigned int n_total) override;
+    void accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
+                    const vec3<float>* query_points, unsigned int n_query_points,
+                    unsigned int n_total) override;
 
     //! Reset the histogram to all zeros
     void reset() override

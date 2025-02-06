@@ -1,17 +1,15 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef HEXATIC_TRANSLATIONAL_H
 #define HEXATIC_TRANSLATIONAL_H
 
 #include <complex>
+#include <memory>
 
-#include "Box.h"
 #include "ManagedArray.h"
-#include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "VectorMath.h"
 
 /*! \file HexaticTranslational.h
     \brief Compute the hexatic/translational order parameter for each particle.
@@ -42,7 +40,7 @@ public:
     }
 
     //! Get a reference to the order parameter array
-    const std::shared_ptr<util::ManagedArray<std::complex<float>>> getOrder() const
+    std::shared_ptr<const util::ManagedArray<std::complex<float>>> getOrder() const
     {
         return m_psi_array;
     }
@@ -50,7 +48,7 @@ public:
 protected:
     //! Compute the order parameter
     template<typename Func>
-    void computeGeneral(Func func, const std::shared_ptr<locality::NeighborList> nlist,
+    void computeGeneral(Func func, const std::shared_ptr<locality::NeighborList>& nlist,
                         // const vec3<float>* points,
                         const std::shared_ptr<locality::NeighborQuery>& points,
                         const freud::locality::QueryArgs qargs, bool normalize_by_k);
@@ -75,7 +73,7 @@ public:
 
     //! Compute the hexatic order parameter
 
-    void compute(std::shared_ptr<locality::NeighborList> nlist,
+    void compute(const std::shared_ptr<locality::NeighborList>& nlist,
                  const std::shared_ptr<locality::NeighborQuery>& points,
                  const freud::locality::QueryArgs& qargs);
 };

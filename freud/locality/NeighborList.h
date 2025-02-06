@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef NEIGHBOR_LIST_H
@@ -59,37 +59,37 @@ public:
     void updateSegmentCounts() const;
 
     //! Access the neighbors array for reading
-    std::shared_ptr<util::ManagedArray<unsigned int>> getNeighbors() const
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getNeighbors() const
     {
         return m_neighbors;
     }
 
     //! Access the distances array for reading
-    std::shared_ptr<util::ManagedArray<float>> getDistances() const
+    std::shared_ptr<const util::ManagedArray<float>> getDistances() const
     {
         return m_distances;
     }
 
     //! Access the weights array for reading
-    std::shared_ptr<util::ManagedArray<float>> getWeights() const
+    std::shared_ptr<const util::ManagedArray<float>> getWeights() const
     {
         return m_weights;
     }
 
     //! Access the vectors array for reading
-    std::shared_ptr<util::ManagedArray<vec3<float>>> getVectors() const
+    std::shared_ptr<const util::ManagedArray<vec3<float>>> getVectors() const
     {
         return m_vectors;
     }
 
     //! Access the counts array for reading
-    std::shared_ptr<util::ManagedArray<unsigned int>> getCounts() const
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getCounts() const
     {
         updateSegmentCounts();
         return m_counts;
     }
     //! Access the segments array for reading
-    std::shared_ptr<util::ManagedArray<unsigned int>> getSegments() const
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getSegments() const
     {
         updateSegmentCounts();
         return m_segments;

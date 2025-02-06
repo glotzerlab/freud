@@ -1,16 +1,21 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifdef __clang__
 #include <bessel-library.hpp>
 #endif
 #include <algorithm>
-#include <cmath>
-#include <limits>
+#include <complex>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
+#include "Box.h"
 #include "NeighborQuery.h"
+#include "StaticStructureFactor.h"
 #include "StaticStructureFactorDebye.h"
+#include "VectorMath.h"
 #include "utils.h"
 
 /*! \file StaticStructureFactorDebye.cc
@@ -56,7 +61,7 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
     }
 }
 
-void StaticStructureFactorDebye::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+void StaticStructureFactorDebye::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                                             const vec3<float>* query_points, unsigned int n_query_points,
                                             unsigned int n_total)
 {
@@ -70,7 +75,8 @@ void StaticStructureFactorDebye::accumulate(std::shared_ptr<locality::NeighborQu
     const auto* const points = neighbor_query->getPoints();
     const auto n_points = neighbor_query->getNPoints();
 
-    std::vector<float> distances(n_points * n_query_points);
+    std::vector<float> distances(static_cast<size_t>(n_points) * n_query_points);
+    // NOLINTNEXTLINE(readability-suspicious-call-argument)
     box.computeAllDistances(points, n_points, query_points, n_query_points, distances.data());
 
     const auto k_bin_centers = m_structure_factor.getBinCenters()[0];
@@ -106,7 +112,7 @@ void StaticStructureFactorDebye::accumulate(std::shared_ptr<locality::NeighborQu
                 }
             }
             S_k /= static_cast<double>(n_total);
-            m_local_structure_factor.increment(k_index, S_k);
+            m_local_structure_factor.increment(k_index, float(S_k));
         };
     });
     m_frame_counter++;

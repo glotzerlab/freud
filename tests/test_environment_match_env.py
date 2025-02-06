@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import os
@@ -482,6 +482,8 @@ class TestEnvironmentMotifMatch:
             (box, points), motif, 0.1, env_neighbors=query_args
         )
         matches = match.matches
+
+        assert matches.dtype == bool
 
         for i in range(len(motif)):
             assert not matches[i]
