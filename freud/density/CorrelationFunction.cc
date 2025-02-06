@@ -44,15 +44,7 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : Bo
 //! helper function to reduce the thread specific arrays into one array
 template<typename T> void CorrelationFunction<T>::reduce()
 {
-    // m_histogram.reset();
-    // m_correlation_function.reset();
-    // m_histogram = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{getAxisSizes()[0]});
-    // m_correlation_function =
-    // std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{getAxisSizes()[0]}); m_N_r =
-    // std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
-
-    // Reduce the bin counts over all threads, then use them to normalize the
-    // RDF when computing.
+    // Reduce the bin counts over all threads, then use them to normalize
     m_histogram.reduceOverThreads(m_local_histograms);
     m_correlation_function.reduceOverThreadsPerBin(m_local_correlation_function, [&](size_t i) {
         if (m_histogram[i])
@@ -65,12 +57,7 @@ template<typename T> void CorrelationFunction<T>::reduce()
 template<typename T> void CorrelationFunction<T>::reset()
 {
     BondHistogramCompute::reset();
-    // m_correlation_function = std::make_shared<util::ManagedArray<T>>(m_correlation_function.shape());
-    // m_histogram = util::Histogram<unsigned int>(axes);
-    // m_local_histograms = util::Histogram<unsigned int>::ThreadLocalHistogram(m_histogram);
-
     m_correlation_function = util::Histogram<T>(m_histogram.getAxes());
-    // m_correlation_function.reset();
     m_local_correlation_function.reset();
 }
 

@@ -99,25 +99,16 @@ class CorrelationFunction(_SpatialHistogram1D):
             system, query_points, neighbors
         )
 
-        # Save if any inputs have been complex so far.
-        # self.is_complex = (
-        #     self.is_complex
-        #     # or values.dtype == np.complex128
-        #     # or query_values.dtype == np.complex128
-        # )
         self.is_complex = (
             self.is_complex
             or np.any(np.iscomplex(values))
             or np.any(np.iscomplex(query_values))
         )
-        # if self.is_complex:
-        #     self._cpp_obj = freud._density.CorrelationFunctionComplex(self._bins, self.r_max)
-        #     print("Casted to complex")
 
         values = freud.util._convert_array(
             values,
             shape=(nq.points.shape[0],),
-            dtype=np.complex128,  # if self.is_complex else np.float64
+            dtype=np.complex128,
         )
         if query_values is None:
             query_values = values
@@ -125,7 +116,7 @@ class CorrelationFunction(_SpatialHistogram1D):
             query_values = freud.util._convert_array(
                 query_values,
                 shape=(l_query_points.shape[0],),
-                dtype=np.complex128,  # if self.is_complex else np.float64
+                dtype=np.complex128,
             )
         self._cpp_obj.accumulate(
             nq._cpp_obj,
