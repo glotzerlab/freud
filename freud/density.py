@@ -135,8 +135,15 @@ class CorrelationFunction(_SpatialHistogram1D):
         output = self._cpp_obj.getCorrelation().toNumpyArray()
         return output if self.is_complex else np.real(output)
 
+    @property
+    def bins(self):
+        """int: Number of bins used in the calculation."""
+        return self._cpp_obj.getNBins()
+
     def __repr__(self):
-        return f"freud.density.{type(self).__name__}(bins={self.nbins}, r_max={self.r_max})"
+        return (
+            f"freud.density.{type(self).__name__}(bins={self.bins}, r_max={self.r_max})"
+        )
 
     def plot(self, ax=None):
         """Plot complex correlation function.
@@ -207,11 +214,12 @@ class GaussianDensity(_Compute):
         elif isinstance(width, Sequence) and len(width) == 3:
             width_vector = np.array([width[0], width[1], width[2]])
         else:
-            raise ValueError(
+            error_message = (
                 "The width must be either a number of bins or a "
                 "sequence indicating the widths in each spatial "
                 "dimension (length 2 in 2D, length 3 in 3D)."
             )
+            raise ValueError(error_message)
 
         self._cpp_obj = freud._density.make_gaussian_density(
             width_vector[0], width_vector[1], width_vector[2], r_max, sigma
@@ -270,7 +278,10 @@ class GaussianDensity(_Compute):
         return self._cpp_obj.getWidth()
 
     def __repr__(self):
-        return f"freud.density.{type(self).__name__}({self.width}, {self.r_max}, {self.sigma})"
+        return (
+            f"freud.density.{type(self).__name__}({self.width}, "
+            f"{self.r_max}, {self.sigma})"
+        )
 
     def plot(self, ax=None):
         """Plot Gaussian Density.
@@ -324,11 +335,12 @@ class SphereVoxelization(_Compute):
         elif isinstance(width, Sequence) and len(width) == 3:
             width_vector = np.array([width[0], width[1], width[2]])
         else:
-            raise ValueError(
+            error_message = (
                 "The width must be either a number of bins or a "
                 "sequence indicating the widths in each spatial "
                 "dimension (length 2 in 2D, length 3 in 3D)."
             )
+            raise ValueError(error_message)
 
         self._cpp_obj = freud._density.make_sphere_voxelization(
             width_vector[0], width_vector[1], width_vector[2], r_max
@@ -514,7 +526,10 @@ class LocalDensity(_PairCompute):
         return self._cpp_obj.num_neighbors.toNumpyArray()
 
     def __repr__(self):
-        return f"freud.density.{type(self).__name__}(r_max={self.r_max}, diameter={self.diameter})"
+        return (
+            f"freud.density.{type(self).__name__}(r_max={self.r_max}, "
+            f"diameter={self.diameter})"
+        )
 
 
 class RDF(_SpatialHistogram1D):
@@ -656,7 +671,10 @@ class RDF(_SpatialHistogram1D):
         return self._cpp_obj.getNr().toNumpyArray()
 
     def __repr__(self):
-        return f"freud.density.{type(self).__name__}(bins={len(self.bin_centers)}, r_max={self.bounds[1]}, r_min={self.bounds[0]})"
+        return (
+            f"freud.density.{type(self).__name__}(bins={len(self.bin_centers)}, "
+            f"r_max={self.bounds[1]}, r_min={self.bounds[0]})"
+        )
 
     def plot(self, ax=None):
         """Plot radial distribution function.
