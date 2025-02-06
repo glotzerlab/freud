@@ -515,9 +515,6 @@ class LocalDensity(_PairCompute):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
         query point."""
         return self._cpp_obj.density.toNumpyArray()
-        # return freud.util.make_managed_numpy_array(
-        #     self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT
-        # )
 
     @_Compute._computed_property
     def num_neighbors(self):
@@ -592,15 +589,6 @@ class RDF(_SpatialHistogram1D):
         # since that change needs to happen at the _SpatialHistogram level
         # for multiple classes.
         self.r_max = r_max
-
-    # def _validate_normalization_mode(self, mode):
-    #     """Ensure the normalization mode is one of the approved values."""
-    #     if mode == 'exact':
-    #         return freud._density.RDF.NormalizationMode.exact
-    #     elif mode == 'finite_size':
-    #         return freud._density.RDF.NormalizationMode.finite_size
-    #     else:
-    #         raise ValueError(f"invalid input {mode} for normalization_mode")
 
     @property
     def mode(self):
