@@ -4,6 +4,7 @@
 #ifndef CORRELATION_FUNCTION_H
 #define CORRELATION_FUNCTION_H
 
+#include <complex>
 #include "BondHistogramCompute.h"
 #include "Box.h"
 #include "Histogram.h"
@@ -43,7 +44,7 @@ namespace freud { namespace density {
     self-correlation value in the first bin.
 
 */
-template<typename T> class CorrelationFunction : public locality::BondHistogramCompute
+class CorrelationFunction : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
@@ -56,8 +57,8 @@ public:
     void reset() override;
 
     //! accumulate the correlation function
-    void accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const T* values,
-                    const vec3<float>* query_points, const T* query_values, unsigned int n_query_points,
+    void accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const std::complex<double>* values,
+                    const vec3<float>* query_points, const std::complex<double>* query_values, unsigned int n_query_points,
                     std::shared_ptr<freud::locality::NeighborList> nlist,
                     const freud::locality::QueryArgs& qargs);
 
@@ -66,16 +67,16 @@ public:
     void reduce() override;
 
     //! Get a reference to the last computed correlation function.
-    std::shared_ptr<util::ManagedArray<T>> getCorrelation()
+    std::shared_ptr<util::ManagedArray<std::complex<double>>> getCorrelation()
     {
         return reduceAndReturn(m_correlation_function.getBinCounts());
     }
 
 private:
     // Typedef thread local histogram type for use in code.
-    using CFThreadHistogram = typename util::Histogram<T>::ThreadLocalHistogram;
+    using CFThreadHistogram = typename util::Histogram<std::complex<double>>::ThreadLocalHistogram;
 
-    util::Histogram<T> m_correlation_function;      //!< The correlation function
+    util::Histogram<std::complex<double>> m_correlation_function;      //!< The correlation function
     CFThreadHistogram m_local_correlation_function; //!< Thread local copy of the correlation function
 };
 

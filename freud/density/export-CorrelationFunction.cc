@@ -20,7 +20,7 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 
 // Wrapper function for accumulate
-void accumulateCF(const std::shared_ptr<CorrelationFunction<std::complex<double>>>& self,
+void accumulateCF(const std::shared_ptr<CorrelationFunction>& self,
                   const std::shared_ptr<locality::NeighborQuery> neighbor_query,
                   const nb_array<std::complex<double>, nanobind::shape<-1>>& values,
                   const nb_array<float, nanobind::shape<-1, 3>>& query_points,
@@ -43,18 +43,18 @@ namespace detail {
 
 void export_CorrelationFunction(nanobind::module_& m)
 {
-    nanobind::class_<CorrelationFunction<std::complex<double>>>(m, "CorrelationFunction")
+    nanobind::class_<CorrelationFunction>(m, "CorrelationFunction")
         .def(nanobind::init<unsigned int, float>(), nanobind::arg("bins"), nanobind::arg("r_max"))
-        .def("reset", &CorrelationFunction<std::complex<double>>::reset)
+        .def("reset", &CorrelationFunction::reset)
         .def("accumulate", &wrap::accumulateCF, nanobind::arg("neighbor_query"),
              nanobind::arg("values"), nanobind::arg("query_points"), nanobind::arg("query_values"),
              nanobind::arg("nlist").none(), nanobind::arg("qargs"))
-        .def("getBinCenters", &CorrelationFunction<std::complex<double>>::getBinCenters)
-        .def("getAxisSizes", &CorrelationFunction<std::complex<double>>::getAxisSizes)
-        .def("getBinCounts", &CorrelationFunction<std::complex<double>>::getBinCounts)
-        .def("getBinEdges", &CorrelationFunction<std::complex<double>>::getBinEdges)
-        .def("getBox", &CorrelationFunction<std::complex<double>>::getBox)
-        .def("getCorrelation", &CorrelationFunction<std::complex<double>>::getCorrelation);
+        .def("getBinCenters", &CorrelationFunction::getBinCenters)
+        .def("getAxisSizes", &CorrelationFunction::getAxisSizes)
+        .def("getBinCounts", &CorrelationFunction::getBinCounts)
+        .def("getBinEdges", &CorrelationFunction::getBinEdges)
+        .def("getBox", &CorrelationFunction::getBox)
+        .def("getCorrelation", &CorrelationFunction::getCorrelation);
 }
 
 } // namespace detail
