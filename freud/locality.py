@@ -1023,7 +1023,7 @@ class _SpatialHistogram(_PairCompute):
         return self._cpp_obj.getAxisSizes()
 
     def _reset(self):
-        # Resets the values of RDF in memory.
+        # Resets the values of SpatialHistogram in memory.
         self._cpp_obj.reset()
 
 

@@ -129,8 +129,8 @@ class TestCorrelationFunction:
             neighbors={"r_max": r_max, "exclude_ii": True},
         )
 
-        expected = np.ones(int(r_max / dr), dtype=np.float32) + 1j * np.zeros(
-            int(r_max / dr), dtype=np.float32
+        expected = np.ones(int(r_max / dr), dtype=np.float64) + 1j * np.zeros(
+            int(r_max / dr), dtype=np.float64
         )
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
