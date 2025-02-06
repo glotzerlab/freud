@@ -198,11 +198,10 @@ target_set_install_rpath(_pmft)
 
 # density
 nanobind_add_module(
-  _density 
-  
-  density/module-density.cc 
+  _density
+  density/module-density.cc
   density/export-CorrelationFunction.cc
-  density/export-GaussianDensity.cc 
+  density/export-GaussianDensity.cc
   density/export-RDF.cc
   density/export-LocalDensity.cc
   density/export-SphereVoxelization.cc)

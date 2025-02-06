@@ -61,7 +61,8 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
         m_width.z = 1;
     }
 
-    m_density_array= std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_width.x, m_width.y, m_width.z});
+    m_density_array
+        = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_width.x, m_width.y, m_width.z});
     util::ThreadStorage<float> local_bin_counts({m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
@@ -152,7 +153,6 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
                             const float ni = (i + m_width.x) % m_width.x;
                             const float nj = (j + m_width.y) % m_width.y;
                             const float nk = (k + m_width.z) % m_width.z;
-
 
                             // Store the gaussian contribution
                             local_bin_counts.local()(ni, nj, nk) += gaussian;

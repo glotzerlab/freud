@@ -58,7 +58,8 @@ void SphereVoxelization::compute(const std::shared_ptr<locality::NeighborQuery>&
         m_width.z = 1;
     }
 
-    m_voxels_array = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {m_width.x, m_width.y, m_width.z});
+    m_voxels_array = std::make_shared<util::ManagedArray<unsigned int>>(
+        std::vector<size_t> {m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
     const float Lx = m_box.getLx();

@@ -105,19 +105,27 @@ class CorrelationFunction(_SpatialHistogram1D):
         #     # or values.dtype == np.complex128
         #     # or query_values.dtype == np.complex128
         # )
-        self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or np.any(np.iscomplex(query_values))
+        self.is_complex = (
+            self.is_complex
+            or np.any(np.iscomplex(values))
+            or np.any(np.iscomplex(query_values))
+        )
         # if self.is_complex:
         #     self._cpp_obj = freud._density.CorrelationFunctionComplex(self._bins, self.r_max)
         #     print("Casted to complex")
 
         values = freud.util._convert_array(
-            values, shape=(nq.points.shape[0],), dtype=np.complex128 # if self.is_complex else np.float64
+            values,
+            shape=(nq.points.shape[0],),
+            dtype=np.complex128,  # if self.is_complex else np.float64
         )
         if query_values is None:
             query_values = values
         else:
             query_values = freud.util._convert_array(
-                query_values, shape=(l_query_points.shape[0],), dtype=np.complex128 # if self.is_complex else np.float64
+                query_values,
+                shape=(l_query_points.shape[0],),
+                dtype=np.complex128,  # if self.is_complex else np.float64
             )
         self._cpp_obj.accumulate(
             nq._cpp_obj,
@@ -137,7 +145,7 @@ class CorrelationFunction(_SpatialHistogram1D):
         return output if self.is_complex else np.real(output)
 
     def __repr__(self):
-        return (f"freud.density.{type(self).__name__}(bins={self.nbins}, r_max={self.r_max})")
+        return f"freud.density.{type(self).__name__}(bins={self.nbins}, r_max={self.r_max})"
 
     def plot(self, ax=None):
         """Plot complex correlation function.
@@ -214,7 +222,9 @@ class GaussianDensity(_Compute):
                 "dimension (length 2 in 2D, length 3 in 3D)."
             )
 
-        self._cpp_obj = freud._density.make_gaussian_density(width_vector[0], width_vector[1], width_vector[2], r_max, sigma)
+        self._cpp_obj = freud._density.make_gaussian_density(
+            width_vector[0], width_vector[1], width_vector[2], r_max, sigma
+        )
 
     @_Compute._computed_property
     def box(self):
@@ -249,9 +259,7 @@ class GaussianDensity(_Compute):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         grid with the Gaussian density contributions from each point."""
         if self.box.is2D:
-            return np.squeeze(
-                self._cpp_obj.density.toNumpyArray()
-            )
+            return np.squeeze(self._cpp_obj.density.toNumpyArray())
         return self._cpp_obj.density.toNumpyArray()
 
     @property
@@ -271,7 +279,7 @@ class GaussianDensity(_Compute):
         return self._cpp_obj.getWidth()
 
     def __repr__(self):
-        return (f"freud.density.{type(self).__name__}({self.width}, {self.r_max}, {self.sigma})")
+        return f"freud.density.{type(self).__name__}({self.width}, {self.r_max}, {self.sigma})"
 
     def plot(self, ax=None):
         """Plot Gaussian Density.
@@ -331,7 +339,9 @@ class SphereVoxelization(_Compute):
                 "dimension (length 2 in 2D, length 3 in 3D)."
             )
 
-        self._cpp_obj = freud._density.make_sphere_voxelization(width_vector[0], width_vector[1], width_vector[2], r_max)
+        self._cpp_obj = freud._density.make_sphere_voxelization(
+            width_vector[0], width_vector[1], width_vector[2], r_max
+        )
 
     @_Compute._computed_property
     def box(self):
@@ -371,7 +381,7 @@ class SphereVoxelization(_Compute):
         return self._cpp_obj.getWidth()
 
     def __repr__(self):
-        return (f"freud.density.{type(self).__name__}({self.width}, {self.r_max})")
+        return f"freud.density.{type(self).__name__}({self.width}, {self.r_max})"
 
     def plot(self, ax=None):
         """Plot voxelization.
@@ -513,7 +523,7 @@ class LocalDensity(_PairCompute):
         return self._cpp_obj.num_neighbors.toNumpyArray()
 
     def __repr__(self):
-        return (f"freud.density.{type(self).__name__}(r_max={self.r_max}, diameter={self.diameter})")
+        return f"freud.density.{type(self).__name__}(r_max={self.r_max}, diameter={self.diameter})"
 
 
 class RDF(_SpatialHistogram1D):
@@ -655,9 +665,7 @@ class RDF(_SpatialHistogram1D):
         return self._cpp_obj.getNr().toNumpyArray()
 
     def __repr__(self):
-        return (
-            f"freud.density.{type(self).__name__}(bins={len(self.bin_centers)}, r_max={self.bounds[1]}, r_min={self.bounds[0]})"
-        )
+        return f"freud.density.{type(self).__name__}(bins={len(self.bin_centers)}, r_max={self.bounds[1]}, r_min={self.bounds[0]})"
 
     def plot(self, ax=None):
         """Plot radial distribution function.
