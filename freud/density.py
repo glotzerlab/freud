@@ -49,7 +49,7 @@ class CorrelationFunction(_SpatialHistogram1D):
 
     def __init__(self, bins, r_max):
         self._bins = int(bins)
-        self._cpp_obj = freud._density.CorrelationFunctionComplex(self._bins, r_max)
+        self._cpp_obj = freud._density.CorrelationFunction(self._bins, r_max)
         self.r_max = r_max
         self.is_complex = False
 
