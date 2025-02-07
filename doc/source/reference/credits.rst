@@ -25,11 +25,13 @@ The following people contributed to the development of freud:
 * Emily Siew, University of Michigan
 * Eric Harper, University of Michigan
 * Erin Teich, University of Michigan
+* Gabby Jones, University of Michigan
 * Greg van Anders, University of Michigan
 * James Antonaglia, University of Michigan
 * James Proctor, University of Michigan
 * Jen Bradley, University of Michigan
 * Jens Glaser, University of Michigan
+* Joseph Burkhart, University of Michigan
 * Jin Soo Ihm, University of Michigan
 * Joshua A. Anderson, University of Michigan
 * Kate Jensen, University of Michigan
@@ -58,6 +60,7 @@ The following people contributed to the development of freud:
 * William Zygmunt, University of Michigan
 * Yezhi Jin, University of Michigan
 * Yina Geng, University of Michigan
+* Yvonne Amaria, University of Michigan
 
 Source code
 -----------
