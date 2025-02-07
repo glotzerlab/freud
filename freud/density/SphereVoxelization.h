@@ -4,6 +4,8 @@
 #ifndef SPHERE_VOXELIZATION_H
 #define SPHERE_VOXELIZATION_H
 
+#include <memory>
+
 #include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"

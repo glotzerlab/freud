@@ -9,8 +9,12 @@
 
 #include "BondHistogramCompute.h"
 #include "Histogram.h"
+#include "ManagedArray.h"
 #include "NeighborBond.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "RDF.h"
+#include "VectorMath.h"
 
 /*! \file RDF.cc
     \brief Routines for computing radial density functions.
@@ -52,8 +56,8 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute()
 
     for (unsigned int i = 0; i < bins; i++)
     {
-        float r = bin_boundaries[i];
-        float nextr = bin_boundaries[i + 1];
+        const float r = bin_boundaries[i];
+        const float nextr = bin_boundaries[i + 1];
         (*m_vol_array2D)[i] = M_PI * (nextr * nextr - r * r);
         (*m_vol_array3D)[i] = volume_prefactor * (nextr * nextr * nextr - r * r * r);
     }

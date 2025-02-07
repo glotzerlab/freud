@@ -4,6 +4,8 @@
 #ifndef GAUSSIAN_DENSITY_H
 #define GAUSSIAN_DENSITY_H
 
+#include <memory>
+
 #include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"

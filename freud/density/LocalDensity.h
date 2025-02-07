@@ -51,7 +51,7 @@ public:
     //! Compute the local density
     void compute(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                  const vec3<float>* query_points, unsigned int n_query_points,
-                 const std::shared_ptr<locality::NeighborList> nlist,
+                 const std::shared_ptr<locality::NeighborList>& nlist,
                  const freud::locality::QueryArgs& qargs);
 
     //! Get a shared pointer to the last computed density
@@ -61,7 +61,7 @@ public:
     }
 
     //! Get a shared pointer to the last computed number of neighbors
-    const std::shared_ptr<util::ManagedArray<float>> getNumNeighbors() const
+    std::shared_ptr<const util::ManagedArray<float>> getNumNeighbors() const
     {
         return m_num_neighbors_array;
     }

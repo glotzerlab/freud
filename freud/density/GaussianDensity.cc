@@ -152,9 +152,9 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
-                            const float ni = (unsigned int) (i + m_width.x) % m_width.x;
-                            const float nj = (unsigned int) (j + m_width.y) % m_width.y;
-                            const float nk = (unsigned int) (k + m_width.z) % m_width.z;
+                            const float ni = float((i + m_width.x) % m_width.x);
+                            const float nj = float((j + m_width.y) % m_width.y);
+                            const float nk = float((k + m_width.z) % m_width.z);
 
                             // Store the gaussian contribution
                             local_bin_counts.local()(ni, nj, nk) += gaussian;

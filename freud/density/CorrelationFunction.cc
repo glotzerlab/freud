@@ -86,7 +86,7 @@ void CorrelationFunction::accumulate(const std::shared_ptr<freud::locality::Neig
     accumulateGeneral(
         neighbor_query, query_points, n_query_points, nlist, qargs,
         [&](const freud::locality::NeighborBond& neighbor_bond) {
-            size_t value_bin = m_histogram.bin({neighbor_bond.getDistance()});
+            const size_t value_bin = m_histogram.bin({neighbor_bond.getDistance()});
             m_local_histograms.increment(value_bin);
             m_local_correlation_function.increment(
                 value_bin,

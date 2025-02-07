@@ -23,7 +23,7 @@ namespace wrap {
 
 void accumulateRDF(const std::shared_ptr<RDF>& self, const std::shared_ptr<locality::NeighborQuery>& nq,
                    const nb_array<float, nanobind::shape<-1, 3>>& query_points,
-                   std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs)
+                   const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs)
 {
     unsigned int const num_query_points = query_points.shape(0);
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());

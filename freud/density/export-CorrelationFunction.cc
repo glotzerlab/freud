@@ -26,7 +26,7 @@ void accumulateCF(const std::shared_ptr<CorrelationFunction>& self,
                   const nb_array<std::complex<double>, nanobind::shape<-1>>& values,
                   const nb_array<float, nanobind::shape<-1, 3>>& query_points,
                   const nb_array<std::complex<double>, nanobind::shape<-1>>& query_values,
-                  std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs)
+                  const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs)
 {
     auto* values_data = reinterpret_cast<std::complex<double>*>(values.data());
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
