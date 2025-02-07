@@ -2,14 +2,20 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
+#include "BondHistogramCompute.h"
 #include "CorrelationFunction.h"
+#include "Histogram.h"
 #include "NeighborBond.h"
-#include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file CorrelationFunction.cc
     \brief Generic pairwise correlation functions.
@@ -17,8 +23,7 @@
 
 namespace freud { namespace density {
 
-template<typename T>
-CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : BondHistogramCompute()
+CorrelationFunction::CorrelationFunction(unsigned int bins, float r_max) : BondHistogramCompute()
 {
     if (bins == 0)
     {
@@ -36,34 +41,28 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : Bo
     m_histogram = util::Histogram<unsigned int>(axes);
     m_local_histograms = util::Histogram<unsigned int>::ThreadLocalHistogram(m_histogram);
 
-    m_correlation_function = util::Histogram<T>(axes);
+    m_correlation_function = util::Histogram<std::complex<double>>(axes);
     m_local_correlation_function = CFThreadHistogram(m_correlation_function);
 }
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
-template<typename T> void CorrelationFunction<T>::reduce()
+void CorrelationFunction::reduce()
 {
-    m_histogram.prepare(getAxisSizes()[0]);
-    m_correlation_function.prepare(getAxisSizes()[0]);
-
-    // Reduce the bin counts over all threads, then use them to normalize the
-    // RDF when computing.
+    // Reduce the bin counts over all threads, then use them to normalize
     m_histogram.reduceOverThreads(m_local_histograms);
     m_correlation_function.reduceOverThreadsPerBin(m_local_correlation_function, [&](size_t i) {
-        if (m_histogram[i])
+        if (m_histogram[i] != 0)
         {
             m_correlation_function[i] /= m_histogram[i];
         }
     });
 }
 
-template<typename T> void CorrelationFunction<T>::reset()
+void CorrelationFunction::reset()
 {
     BondHistogramCompute::reset();
-
-    // Zero the correlation function in addition to the bin counts that are
-    // reset by the parent.
+    m_correlation_function = util::Histogram<std::complex<double>>(m_histogram.getAxes());
     m_local_correlation_function.reset();
 }
 
@@ -78,17 +77,16 @@ inline double product(double x, double y)
     return x * y;
 }
 
-template<typename T>
-void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
-                                        const vec3<float>* query_points, const T* query_values,
-                                        unsigned int n_query_points,
-                                        const freud::locality::NeighborList* nlist,
-                                        freud::locality::QueryArgs qargs)
+void CorrelationFunction::accumulate(const std::shared_ptr<freud::locality::NeighborQuery>& neighbor_query,
+                                     const std::complex<double>* values, const vec3<float>* query_points,
+                                     const std::complex<double>* query_values, unsigned int n_query_points,
+                                     const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                                     const freud::locality::QueryArgs& qargs)
 {
     accumulateGeneral(
         neighbor_query, query_points, n_query_points, nlist, qargs,
         [&](const freud::locality::NeighborBond& neighbor_bond) {
-            size_t value_bin = m_histogram.bin({neighbor_bond.getDistance()});
+            const size_t value_bin = m_histogram.bin({neighbor_bond.getDistance()});
             m_local_histograms.increment(value_bin);
             m_local_correlation_function.increment(
                 value_bin,
@@ -96,7 +94,6 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
         });
 }
 
-template class CorrelationFunction<std::complex<double>>;
-template class CorrelationFunction<double>;
+class CorrelationFunction;
 
 }; }; // end namespace freud::density

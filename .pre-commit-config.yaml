@@ -81,8 +81,7 @@ repos:
       # TODO: remove exlcusions for modules as they are ported to nanobind
       exclude: |
         (?x)^(
-          ^extern/|
-          ^freud/density/
+          ^extern/
         )
       args:
       - --warnings-as-errors=*

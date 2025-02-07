@@ -2,9 +2,18 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
+#include "Box.h"
 #include "GaussianDensity.h"
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
+#include "ThreadStorage.h"
+#include "VectorMath.h"
+#include "utils.h"
 
 /*! \file GaussianDensity.cc
     \brief Routines for computing Gaussian smeared densities from points.
@@ -22,7 +31,7 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
 }
 
 //! Get a reference to the last computed Density
-const util::ManagedArray<float>& GaussianDensity::getDensity() const
+std::shared_ptr<util::ManagedArray<float>> GaussianDensity::getDensity() const
 {
     return m_density_array;
 }
@@ -58,7 +67,8 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
         m_width.z = 1;
     }
 
-    m_density_array.prepare({m_width.x, m_width.y, m_width.z});
+    m_density_array
+        = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_width.x, m_width.y, m_width.z});
     util::ThreadStorage<float> local_bin_counts({m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
@@ -86,11 +96,11 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
         for (size_t idx = begin; idx < end; ++idx)
         {
             const vec3<float> point = (*nq)[idx];
-            const float value = (values != nullptr) ? values[idx] : 1.0f;
+            const float value = (values != nullptr) ? values[idx] : 1.0F;
 
             // Find which bin the particle is in
-            int bin_x = int((point.x + Lx / float(2.0)) / grid_size_x);
-            int bin_y = int((point.y + Ly / float(2.0)) / grid_size_y);
+            const int bin_x = int((point.x + Lx / float(2.0)) / grid_size_x);
+            const int bin_y = int((point.y + Ly / float(2.0)) / grid_size_y);
             int bin_z = int((point.z + Lz / float(2.0)) / grid_size_z);
 
             // In 2D, only loop over the z=0 plane
@@ -142,9 +152,9 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
-                            const unsigned int ni = (i + m_width.x) % m_width.x;
-                            const unsigned int nj = (j + m_width.y) % m_width.y;
-                            const unsigned int nk = (k + m_width.z) % m_width.z;
+                            const auto ni = float((i + m_width.x) % m_width.x);
+                            const auto nj = float((j + m_width.y) % m_width.y);
+                            const auto nk = float((k + m_width.z) % m_width.z);
 
                             // Store the gaussian contribution
                             local_bin_counts.local()(ni, nj, nk) += gaussian;
@@ -156,7 +166,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
     });
 
     // Parallel reduction over thread storage
-    local_bin_counts.reduceInto(m_density_array);
+    local_bin_counts.reduceInto(*m_density_array);
 }
 
 }; }; // end namespace freud::density

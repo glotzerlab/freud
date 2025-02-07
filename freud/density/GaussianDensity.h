@@ -4,10 +4,11 @@
 #ifndef GAUSSIAN_DENSITY_H
 #define GAUSSIAN_DENSITY_H
 
+#include <memory>
+
 #include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
-#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \file GaussianDensity.h
@@ -52,7 +53,7 @@ public:
     void compute(const freud::locality::NeighborQuery* nq, const float* values = nullptr);
 
     //! Get a reference to the last computed density.
-    const util::ManagedArray<float>& getDensity() const;
+    std::shared_ptr<util::ManagedArray<float>> getDensity() const;
 
     vec3<unsigned int> getWidth();
 
@@ -63,7 +64,7 @@ private:
     float m_sigma;              //!< Gaussian width sigma.
     bool m_has_computed;        //!< Tracks whether a call to compute has been made.
 
-    util::ManagedArray<float> m_density_array; //! Computed density array.
+    std::shared_ptr<util::ManagedArray<float>> m_density_array; //! Computed density array.
 };
 
 }; }; // end namespace freud::density

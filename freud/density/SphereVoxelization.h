@@ -4,6 +4,8 @@
 #ifndef SPHERE_VOXELIZATION_H
 #define SPHERE_VOXELIZATION_H
 
+#include <memory>
+
 #include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
@@ -45,10 +47,10 @@ public:
     }
 
     //! Compute the voxelization.
-    void compute(const freud::locality::NeighborQuery* nq);
+    void compute(const std::shared_ptr<locality::NeighborQuery>& neighbor_query);
 
     //! Get a reference to the last computed voxels.
-    const util::ManagedArray<unsigned int>& getVoxels() const;
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getVoxels() const;
 
     vec3<unsigned int> getWidth() const;
 
@@ -58,7 +60,7 @@ private:
     float m_r_max;              //!< Sphere radius used for voxelization.
     bool m_has_computed;        //!< Tracks whether a call to compute has been made.
 
-    util::ManagedArray<unsigned int> m_voxels_array; //! Computed voxels array.
+    std::shared_ptr<util::ManagedArray<unsigned int>> m_voxels_array; //! Computed voxels array.
 };
 
 }; }; // end namespace freud::density

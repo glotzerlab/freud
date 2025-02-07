@@ -1,10 +1,16 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cmath>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
 #include "SphereVoxelization.h"
+#include "VectorMath.h"
+#include "utils.h"
 
 /*! \file SphereVoxelization.cc
     \brief Routines for computing voxelized densities from spheres centered at points.
@@ -22,7 +28,7 @@ SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
 }
 
 //! Get a reference to the last computed voxels.
-const util::ManagedArray<unsigned int>& SphereVoxelization::getVoxels() const
+std::shared_ptr<const util::ManagedArray<unsigned int>> SphereVoxelization::getVoxels() const
 {
     return m_voxels_array;
 }
@@ -34,12 +40,12 @@ vec3<unsigned int> SphereVoxelization::getWidth() const
 }
 
 //! Compute the voxels array.
-void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
+void SphereVoxelization::compute(const std::shared_ptr<locality::NeighborQuery>& neighbor_query)
 {
     // Set the number of dimensions for the calculation the first time it is done.
-    if (!m_has_computed || nq->getBox().is2D() == m_box.is2D())
+    if (!m_has_computed || neighbor_query->getBox().is2D() == m_box.is2D())
     {
-        m_box = nq->getBox();
+        m_box = neighbor_query->getBox();
         m_has_computed = true;
     }
     else
@@ -49,16 +55,17 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
                                     "number of dimensions.");
     }
 
-    auto n_points = nq->getNPoints();
+    auto n_points = neighbor_query->getNPoints();
 
-    // if the user gives a single number for width, but the nq box is 2D, and
+    // if the user gives a single number for width, but the neighbor_query box is 2D, and
     // we want a 2D calculation
     if (m_box.is2D())
     {
         m_width.z = 1;
     }
 
-    m_voxels_array.prepare({m_width.x, m_width.y, m_width.z});
+    m_voxels_array = std::make_shared<util::ManagedArray<unsigned int>>(
+        std::vector<size_t> {m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
     const float Lx = m_box.getLx();
@@ -80,7 +87,7 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
         // for each reference point
         for (size_t idx = begin; idx < end; ++idx)
         {
-            const vec3<float> point = (*nq)[idx];
+            const vec3<float> point = (*neighbor_query)[idx];
             // Find which bin the particle is in
             const int bin_x = int((point.x + Lx / float(2.0)) / grid_size_x);
             const int bin_y = int((point.y + Ly / float(2.0)) / grid_size_y);
@@ -113,7 +120,7 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
                         {
                             continue;
                         }
-                        const float dx = ((grid_size_x * static_cast<float>(i)) + (grid_size_x / 2.0f)
+                        const float dx = ((grid_size_x * static_cast<float>(i)) + (grid_size_x / 2.0F)
                                           - point.x - (Lx / float(2.0)));
 
                         // Calculate the distance from the particle to the grid cell
@@ -132,7 +139,7 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
 
                             // This array value could be written by multiple threads in parallel.
                             // This is only safe because all threads are writing the same value (1).
-                            m_voxels_array(ni, nj, nk) = 1;
+                            (*m_voxels_array)(ni, nj, nk) = 1;
                         }
                     }
                 }

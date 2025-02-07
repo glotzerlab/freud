@@ -4,28 +4,33 @@
 #ifndef RDF_H
 #define RDF_H
 
+#include <memory>
+
 #include "BondHistogramCompute.h"
-#include "Box.h"
-#include "Histogram.h"
+#include "ManagedArray.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {
+
+enum class NormalizationMode
+{
+    exact,
+    finite_size
+};
 class RDF : public locality::BondHistogramCompute
 {
 public:
     //! Enum for each normalization mode
-    enum NormalizationMode
-    {
-        exact,
-        finite_size
-    };
+    NormalizationMode mode {NormalizationMode::exact};
 
     //! Constructor
-    RDF(unsigned int bins, float r_max, float r_min = 0,
-        NormalizationMode normalization_mode = NormalizationMode::exact);
+    RDF(unsigned int bins, float r_max, float r_min = 0);
 
     //! Destructor
     ~RDF() override = default;
@@ -35,15 +40,19 @@ public:
      * in parallel on thread-local copies of the data, which are reduced into
      * the primary data arrays when the user requests outputs.
      */
-    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, const freud::locality::NeighborList* nlist,
-                    freud::locality::QueryArgs qargs);
+    void accumulate(const std::shared_ptr<freud::locality::NeighborQuery>& neighbor_query,
+                    const vec3<float>* query_points, unsigned int n_query_points,
+                    const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                    const freud::locality::QueryArgs& qargs);
 
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce() override;
 
+    //! Clear the running averages.
+    void reset() override;
+
     //! Get the positional correlation function.
-    const util::ManagedArray<float>& getRDF()
+    std::shared_ptr<util::ManagedArray<float>> getRDF()
     {
         return reduceAndReturn(m_pcf);
     }
@@ -53,20 +62,18 @@ public:
      * contained within a ball of radius getBinEdges()[i+1] centered at a given
      * query_point, averaged over all query_points.
      */
-    const util::ManagedArray<float>& getNr()
+    std::shared_ptr<util::ManagedArray<float>> getNr()
     {
         return reduceAndReturn(m_N_r);
     }
 
 private:
-    NormalizationMode m_norm_mode;   //!< Whether to enforce that the RDF should tend to 1 (instead of
-                                     //!< num_query_points/num_points).
-    util::ManagedArray<float> m_pcf; //!< The computed pair correlation function.
-    util::ManagedArray<float>
+    std::shared_ptr<util::ManagedArray<float>> m_pcf; //!< The computed pair correlation function.
+    std::shared_ptr<util::ManagedArray<float>>
         m_N_r; //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
-    util::ManagedArray<float>
+    std::shared_ptr<util::ManagedArray<float>>
         m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
-    util::ManagedArray<float>
+    std::shared_ptr<util::ManagedArray<float>>
         m_vol_array3D; //!< Areas of concentric spherical shells corresponding to the histogram bins in 3D.
 };
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -7,33 +7,18 @@ density of the system. These functions allow evaluation of particle
 distributions with respect to other particles.
 """
 
-import warnings
+from collections.abc import Sequence
 
 import numpy as np
 
-import freud.locality
+import freud
+import freud._density
+import freud.util
+from freud.locality import _PairCompute, _SpatialHistogram1D
+from freud.util import _Compute
 
-from cython.operator cimport dereference
 
-from freud.locality cimport _PairCompute, _SpatialHistogram1D
-from freud.util cimport _Compute, vec3
-
-from collections.abc import Sequence
-
-cimport numpy as np
-
-cimport freud._density
-cimport freud.box
-cimport freud.locality
-cimport freud.util
-
-# numpy must be initialized. When using numpy from C or Cython you must
-# _always_ do that, or you will have segfaults
-np.import_array()
-
-ctypedef unsigned int uint
-
-cdef class CorrelationFunction(_SpatialHistogram1D):
+class CorrelationFunction(_SpatialHistogram1D):
     r"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -60,21 +45,23 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
             The number of bins in the correlation function.
         r_max (float):
             Maximum pointwise distance to include in the calculation.
-    """  # noqa E501
-    cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
-    cdef is_complex
+    """
 
-    def __cinit__(self, unsigned int bins, float r_max):
-        self.thisptr = self.histptr = new \
-            freud._density.CorrelationFunction[np.complex128_t](bins, r_max)
+    def __init__(self, bins, r_max):
+        self._bins = int(bins)
+        self._cpp_obj = freud._density.CorrelationFunction(self._bins, r_max)
         self.r_max = r_max
         self.is_complex = False
 
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, system, values, query_points=None,
-                query_values=None, neighbors=None, reset=True):
+    def compute(
+        self,
+        system,
+        values,
+        query_points=None,
+        query_values=None,
+        neighbors=None,
+        reset=True,
+    ):
         r"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -108,53 +95,56 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
             self.is_complex = False
             self._reset()
 
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, query_points, neighbors)
-
-        # Save if any inputs have been complex so far.
-        self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
-            np.any(np.iscomplex(query_values))
+        self.is_complex = (
+            self.is_complex
+            or np.any(np.iscomplex(values))
+            or np.any(np.iscomplex(query_values))
+        )
 
         values = freud.util._convert_array(
-            values, shape=(nq.points.shape[0], ), dtype=np.complex128)
+            values,
+            shape=(nq.points.shape[0],),
+            dtype=np.complex128,
+        )
         if query_values is None:
             query_values = values
         else:
             query_values = freud.util._convert_array(
-                query_values, shape=(l_query_points.shape[0], ),
-                dtype=np.complex128)
-
-        cdef np.complex128_t[::1] l_values = values
-        cdef np.complex128_t[::1] l_query_values = query_values
-
-        self.thisptr.accumulate(
-            nq.get_ptr(),
-            <np.complex128_t*> &l_values[0],
-            <vec3[float]*> &l_query_points[0, 0],
-            <np.complex128_t*> &l_query_values[0],
-            num_query_points, nlist.get_ptr(),
-            dereference(qargs.thisptr))
+                query_values,
+                shape=(l_query_points.shape[0],),
+                dtype=np.complex128,
+            )
+        self._cpp_obj.accumulate(
+            nq._cpp_obj,
+            values,
+            l_query_points,
+            query_values,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+        )
         return self
 
     @_Compute._computed_property
     def correlation(self):
         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
         product of all values at a given radial distance."""
-        output = freud.util.make_managed_numpy_array(
-            &self.thisptr.getCorrelation(),
-            freud.util.arr_type_t.COMPLEX_DOUBLE)
+        output = self._cpp_obj.getCorrelation().toNumpyArray()
         return output if self.is_complex else np.real(output)
 
+    @property
+    def bins(self):
+        """int: Number of bins used in the calculation."""
+        return self._cpp_obj.getNBins()
+
     def __repr__(self):
-        return ("freud.density.{cls}(bins={bins}, r_max={r_max})").format(
-            cls=type(self).__name__, bins=self.nbins, r_max=self.r_max)
+        return (
+            f"freud.density.{type(self).__name__}(bins={self.nbins}, "
+            f"r_max={self.r_max})"
+        )
 
     def plot(self, ax=None):
         """Plot complex correlation function.
@@ -168,22 +158,26 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.bin_centers,
-                                    np.real(self.correlation),
-                                    title="Correlation Function",
-                                    xlabel=r"$r$",
-                                    ylabel=r"$\operatorname{Re}(C(r))$",
-                                    ax=ax)
+
+        return freud.plot.line_plot(
+            self.bin_centers,
+            np.real(self.correlation),
+            title="Correlation Function",
+            xlabel=r"$r$",
+            ylabel=r"$\operatorname{Re}(C(r))$",
+            ax=ax,
+        )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
 
 
-cdef class GaussianDensity(_Compute):
+class GaussianDensity(_Compute):
     r"""Computes the density of a system on a grid.
 
     Replaces particle positions with a Gaussian blur and calculates the
@@ -211,32 +205,31 @@ cdef class GaussianDensity(_Compute):
             Distance over which to blur.
         sigma (float):
             Sigma parameter for Gaussian.
-    """  # noqa: E501
-    cdef freud._density.GaussianDensity * thisptr
+    """
 
-    def __cinit__(self, width, r_max, sigma):
-        cdef vec3[uint] width_vector
+    def __init__(self, width, r_max, sigma):
         if isinstance(width, int):
-            width_vector = vec3[uint](width, width, width)
+            width_vector = np.array([width, width, width])
         elif isinstance(width, Sequence) and len(width) == 2:
-            width_vector = vec3[uint](width[0], width[1], 1)
+            width_vector = np.array([width[0], width[1], 1])
         elif isinstance(width, Sequence) and len(width) == 3:
-            width_vector = vec3[uint](width[0], width[1], width[2])
+            width_vector = np.array([width[0], width[1], width[2]])
         else:
-            raise ValueError("The width must be either a number of bins or a "
-                             "sequence indicating the widths in each spatial "
-                             "dimension (length 2 in 2D, length 3 in 3D).")
+            error_message = (
+                "The width must be either a number of bins or a "
+                "sequence indicating the widths in each spatial "
+                "dimension (length 2 in 2D, length 3 in 3D)."
+            )
+            raise ValueError(error_message)
 
-        self.thisptr = new freud._density.GaussianDensity(
-            width_vector, r_max, sigma)
-
-    def __dealloc__(self):
-        del self.thisptr
+        self._cpp_obj = freud._density.make_gaussian_density(
+            width_vector[0], width_vector[1], width_vector[2], r_max, sigma
+        )
 
     @_Compute._computed_property
     def box(self):
         """:class:`freud.box.Box`: Box used in the calculation."""
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self._cpp_obj.getBox())
 
     def compute(self, system, values=None):
         r"""Calculates the Gaussian blur for the specified points.
@@ -251,18 +244,14 @@ cdef class GaussianDensity(_Compute):
                 a value of 1 for every point) if :code:`None`. (Default value
                 = :code:`None`).
         """
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.NeighborQuery.from_system(system)
+        nq = freud.locality.NeighborQuery.from_system(system)
 
-        cdef float* l_values_ptr = NULL
-        cdef float[::1] l_values
         if values is not None:
-            l_values = freud.util._convert_array(
-                values, shape=(nq.points.shape[0], ))
-            l_values_ptr = &l_values[0]
+            l_values = freud.util._convert_array(values, shape=(nq.points.shape[0],))
+        else:
+            l_values = None
 
-        self.thisptr.compute(nq.get_ptr(),
-                             l_values_ptr)
+        self._cpp_obj.compute(nq._cpp_obj, l_values)
         return self
 
     @_Compute._computed_property
@@ -270,35 +259,30 @@ cdef class GaussianDensity(_Compute):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         grid with the Gaussian density contributions from each point."""
         if self.box.is2D:
-            return np.squeeze(freud.util.make_managed_numpy_array(
-                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
-        else:
-            return freud.util.make_managed_numpy_array(
-                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT)
+            return np.squeeze(self._cpp_obj.density.toNumpyArray())
+        return self._cpp_obj.density.toNumpyArray()
 
     @property
     def r_max(self):
         """float: Distance over which to blur."""
-        return self.thisptr.getRMax()
+        return self._cpp_obj.getRMax()
 
     @property
     def sigma(self):
         """float: Sigma parameter for Gaussian."""
-        return self.thisptr.getSigma()
+        return self._cpp_obj.getSigma()
 
     @property
     def width(self):
         """tuple[int]: The number of bins in the grid in each dimension
         (identical in all dimensions if a single integer value is provided)."""
-        cdef vec3[uint] width = self.thisptr.getWidth()
-        return (width.x, width.y, width.z)
+        return self._cpp_obj.getWidth()
 
     def __repr__(self):
-        return ("freud.density.{cls}({width}, "
-                "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                            width=self.width,
-                                            r_max=self.r_max,
-                                            sigma=self.sigma)
+        return (
+            f"freud.density.{type(self).__name__}({self.width}, "
+            f"{self.r_max}, {self.sigma})"
+        )
 
     def plot(self, ax=None):
         """Plot Gaussian Density.
@@ -312,6 +296,7 @@ cdef class GaussianDensity(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
+
         if not self.box.is2D:
             return None
         return freud.plot.density_plot(self.density, self.box, ax=ax)
@@ -319,12 +304,13 @@ cdef class GaussianDensity(_Compute):
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
 
 
-cdef class SphereVoxelization(_Compute):
+class SphereVoxelization(_Compute):
     r"""Computes a grid of voxels occupied by spheres.
 
     This class constructs a grid of voxels. From a given set of points and a
@@ -341,31 +327,30 @@ cdef class SphereVoxelization(_Compute):
         r_max (float):
             Sphere radius.
     """
-    cdef freud._density.SphereVoxelization * thisptr
 
-    def __cinit__(self, width, r_max):
-        cdef vec3[uint] width_vector
+    def __init__(self, width, r_max):
         if isinstance(width, int):
-            width_vector = vec3[uint](width, width, width)
+            width_vector = np.array([width, width, width])
         elif isinstance(width, Sequence) and len(width) == 2:
-            width_vector = vec3[uint](width[0], width[1], 1)
+            width_vector = np.array([width[0], width[1], 1])
         elif isinstance(width, Sequence) and len(width) == 3:
-            width_vector = vec3[uint](width[0], width[1], width[2])
+            width_vector = np.array([width[0], width[1], width[2]])
         else:
-            raise ValueError("The width must be either a number of bins or a "
-                             "sequence indicating the widths in each spatial "
-                             "dimension (length 2 in 2D, length 3 in 3D).")
+            error_message = (
+                "The width must be either a number of bins or a "
+                "sequence indicating the widths in each spatial "
+                "dimension (length 2 in 2D, length 3 in 3D)."
+            )
+            raise ValueError(error_message)
 
-        self.thisptr = new freud._density.SphereVoxelization(width_vector,
-                                                             r_max)
-
-    def __dealloc__(self):
-        del self.thisptr
+        self._cpp_obj = freud._density.make_sphere_voxelization(
+            width_vector[0], width_vector[1], width_vector[2], r_max
+        )
 
     @_Compute._computed_property
     def box(self):
         """:class:`freud.box.Box`: Box used in the calculation."""
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self._cpp_obj.box)
 
     def compute(self, system):
         r"""Calculates the voxelization of spheres about the specified points.
@@ -375,39 +360,32 @@ cdef class SphereVoxelization(_Compute):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
         """
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.NeighborQuery.from_system(system)
-        self.thisptr.compute(nq.get_ptr())
+        nq = freud.locality.NeighborQuery.from_system(system)
+        self._cpp_obj.compute(nq._cpp_obj)
         return self
 
     @_Compute._computed_property
     def voxels(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         voxel grid indicating overlap with the computed spheres."""
-        data = freud.util.make_managed_numpy_array(
-            &self.thisptr.getVoxels(), freud.util.arr_type_t.UNSIGNED_INT)
+        data = self._cpp_obj.voxels.toNumpyArray()
         if self.box.is2D:
             return np.squeeze(data)
-        else:
-            return data
+        return data
 
     @property
     def r_max(self):
         """float: Sphere radius used for voxelization."""
-        return self.thisptr.getRMax()
+        return self._cpp_obj.getRMax()
 
     @property
     def width(self):
         """tuple[int]: The number of bins in the grid in each dimension
         (identical in all dimensions if a single integer value is provided)."""
-        cdef vec3[uint] width = self.thisptr.getWidth()
-        return (width.x, width.y, width.z)
+        return self._cpp_obj.getWidth()
 
     def __repr__(self):
-        return ("freud.density.{cls}({width}, {r_max})").format(
-            cls=type(self).__name__,
-            width=self.width,
-            r_max=self.r_max)
+        return f"freud.density.{type(self).__name__}({self.width}, {self.r_max})"
 
     def plot(self, ax=None):
         """Plot voxelization.
@@ -421,6 +399,7 @@ cdef class SphereVoxelization(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
+
         if not self.box.is2D:
             return None
         return freud.plot.density_plot(self.voxels, self.box, ax=ax)
@@ -428,12 +407,13 @@ cdef class SphereVoxelization(_Compute):
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
 
 
-cdef class LocalDensity(_PairCompute):
+class LocalDensity(_PairCompute):
     r"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
@@ -466,28 +446,24 @@ cdef class LocalDensity(_PairCompute):
         diameter (float):
             Diameter of particle circumsphere.
     """
-    cdef freud._density.LocalDensity * thisptr
 
-    def __cinit__(self, float r_max, float diameter):
-        self.thisptr = new freud._density.LocalDensity(r_max, diameter)
-
-    def __dealloc__(self):
-        del self.thisptr
+    def __init__(self, r_max, diameter):
+        self._cpp_obj = freud._density.LocalDensity(r_max, diameter)
 
     @property
     def r_max(self):
         """float: Maximum distance over which to calculate the density."""
-        return self.thisptr.getRMax()
+        return self._cpp_obj.getRMax()
 
     @property
     def diameter(self):
         """float: Diameter of particle circumsphere."""
-        return self.thisptr.getDiameter()
+        return self._cpp_obj.getDiameter()
 
     @_Compute._computed_property
     def box(self):
         """:class:`freud.box.Box`: Box used in the calculation."""
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        return freud.box.BoxFromCPP(self._cpp_obj.box)
 
     def compute(self, system, query_points=None, neighbors=None):
         r"""Calculates the local density for the specified points.
@@ -516,53 +492,45 @@ cdef class LocalDensity(_PairCompute):
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """  # noqa E501
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, query_points, neighbors)
-        self.thisptr.compute(
-            nq.get_ptr(),
-            <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, nlist.get_ptr(),
-            dereference(qargs.thisptr))
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            l_query_points,
+            num_query_points,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+        )
         return self
 
     @property
     def default_query_args(self):
         """The default query arguments are
         :code:`{'mode': 'ball', 'r_max': self.r_max + 0.5*self.diameter}`."""
-        return dict(mode="ball",
-                    r_max=self.r_max + 0.5*self.diameter)
+        return dict(mode="ball", r_max=self.r_max + 0.5 * self.diameter)
 
     @_Compute._computed_property
     def density(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
         query point."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getDensity(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.density.toNumpyArray()
 
     @_Compute._computed_property
     def num_neighbors(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
         points for each query point."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getNumNeighbors(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.num_neighbors.toNumpyArray()
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_max={r_max}, "
-                "diameter={diameter})").format(cls=type(self).__name__,
-                                               r_max=self.r_max,
-                                               diameter=self.diameter)
+        return (
+            f"freud.density.{type(self).__name__}(r_max={self.r_max}, "
+            f"diameter={self.diameter})"
+        )
 
 
-cdef class RDF(_SpatialHistogram1D):
+class RDF(_SpatialHistogram1D):
     r"""Computes the RDF :math:`g \left( r \right)` for supplied data.
 
     Note that the RDF is defined strictly according to the pair correlation
@@ -613,35 +581,36 @@ cdef class RDF(_SpatialHistogram1D):
             values will tend to 1 at large :math:`r` for small systems (Default
             value = :code:`'exact'`).
     """
-    cdef freud._density.RDF * thisptr
 
-    def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
-                  normalization_mode='exact'):
-        norm_mode = self._validate_normalization_mode(normalization_mode)
-        if type(self) is RDF:
-            self.thisptr = self.histptr = new freud._density.RDF(
-                bins, r_max, r_min, norm_mode)
+    def __init__(self, bins, r_max, r_min=0, normalization_mode="exact"):
+        self._cpp_obj = freud._density.RDF(bins, r_max, r_min)
+        self.mode = normalization_mode
 
-            # r_max is left as an attribute rather than a property for now
-            # since that change needs to happen at the _SpatialHistogram level
-            # for multiple classes.
-            self.r_max = r_max
+        # r_max is left as an attribute rather than a property for now
+        # since that change needs to happen at the _SpatialHistogram level
+        # for multiple classes.
+        self.r_max = r_max
 
-    def __dealloc__(self):
-        if type(self) is RDF:
-            del self.thisptr
+    @property
+    def mode(self):
+        if self._cpp_obj.mode == freud._density.NormalizationMode.exact:
+            return "exact"
+        if self._cpp_obj.mode == freud._density.NormalizationMode.finite_size:
+            return "finite_size"
+        msg = f"Unknown normalization mode {self._cpp_obj.mode} set!"
+        raise ValueError(msg)
 
-    def _validate_normalization_mode(self, mode):
-        """Ensure the normalization mode is one of the approved values."""
-        if mode == 'exact':
-            return freud._density.RDF.NormalizationMode.exact
-        elif mode == 'finite_size':
-            return freud._density.RDF.NormalizationMode.finite_size
+    @mode.setter
+    def mode(self, value):
+        if value == "exact":
+            self._cpp_obj.mode = freud._density.NormalizationMode.exact
+        elif value == "finite_size":
+            self._cpp_obj.mode = freud._density.NormalizationMode.finite_size
         else:
-            raise ValueError(f"invalid input {mode} for normalization_mode")
+            msg = "An invalid normalization mode was provided."
+            raise ValueError(msg)
 
-    def compute(self, system, query_points=None, neighbors=None,
-                reset=True):
+    def compute(self, system, query_points=None, neighbors=None, reset=True):
         r"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -666,29 +635,20 @@ cdef class RDF(_SpatialHistogram1D):
         if reset:
             self._reset()
 
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
 
-        self.thisptr.accumulate(
-            nq.get_ptr(),
-            <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, nlist.get_ptr(),
-            dereference(qargs.thisptr))
+        self._cpp_obj.accumulateRDF(
+            nq._cpp_obj, l_query_points, nlist._cpp_obj, qargs._cpp_obj
+        )
         return self
 
     @_Compute._computed_property
     def rdf(self):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
         values."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getRDF(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getRDF().toNumpyArray()
 
     @_Compute._computed_property
     def n_r(self):
@@ -697,16 +657,13 @@ cdef class RDF(_SpatialHistogram1D):
         of points contained within a ball of radius :code:`bin_edges[i+1]`
         centered at a given :code:`query_point` averaged over all
         :code:`query_points` in the last call to :meth:`~.compute`."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getNr(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getNr().toNumpyArray()
 
     def __repr__(self):
-        return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
-                "r_min={r_min})").format(cls=type(self).__name__,
-                                         bins=len(self.bin_centers),
-                                         r_max=self.bounds[1],
-                                         r_min=self.bounds[0])
+        return (
+            f"freud.density.{type(self).__name__}(bins={len(self.bin_centers)}, "
+            f"r_max={self.bounds[1]}, r_min={self.bounds[0]})"
+        )
 
     def plot(self, ax=None):
         """Plot radial distribution function.
@@ -720,15 +677,20 @@ cdef class RDF(_SpatialHistogram1D):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.bin_centers, self.rdf,
-                                    title="RDF",
-                                    xlabel=r"$r$",
-                                    ylabel=r"$g(r)$",
-                                    ax=ax)
+
+        return freud.plot.line_plot(
+            self.bin_centers,
+            self.rdf,
+            title="RDF",
+            xlabel=r"$r$",
+            ylabel=r"$g(r)$",
+            ax=ax,
+        )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

@@ -25,16 +25,16 @@ add_library(
   cluster/ClusterProperties.h
   cluster/ClusterProperties.cc
   # density
-  # density/CorrelationFunction.h
-  # density/CorrelationFunction.cc
-  # density/GaussianDensity.h
-  # density/GaussianDensity.cc
-  # density/LocalDensity.h
-  # density/LocalDensity.cc
-  # density/RDF.h
-  # density/RDF.cc
-  # density/SphereVoxelization.h
-  # density/SphereVoxelization.cc
+  density/CorrelationFunction.h
+  density/CorrelationFunction.cc
+  density/GaussianDensity.h
+  density/GaussianDensity.cc
+  density/LocalDensity.h
+  density/LocalDensity.cc
+  density/RDF.h
+  density/RDF.cc
+  density/SphereVoxelization.h
+  density/SphereVoxelization.cc
   diffraction/StaticStructureFactor.h
   diffraction/StaticStructureFactor.cc
   diffraction/StaticStructureFactorDebye.h
@@ -139,10 +139,6 @@ nanobind_add_module(
 target_link_libraries(_cluster PUBLIC freud TBB::tbb)
 target_set_install_rpath(_cluster)
 
-# density nanobind_add_module(_density density/...)
-# target_link_libraries(_density PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_density)
-
 nanobind_add_module(
   _diffraction
   diffraction/module-diffraction.cc
@@ -209,6 +205,18 @@ nanobind_add_module(
 target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
+# density
+nanobind_add_module(
+  _density
+  density/module-density.cc
+  density/export-CorrelationFunction.cc
+  density/export-GaussianDensity.cc
+  density/export-RDF.cc
+  density/export-LocalDensity.cc
+  density/export-SphereVoxelization.cc)
+target_link_libraries(_density PUBLIC freud)
+target_set_install_rpath(_density)
+
 # util
 nanobind_add_module(_util util/module-util.cc util/export-ManagedArray.cc
                     util/export-Vector.cc util/export-Vector.h)
@@ -222,8 +230,9 @@ set(python_files
     box.py
     cluster.py
     data.py
-    environment.py
+    density.py
     diffraction.py
+    environment.py
     errors.py
     locality.py
     msd.py
@@ -233,7 +242,6 @@ set(python_files
     interface.py
     plot.py
     util.py)
-# density.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
@@ -242,9 +250,9 @@ if(SKBUILD)
   install(FILES ${python_files} DESTINATION freud)
   install(TARGETS _box DESTINATION freud)
   install(TARGETS _cluster DESTINATION freud)
-  # install(TARGETS _density DESTINATION freud)
-  install(TARGETS _environment DESTINATION freud)
+  install(TARGETS _density DESTINATION freud)
   install(TARGETS _diffraction DESTINATION freud)
+  install(TARGETS _environment DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)
