@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog] and this project adheres to
 ### Added
 * Support Python 3.13.
 
+### Changed
+* Switch from Cython to nanobind.
+* Switch from scikit-build to scikit-build-core.
+* Lint C++ code with the clang-tidy 18.
+* Lint and format Python code with ruff.
+
 ## v3.1.0 -- 2024-06-17
 
 ### Added
