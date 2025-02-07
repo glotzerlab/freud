@@ -6,8 +6,6 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
-#include <utility>
-
 #include "BondHistogramCompute.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
@@ -27,7 +25,7 @@ void accumulateRDF(const std::shared_ptr<RDF>& self, const std::shared_ptr<local
 {
     unsigned int const num_query_points = query_points.shape(0);
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
-    self->accumulate(nq, query_points_data, num_query_points, std::move(nlist), qargs);
+    self->accumulate(nq, query_points_data, num_query_points, nlist, qargs);
 }
 
 }; // namespace wrap

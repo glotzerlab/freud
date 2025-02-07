@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "LocalDensity.h"
+#include "ManagedArray.h"
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborList.h"

@@ -5,7 +5,6 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-#include <utility>
 
 #include "LocalDensity.h"
 #include "NeighborList.h"
@@ -20,13 +19,13 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 
 void computeLocalDensity(const std::shared_ptr<LocalDensity>& self,
-                         std::shared_ptr<locality::NeighborQuery>& points,
+                         const std::shared_ptr<locality::NeighborQuery>& points,
                          nb_array<float, nanobind::shape<-1, 3>>& query_points,
-                         const unsigned int num_query_points, std::shared_ptr<locality::NeighborList> nlist,
+                         const unsigned int num_query_points, std::shared_ptr<locality::NeighborList>& nlist,
                          const locality::QueryArgs& qargs)
 {
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
-    self->compute(points, query_points_data, num_query_points, std::move(nlist), qargs);
+    self->compute(points, query_points_data, num_query_points, nlist, qargs);
 }
 
 }; // namespace wrap

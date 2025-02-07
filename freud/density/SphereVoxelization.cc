@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
