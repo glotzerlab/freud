@@ -48,7 +48,7 @@ public:
     void compute(const std::shared_ptr<locality::NeighborQuery>& neighbor_query);
 
     //! Get a reference to the last computed voxels.
-    const std::shared_ptr<util::ManagedArray<unsigned int>> getVoxels() const;
+    std::shared_ptr<const util::ManagedArray<unsigned int>> getVoxels() const;
 
     vec3<unsigned int> getWidth() const;
 

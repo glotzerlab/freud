@@ -4,14 +4,15 @@
 #ifndef CORRELATION_FUNCTION_H
 #define CORRELATION_FUNCTION_H
 
+#include <complex>
+#include <memory>
+
 #include "BondHistogramCompute.h"
-#include "Box.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include <complex>
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
@@ -57,10 +58,10 @@ public:
     void reset() override;
 
     //! accumulate the correlation function
-    void accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query,
+    void accumulate(const std::shared_ptr<freud::locality::NeighborQuery>& neighbor_query,
                     const std::complex<double>* values, const vec3<float>* query_points,
                     const std::complex<double>* query_values, unsigned int n_query_points,
-                    std::shared_ptr<freud::locality::NeighborList> nlist,
+                    const std::shared_ptr<freud::locality::NeighborList>& nlist,
                     const freud::locality::QueryArgs& qargs);
 
     //! \internal

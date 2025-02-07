@@ -1,8 +1,15 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <cstddef>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
+#include "BondHistogramCompute.h"
+#include "Histogram.h"
+#include "NeighborBond.h"
 #include "RDF.h"
 
 /*! \file RDF.cc
@@ -40,7 +47,7 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute()
     // Precompute the cell volumes to speed up later calculations.
     m_vol_array2D = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {bins, bins});
     m_vol_array3D = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {bins, bins, bins});
-    float volume_prefactor = (float(4.0) / float(3.0)) * M_PI;
+    const float volume_prefactor = (float(4.0) / float(3.0)) * M_PI;
     std::vector<float> bin_boundaries = getBinEdges()[0];
 
     for (unsigned int i = 0; i < bins; i++)
@@ -74,22 +81,22 @@ void RDF::reduce()
 
     std::shared_ptr<util::ManagedArray<float>> vol_array = m_box.is2D() ? m_vol_array2D : m_vol_array3D;
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &vol_array](size_t i) {
-        (*m_pcf)[i] = m_histogram[i] * prefactor / (*vol_array)[i];
+        (*m_pcf)[i] = float(m_histogram[i]) * prefactor / (*vol_array)[i];
     });
 
     // The accumulation of the cumulative density must be performed in
     // sequence, so it is done after the reduction.
     prefactor = float(1.0) / (nqp * static_cast<float>(m_frame_counter));
-    (*m_N_r)[0] = m_histogram[0] * prefactor;
+    (*m_N_r)[0] = float(m_histogram[0]) * prefactor;
     for (unsigned int i = 1; i < getAxisSizes()[0]; i++)
     {
-        (*m_N_r)[i] = (*m_N_r)[i - 1] + m_histogram[i] * prefactor;
+        (*m_N_r)[i] = (*m_N_r)[i - 1] + float(m_histogram[i]) * prefactor;
     }
 }
 
-void RDF::accumulate(const std::shared_ptr<freud::locality::NeighborQuery> neighbor_query,
+void RDF::accumulate(const std::shared_ptr<freud::locality::NeighborQuery>& neighbor_query,
                      const vec3<float>* query_points, unsigned int n_query_points,
-                     std::shared_ptr<freud::locality::NeighborList> nlist,
+                     const std::shared_ptr<freud::locality::NeighborList>& nlist,
                      const freud::locality::QueryArgs& qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

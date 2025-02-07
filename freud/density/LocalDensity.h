@@ -4,6 +4,8 @@
 #ifndef LOCAL_DENSITY_H
 #define LOCAL_DENSITY_H
 
+#include <memory>
+
 #include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
@@ -53,7 +55,7 @@ public:
                  const freud::locality::QueryArgs& qargs);
 
     //! Get a shared pointer to the last computed density
-    const std::shared_ptr<util::ManagedArray<float>> getDensity() const
+    std::shared_ptr<const util::ManagedArray<float>> getDensity() const
     {
         return m_density_array;
     }

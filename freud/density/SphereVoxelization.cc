@@ -1,10 +1,15 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cmath>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
 
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
 #include "SphereVoxelization.h"
+#include "VectorMath.h"
+#include "utils.h"
 
 /*! \file SphereVoxelization.cc
     \brief Routines for computing voxelized densities from spheres centered at points.
@@ -22,7 +27,7 @@ SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
 }
 
 //! Get a reference to the last computed voxels.
-const std::shared_ptr<util::ManagedArray<unsigned int>> SphereVoxelization::getVoxels() const
+std::shared_ptr<const util::ManagedArray<unsigned int>> SphereVoxelization::getVoxels() const
 {
     return m_voxels_array;
 }
@@ -114,7 +119,7 @@ void SphereVoxelization::compute(const std::shared_ptr<locality::NeighborQuery>&
                         {
                             continue;
                         }
-                        const float dx = ((grid_size_x * static_cast<float>(i)) + (grid_size_x / 2.0f)
+                        const float dx = ((grid_size_x * static_cast<float>(i)) + (grid_size_x / 2.0F)
                                           - point.x - (Lx / float(2.0)));
 
                         // Calculate the distance from the particle to the grid cell

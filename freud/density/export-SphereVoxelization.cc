@@ -5,9 +5,8 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
-#include <utility>
-
 #include "SphereVoxelization.h"
+#include "VectorMath.h"
 
 namespace freud { namespace density {
 
@@ -18,7 +17,7 @@ std::shared_ptr<SphereVoxelization> make_sphere_voxelization(unsigned int width_
     return std::make_shared<SphereVoxelization>(vec3<unsigned int>(width_x, width_y, width_z), r_max);
 }
 
-nanobind::tuple get_width(std::shared_ptr<SphereVoxelization> self)
+nanobind::tuple get_width(const std::shared_ptr<SphereVoxelization>& self)
 {
     auto width = self->getWidth();
     return nanobind::make_tuple(width.x, width.y, width.z);

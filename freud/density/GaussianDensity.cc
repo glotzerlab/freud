@@ -2,9 +2,18 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
+#include "Box.h"
 #include "GaussianDensity.h"
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
+#include "ThreadStorage.h"
+#include "VectorMath.h"
+#include "utils.h"
 
 /*! \file GaussianDensity.cc
     \brief Routines for computing Gaussian smeared densities from points.
@@ -87,11 +96,11 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
         for (size_t idx = begin; idx < end; ++idx)
         {
             const vec3<float> point = (*nq)[idx];
-            const float value = (values != nullptr) ? values[idx] : 1.0f;
+            const float value = (values != nullptr) ? values[idx] : 1.0F;
 
             // Find which bin the particle is in
-            int bin_x = int((point.x + Lx / float(2.0)) / grid_size_x);
-            int bin_y = int((point.y + Ly / float(2.0)) / grid_size_y);
+            const int bin_x = int((point.x + Lx / float(2.0)) / grid_size_x);
+            const int bin_y = int((point.y + Ly / float(2.0)) / grid_size_y);
             int bin_z = int((point.z + Lz / float(2.0)) / grid_size_z);
 
             // In 2D, only loop over the z=0 plane
@@ -143,9 +152,9 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
-                            const float ni = (i + m_width.x) % m_width.x;
-                            const float nj = (j + m_width.y) % m_width.y;
-                            const float nk = (k + m_width.z) % m_width.z;
+                            const float ni = (unsigned int) (i + m_width.x) % m_width.x;
+                            const float nj = (unsigned int) (j + m_width.y) % m_width.y;
+                            const float nk = (unsigned int) (k + m_width.z) % m_width.z;
 
                             // Store the gaussian contribution
                             local_bin_counts.local()(ni, nj, nk) += gaussian;

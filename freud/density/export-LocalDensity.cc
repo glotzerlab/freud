@@ -6,9 +6,10 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
-#include <utility>
-
 #include "LocalDensity.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 namespace freud { namespace density {
 

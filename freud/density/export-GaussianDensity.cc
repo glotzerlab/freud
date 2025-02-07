@@ -6,10 +6,7 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
-#include <utility>
-
 #include "GaussianDensity.h"
-#include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 
@@ -25,7 +22,7 @@ std::shared_ptr<GaussianDensity> make_gaussian_density(unsigned int width_x, uns
     return std::make_shared<GaussianDensity>(vec3<unsigned int>(width_x, width_y, width_z), r_max, sigma);
 }
 
-nanobind::tuple get_width(std::shared_ptr<GaussianDensity> self)
+nanobind::tuple get_width(const std::shared_ptr<GaussianDensity>& self)
 {
     auto width = self->getWidth();
     return nanobind::make_tuple(width.x, width.y, width.z);

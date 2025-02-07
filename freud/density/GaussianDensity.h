@@ -7,7 +7,6 @@
 #include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
-#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \file GaussianDensity.h

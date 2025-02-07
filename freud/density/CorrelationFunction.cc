@@ -2,14 +2,20 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
+#include "BondHistogramCompute.h"
 #include "CorrelationFunction.h"
+#include "Histogram.h"
 #include "NeighborBond.h"
-#include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file CorrelationFunction.cc
     \brief Generic pairwise correlation functions.
@@ -46,7 +52,7 @@ void CorrelationFunction::reduce()
     // Reduce the bin counts over all threads, then use them to normalize
     m_histogram.reduceOverThreads(m_local_histograms);
     m_correlation_function.reduceOverThreadsPerBin(m_local_correlation_function, [&](size_t i) {
-        if (m_histogram[i])
+        if (m_histogram[i] != 0)
         {
             m_correlation_function[i] /= m_histogram[i];
         }
@@ -71,10 +77,10 @@ inline double product(double x, double y)
     return x * y;
 }
 
-void CorrelationFunction::accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query,
+void CorrelationFunction::accumulate(const std::shared_ptr<freud::locality::NeighborQuery>& neighbor_query,
                                      const std::complex<double>* values, const vec3<float>* query_points,
                                      const std::complex<double>* query_values, unsigned int n_query_points,
-                                     std::shared_ptr<freud::locality::NeighborList> nlist,
+                                     const std::shared_ptr<freud::locality::NeighborList>& nlist,
                                      const freud::locality::QueryArgs& qargs)
 {
     accumulateGeneral(

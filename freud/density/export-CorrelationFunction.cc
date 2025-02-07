@@ -1,11 +1,12 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <complex>
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/shared_ptr.h>
-#include <nanobind/stl/vector.h>
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "CorrelationFunction.h"
 #include "NeighborList.h"
@@ -21,7 +22,7 @@ namespace wrap {
 
 // Wrapper function for accumulate
 void accumulateCF(const std::shared_ptr<CorrelationFunction>& self,
-                  const std::shared_ptr<locality::NeighborQuery> neighbor_query,
+                  const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                   const nb_array<std::complex<double>, nanobind::shape<-1>>& values,
                   const nb_array<float, nanobind::shape<-1, 3>>& query_points,
                   const nb_array<std::complex<double>, nanobind::shape<-1>>& query_values,
