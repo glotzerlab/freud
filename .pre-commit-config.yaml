@@ -78,7 +78,6 @@ repos:
       language: system
       types: [c++]
       # Exclude external files.
-      # TODO: remove exlcusions for modules as they are ported to nanobind
       exclude: |
         (?x)^(
           ^extern/
