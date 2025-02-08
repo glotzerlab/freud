@@ -54,8 +54,6 @@ body:
       description: What platform are you using? Select all that apply.
       multiple: true
       options:
-        - CPU
-        - GPU
         - Linux
         - macOS
   - type: dropdown
