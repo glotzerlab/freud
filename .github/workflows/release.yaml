@@ -93,12 +93,12 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad # v2.20.0
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
         env:
           CIBW_BUILD: "${{ matrix.python.version }}-*"
           CIBW_SKIP: "{pp*,*-musllinux_*}"
@@ -129,7 +129,7 @@ jobs:
 
           # CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
-      - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: dist-${{ matrix.os.base }}-${{ matrix.os.version }}-${{ matrix.python.version }}
           path: ./wheelhouse/*.whl
@@ -139,17 +139,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: "recursive"
 
       - name: Set up Python
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: "3.13"
 
       - name: Set up Python environment
-        uses: glotzerlab/workflows/setup-uv@e130dd2814c7db5635babe4427dedcbd5aab76d4 # 0.5.0
+        uses: glotzerlab/workflows/setup-uv@a36a97114c60241b26217ce92abbb64621ac67c7 # 0.6.0
         with:
           lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
 
@@ -159,7 +159,7 @@ jobs:
       - name: Check sdist size
         run: du -hs dist/*
 
-      - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: dist-sdist
           path: dist/*.tar.gz
@@ -184,7 +184,7 @@ jobs:
       - name: Upload to PyPI
         # upload to PyPI on every tag starting with 'v'
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0 # v1.9.0
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
@@ -202,7 +202,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         path: code
         submodules: true
@@ -222,7 +222,7 @@ jobs:
     - name: Tar/zstd source
       run: tar --zstd -cvf "${name}-${ref}.tar.zst" "${name}-${ref}"
 
-    - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+    - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
       with:
         name: source
         path: |
@@ -234,7 +234,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         path: code
 
@@ -253,7 +253,7 @@ jobs:
         tee "${GITHUB_WORKSPACE}/release-notes.md"
       working-directory: code
 
-    - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+    - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
       with:
         name: release-notes
         path: |
@@ -274,7 +274,7 @@ jobs:
       run: ls -lR
 
     - name: Create release
-      uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.0.8
+      uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
