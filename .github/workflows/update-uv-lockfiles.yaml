@@ -8,7 +8,7 @@ on:
 
 jobs:
   update:
-    uses: glotzerlab/workflows/.github/workflows/update-uv-lockfiles.yaml@e130dd2814c7db5635babe4427dedcbd5aab76d4 # 0.5.0
+    uses: glotzerlab/workflows/.github/workflows/update-uv-lockfiles.yaml@a36a97114c60241b26217ce92abbb64621ac67c7 # 0.6.0
     secrets: inherit
     with:
       command: ./update-uv-lockfiles.sh
