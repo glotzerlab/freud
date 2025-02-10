@@ -13,7 +13,6 @@ void export_ManagedArray(nanobind::module_& module)
 { // python wrapper classes for ManagedArray
     export_ManagedArray<float>(module, "ManagedArray_float");
     export_ManagedArray<double>(module, "ManagedArray_double");
-    export_ManagedArray<std::complex<float>>(module, "ManagedArray_complexfloat");
     export_ManagedArray<unsigned int>(module, "ManagedArray_unsignedint");
     export_ManagedArray<vec3<float>>(module, "ManagedArrayVec3_float");
     export_ManagedArray<std::complex<float>>(module, "ManagedArray_complexfloat");
