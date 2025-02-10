@@ -1,0 +1,24 @@
+name: test
+channels:
+  - conda-forge
+
+dependencies:
+  - python==3.12
+  - tbb
+  - tbb-devel
+  - ninja
+  - cmake
+  # TODO: Enable after dynasor and all transitive dependencies support Python 3.13
+  # - dynasor
+  - gsd
+  - matplotlib
+  - nanobind>=2.0
+  - numpy
+  - pillow
+  - pre-commit
+  - pytest
+  - rowan
+  - scikit-build-core
+  - scipy
+  - sympy
+  - uv

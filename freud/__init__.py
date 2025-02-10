@@ -1,6 +1,7 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+# density,
 from . import (
     box,
     cluster,
@@ -26,6 +27,11 @@ set_num_threads(0)
 __version__ = "3.1.0"
 
 __all__ = [
+    "AABBQuery",
+    "Box",
+    "LinkCell",
+    "NeighborList",
+    "NumThreads",
     "__version__",
     "box",
     "cluster",
@@ -33,19 +39,14 @@ __all__ = [
     "density",
     "diffraction",
     "environment",
+    "get_num_threads",
     "interface",
     "locality",
     "msd",
     "order",
     "parallel",
     "pmft",
-    "Box",
-    "AABBQuery",
-    "LinkCell",
-    "NeighborList",
-    "get_num_threads",
     "set_num_threads",
-    "NumThreads",
 ]
 
 __citation__ = """@article{freud2020,

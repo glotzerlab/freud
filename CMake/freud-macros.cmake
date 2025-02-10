@@ -15,21 +15,39 @@ macro(find_package_config_first package)
   endif()
 endmacro()
 
-# Convert shared libraries to python extensions
-function(make_python_extension_module _target)
-  set_target_properties(${_target} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
-  set_target_properties(${_target}
-                        PROPERTIES SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
+# copy all given files from the current source directory to the current build
+# directory files must be specified by relative path
+#
+# @param files: list of files to copy @param target: name of copy target @param
+# validate_pattern: Check ${CMAKE_CURRENT_BINARY_DIR}/${validate_pattern} for
+# files that are not in ${files} and issue a warning. @param Additional
+# parameters: List of files to ignore
+function(copy_files_to_build files target validate_pattern)
+  set(ignore_files ${ARGN})
 
-  target_include_directories(${_target} PRIVATE "${PYTHON_INCLUDE_DIRS}")
-  if(WIN32)
-    # Link to the Python libraries on windows
-    target_link_libraries(${_target} ${PYTHON_LIBRARIES})
-  else()
-    # Do not link to the Python libraries on Mac/Linux - symbols are provided by
-    # the `python` executable. "-undefined dynamic_lookup" is needed on Mac
-    target_link_options(
-      ${_target} PRIVATE
-      "$<$<PLATFORM_ID:Darwin>:LINKER:-undefined,dynamic_lookup>")
-  endif()
+  file(RELATIVE_PATH relative_dir ${PROJECT_BINARY_DIR}
+       ${CMAKE_CURRENT_BINARY_DIR})
+
+  foreach(file ${files})
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${file}
+      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${file}
+              ${CMAKE_CURRENT_BINARY_DIR}/${file}
+      COMMENT "Copy ${relative_dir}/${file}")
+  endforeach()
+
+  add_custom_target(copy_${target} ALL DEPENDS ${files})
+
+  file(GLOB _matching_files "${CMAKE_CURRENT_BINARY_DIR}/${validate_pattern}")
+  foreach(file ${_matching_files})
+    # message("Matching files: ${_matching_files}")
+    file(RELATIVE_PATH relative_file ${CMAKE_CURRENT_BINARY_DIR} ${file})
+    # message("Expected files: ${files}")
+    list(FIND files ${relative_file} found)
+    if(found EQUAL -1 AND NOT ${relative_file} IN_LIST ignore_files)
+      message(WARNING "${file} exists but is not provided by the source. "
+                      "Remove this file to prevent unexpected errors.")
+    endif()
+  endforeach()
 endfunction()

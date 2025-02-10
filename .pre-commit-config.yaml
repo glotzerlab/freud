@@ -1,5 +1,6 @@
 ci:
   autoupdate_schedule: quarterly
+  autofix_prs: false
 
 exclude: (?:^extern/)
 
@@ -39,51 +40,30 @@ repos:
               ^extern/|
               ^requirements/
               )
-        types_or: [python, cython]
+        types_or: [c, c++, python]
         args:
           - --license-file=LICENSE
           - --start=2
           - --num=1
           - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --keep-before=#!
-      - id: fix-license-header
-        name: Fix License Headers (C++)
-        types_or: [c, c++]
-        args:
-          - --license-file=LICENSE
-          - --start=2
-          - --num=1
-          - --add=This file is from the freud project, released under the BSD 3-Clause License.
-          - --comment-prefix=//
   - repo: https://github.com/asottile/pyupgrade
-    rev: 'v3.17.0'
+    rev: 'v3.19.1'
     hooks:
       - id: pyupgrade
         args:
-          - --py36-plus
-  - repo: https://github.com/PyCQA/isort
-    rev: '5.13.2'
+          - --py39-plus
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.9.4'
     hooks:
-      - id: isort
-  - repo: https://github.com/psf/black
-    rev: '24.8.0'
-    hooks:
-      - id: black
-  - repo: https://github.com/PyCQA/flake8
-    rev: '7.1.1'
-    hooks:
-      - id: flake8
-        types: ["file"]
-        types_or: ["python", "cython"]
-        additional_dependencies: ["flake8-force"]
-        args:
-        - --show-source
+    - id: ruff-format
+    - id: ruff
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
       - id: cmake-format
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v19.1.1'
+    rev: 'v19.1.7'
     hooks:
       - id: clang-format
         types_or: [c, c++]
@@ -94,38 +74,13 @@ repos:
     - id: clang-tidy
       stages: [manual]  # Requires clang-tidy.
       name: clang-tidy
-      entry: clang-tidy
+      entry: clang-tidy-18
       language: system
       types: [c++]
-      # Exclude external files. Also exclude AABB.h because it uses intrinsics
-      # heavily and these are not considered portable.
+      # Exclude external files.
       exclude: |
         (?x)^(
-          ^cpp/locality/AABB\.h|
           ^extern/
         )
       args:
       - --warnings-as-errors=*
-    - id: cppcheck
-      stages: [manual]  # Requires cppcheck.
-      # Ignore external files and those taken verbatim from HOOMD.
-      name: cppcheck
-      entry: cppcheck
-      language: system
-      types: [c++]
-      # Exclude external files. Also exclude AABB.h because it uses intrinsics
-      # heavily and these are not considered portable.
-      exclude: |
-        (?x)^(
-          ^cpp/locality/AABB\.h|
-          ^extern/
-        )
-      args:
-      - cpp/
-      - --enable=warning,style,performance,portability # Ignore unused (could be used by Cython).
-      - --std=c++14
-      - --language=c++ # Force C++ for .h header files.
-      - --inline-suppr # Enable inline suppresions of warnings.
-      - --suppress=*:cpp/locality/AABB.h
-      - --suppress=*:extern/*
-      - --error-exitcode=1

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import doctest
@@ -11,7 +11,7 @@ import freud
 
 def fetch_doctests():
     finder = doctest.DocTestFinder()
-    for name, member in inspect.getmembers(freud):
+    for _name, member in inspect.getmembers(freud):
         if inspect.ismodule(member):
             for docstring in finder.find(member):
                 if docstring.examples:

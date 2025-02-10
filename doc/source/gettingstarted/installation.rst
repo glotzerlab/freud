@@ -1,36 +1,40 @@
 .. _installation:
 
-============
 Installation
 ============
-
-Installing freud
-================
 
 **freud** binaries are available on conda-forge_ and PyPI_. You can also compile **freud** from
 source.
 
-Install via conda
------------------
+Binaries
+--------
+
+conda-forge package
+^^^^^^^^^^^^^^^^^^^
 
 **freud** is available on conda-forge_ for the *linux-64*, *osx-64*, *osx-arm64* and *win-64*
-architectures. Install with:
+architectures. Execute one of the following commands to install **freud**:
 
-.. code:: bash
+.. code-block:: bash
+
+   micromamba install freud
+
+**OR**
+
+.. code-block:: bash
 
    mamba install freud
 
-Install via pip
------------------
+PyPI
+^^^^
 
-To install **freud** is also available from PyPI_. To install **freud** into a *non-conda* virtual
-environment, execute:
+Use **uv** or **pip** to install **freud** binaries from PyPI_ into a virtual environment:
 
 .. code:: bash
 
    uv pip install freud-analysis
 
-or
+**OR**
 
 .. code:: bash
 
@@ -42,147 +46,214 @@ or
 Compile from source
 -------------------
 
-The following are **required** for building and installing **freud** from source:
+To build **freud** from source:
 
-- A C++17-compliant compiler
-- `Python <https://www.python.org/>`__ (>=3.9)
-- `NumPy <https://www.numpy.org/>`__ (>=1.19)
-- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2019.7)
-- `Cython <https://cython.org/>`__ (>=3.0.2)
-- `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
-- `CMake <https://cmake.org/>`__ (>=3.13.0)
+1. `Obtain the source`_:
 
-.. note::
+   .. code-block:: bash
 
-    Depending on the generator you are using, you may require a newer version of CMake.
-    In particular, Visual Studio 2019 requires CMake >= 3.14.0.
-    For more information on specific generators, see the `CMake generator documentation <https://cmake.org/cmake/help/git-stage/manual/cmake-generators.7.html>`__.
+      git clone --recursive git@github.com:glotzerlab/freud.git
 
-The **freud** library uses scikit-build and CMake to handle the build process itself, while the other requirements are required for compiling code in **freud**.
-These requirements can be met by installing the following packages from the `conda-forge channel <https://conda-forge.org/>`__:
+2. Change to the repository directory::
 
-.. code-block:: bash
-
-    mamba install conda-forge tbb tbb-devel numpy cython scikit-build cmake
-
-All requirements other than TBB can also be installed via the `Python Package Index <https://pypi.org/>`__
-
-.. code-block:: bash
-
-    uv pip install numpy cython scikit-build cmake
-
-Wheels for tbb and tbb-devel exist on PyPI, but only for certain operating systems, so your mileage may vary.
-For non-conda users, we recommend using OS-specific package managers (e.g. `Homebrew <https://brew.sh/>`__ for Mac) to install TBB.
-As in the snippets above, it may be necessary to install both both a TBB and a "devel" package in order to get both the headers and the shared libraries.
-
-The code that follows builds **freud** and installs it for all users (append ``--user`` if you wish to install it to your user site directory):
-
-.. code-block:: bash
-
-    git clone --recurse-submodules https://github.com/glotzerlab/freud.git
     cd freud
+
+3. `Install with uv`_::
+
     uv pip install .
 
-CMake Options
-+++++++++++++
+4. **OR** `Install prerequisites`_ and `Build with CMake for development`_:
 
-The scikit-build tool allows setup.py to accept three different sets of options separated by ``--``, where each set is provided directly to scikit-build, to CMake, or to the code generator of choice, respectively.
-For example, the command ``python setup.py build_ext --inplace -- -DCOVERAGE=ON -G Ninja -- -j 4`` tell scikit-build to perform an in-place build, it tells CMake to turn on the ``COVERAGE`` option and use Ninja for compilation, and it tells Ninja to compile with 4 parallel threads.
-For more information on these options, see the `scikit-build docs <https://scikit-build.readthedocs.io/>`__.
+   .. code-block:: bash
 
-In addition to standard CMake flags, the following CMake options are available for **freud**:
+      micromamba install cmake ninja numpy python tbb-devel nanobind scikit-build-core gsd matplotlib pytest rowan scipy sympy
 
-.. glossary::
+   .. code-block:: bash
 
-    \--COVERAGE
-      Build the Cython files with coverage support to check unit test coverage.
+      cmake -B build -S . -GNinja
+      cd build
+      ninja
+
+To run the tests:
+
+1. `Run tests`_::
+
+    cd tests
+    PYTHONPATH=../build python3 -m pytest
+
+To build the documentation from source:
+
+1. `Install prerequisites`_::
+
+    micromamba install sphinx furo nbsphinx jupyter_sphinx sphinxcontrib-bibtex sphinx-copybutton
+
+2. `Build the documentation`_:
+
+   .. code-block:: bash
+
+      cd {{ path/to/freud/repository }}
+
+   .. code-block:: bash
+
+      sphinx-build -b html doc html
+
+The sections below provide details on each of these steps.
+
+.. _Install prerequisites:
+
+Install prerequisites
+^^^^^^^^^^^^^^^^^^^^^
+
+**freud** requires a number of tools and libraries to build.
+
+**General requirements:**
+
+- A C++17-compliant compiler.
+- **CMake** >= 3.15.0
+- **Intel Threading Building Blocks** >= 2019.7
+- **nanobind** >= 2.0.0
+- **NumPy** >= 1.19.0
+- **Python** >= 3.9
+- **scikit-build-core**
+
+**To execute unit tests:**
+
+- **dynasor** (optional)
+- **gsd**
+- **matplotlib**
+- **pytest**
+- **rowan**
+- **scipy**
+- **sympy**
+
+.. _Obtain the source:
+
+Obtain the source
+^^^^^^^^^^^^^^^^^
+
+Clone using Git_:
+
+.. code-block:: bash
+
+   git clone --recursive git@github.com:glotzerlab/freud.git
+
+Release tarballs are also available on the `GitHub release pages`_.
+
+.. seealso::
+
+    See the `git book`_ to learn how to work with `Git`_ repositories.
+
+.. _GitHub release pages: https://github.com/glotzerlab/freud/releases/
+.. _git book: https://git-scm.com/book
+.. _Git: https://git-scm.com/
 
 
-The **freud** CMake configuration also respects the following environment variables (in addition to standards like ``CMAKE_PREFIX_PATH``).
+.. _Install with uv:
 
-.. glossary::
+Install with uv
+^^^^^^^^^^^^^^^^
 
-    TBBROOT
-      The root directory where TBB is installed.
-      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
-      This variable is set by the ``tbbvars.sh`` script included with TBB when building from source.
+Use **uv** to install the Python module into your virtual environment:
 
-    TBB_INCLUDE_DIR
-      The directory where the TBB headers (e.g. ``tbb.h``) are located.
-      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
+.. code-block:: bash
+
+   cd {{ path/to/freud/repository }}
+
+.. code-block:: bash
+
+   uv pip install .
+
+To perform incremental builds, `install the prerequisites first <Install prerequisites>`_, then run:
+
+.. code-block:: bash
+
+   uv pip install --no-deps --no-build-isolation --force-reinstall -C build-dir=$PWD/build .
+
+You may find using `CMake`_ directly more effective for incremental builds (see the next section).
+
+.. Build with CMake for development:
+
+Build with CMake for development
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**freud** also provides `CMake`_ scripts for development and testing that build a functional Python
+module in the build directory. First, configure the build with ``cmake``:
+
+.. code-block:: bash
+
+   cd {{ path/to/freud/repository }}
+
+.. code-block:: bash
+
+   cmake -B build -S . -GNinja
+
+Then, build the code:
+
+.. code-block:: bash
+
+   cd build
+   ninja
+
+Execute ``ninja`` to rebuild after you modify the code. ``ninja`` will automatically reconfigure
+as needed.
+
+.. tip::
+
+    Pass the following options to ``cmake`` to optimize the build for your processor:
+    ``-DCMAKE_CXX_FLAGS=-march=native -DCMAKE_C_FLAGS=-march=native``.
+
+.. warning::
+
+    When using a ``conda-forge`` environment for development, make sure that the environment does
+    not contain ``clang``, ``gcc``, or any other compiler or linker. These interfere with the native
+    compilers on your system and will result in compiler errors when building, linker errors when
+    running, or segmentation faults.
+
+.. _CMake: https://cmake.org/
+.. _Ninja: https://ninja-build.org/
+
+
+Run tests
+^^^^^^^^^
 
 .. note::
 
-    **freud** makes use of git submodules. To manually update git submodules, execute:
+    You must first `Obtain the source`_ before you can run the tests.
 
-    .. code-block:: bash
-
-        git submodule update --init --recursive
-
-Unit Tests
-==========
-
-The unit tests for **freud** are included in the repository and are configured to be run using the Python :mod:`pytest` library:
+Use `pytest`_ to execute unit tests:
 
 .. code-block:: bash
 
-    # Run tests from the tests directory
+    cd {{ path/to/freud/repository }}
     cd tests
-    python -m pytest .
-
-Note that because **freud** is designed to require installation to run (i.e. it cannot be run directly out of the build directory), importing **freud** from the root of the repository will fail because it will try and import the package folder.
-As a result, unit tests must be run from outside the root directory if you wish to test the installed version of **freud**.
-If you want to run tests within the root directory, you can instead build **freud** in place:
 
 .. code-block:: bash
 
-    # Run tests from the tests directory
-    python setup.py build_ext --inplace
+   PYTHONPATH=../build python3 -m pytest
 
-This build will place the necessary files alongside the **freud** source files so that **freud** can be imported from the root of the repository.
+.. _pytest: https://docs.pytest.org/
 
-Documentation
-=============
 
-The documentation for **freud** is `hosted online at ReadTheDocs <https://freud.readthedocs.io/>`_.
-You may also build the documentation yourself.
+.. _Build the documentation:
 
-Building the documentation
---------------------------
+Build the documentation
+^^^^^^^^^^^^^^^^^^^^^^^
 
-The following are **required** for building **freud** documentation:
-
-- `Sphinx <http://www.sphinx-doc.org/>`_
-- `The furo Sphinx Theme <https://pradyunsg.me/furo/>`_
-- `nbsphinx <https://nbsphinx.readthedocs.io/>`_
-- `jupyter_sphinx <https://jupyter-sphinx.readthedocs.io/>`_
-- `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/>`_
-- `sphinx-copybutton <https://sphinx-copybutton.readthedocs.io/en/latest/>`_
-
-You can install these dependencies using conda:
+Run `Sphinx`_ to build the HTML documentation:
 
 .. code-block:: bash
 
-    mamba install sphinx furo nbsphinx jupyter_sphinx sphinxcontrib-bibtex sphinx-copybutton
+   PYTHONPATH=build sphinx-build -b html doc/source html
 
-or pip:
+Open the file :file:`html/index.html` in your web browser to view the documentation.
 
-.. code-block:: bash
+.. tip::
 
-    uv pip install sphinx sphinx-rtd-theme nbsphinx jupyter-sphinx sphinxcontrib-bibtex sphinx-copybutton
+    Add the sphinx options ``-a -n -W -T --keep-going`` to produce docs with consistent links in
+    the side panel and provide more useful error messages.
 
-To build the documentation, run the following commands in the source directory:
+.. _Sphinx: https://www.sphinx-doc.org/
 
-.. code-block:: bash
+.. important::
 
-    cd doc
-    make html
-    # Then open build/html/index.html
-
-To build a PDF of the documentation (requires LaTeX and/or PDFLaTeX):
-
-.. code-block:: bash
-
-    cd doc
-    make latexpdf
-    # Then open build/latex/freud.pdf
+    You must clone the freud GitHub repository to build the documentation.

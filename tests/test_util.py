@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from collections import namedtuple
@@ -29,7 +29,7 @@ class TestCommon:
         npt.assert_equal(z.flags.contiguous, True)
 
         # test dimension checking
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="expected ndim"):
             z = freud.util._convert_array(y, (None,), dtype=np.float32)
 
         # test for non-default dtype
@@ -48,10 +48,10 @@ class TestCommon:
         npt.assert_equal(z, zd)
 
         # test dimension checking
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="expected ndim"):
             z = freud.util._convert_array(y, shape=(1,), dtype=np.float32)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="expected shape"):
             freud.util._convert_array(z, shape=(None, 9))
 
     def test_convert_matrix_box(self):

@@ -1,0 +1,39 @@
+name: style
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - "main"
+      - "nanobind"
+
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
+jobs:
+  clang-tidy:
+    name: Check C++ Code Style
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          submodules: true
+      - name: Create Python Environment
+        uses: mamba-org/setup-micromamba@617811f69075e3fd3ae68ca64220ad065877f246 # v2.0.0
+        with:
+          micromamba-version: '2.0.2-2'
+          environment-name: test
+          environment-file: .github/workflows/environments/py313-conda-lock.yml
+      - name: Configure compile_commands.json
+        run: |
+          cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
+      - name: clang-tidy
+        run: pre-commit run clang-tidy --all-files --hook-stage=manual -v

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import argparse
@@ -21,8 +21,7 @@ def get_report_filename(filename):
 
     """
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    report_filename = os.path.join(this_script_path, "reports", filename)
-    return report_filename
+    return os.path.join(this_script_path, "reports", filename)
 
 
 def try_importing(module):
@@ -38,7 +37,7 @@ def try_importing(module):
     try:
         return importlib.import_module(module)
     except ImportError:
-        print("{} does not exist and thus cannot" " be benchmarked".format(module))
+        print(f"{module} does not exist and thus cannot be benchmarked")
         return None
 
 
@@ -55,7 +54,7 @@ def benchmark_desc(name, params):
 
     """
     s = name + ": \n\t"
-    s += ", ".join(f"{str(k)} = {str(v)}" for k, v in params.items())
+    s += ", ".join(f"{k!s} = {v!s}" for k, v in params.items())
     return s
 
 
@@ -82,10 +81,8 @@ def run_benchmarks(name, Ns, number, classobj, print_stats=True, **kwargs):
         b = classobj(**kwargs)
     except TypeError:
         print(
-            "Wrong set of initialization keyword \
-            arguments for {}".format(
-                str(classobj)
-            )
+            f"Wrong set of initialization keyword \
+            arguments for {classobj!s}"
         )
         return {"name": name, "misc": "No result"}
 
@@ -141,14 +138,13 @@ def print_benchmark_results_in_human_readable_way(data):
         print(bdesc)
 
         # print size scaling benchmark
-        for N, r in bresult["size_scale"].items():
-            N = int(N)
-            r = float(r)
+        for N_loop, r_loop in bresult["size_scale"].items():
+            N = int(N_loop)
+            r = float(r_loop)
             print(f"{N:10d}", end=": ")
             print(
-                "{:8.3f} ms | {:8.3f} ns per item".format(
-                    float(r) / 1e-3, float(r) / int(N) / 1e-9
-                )
+                f"{float(r) / 1e-3:8.3f} ms | {float(r) / int(N) / 1e-9:8.3f}"
+                " ns per item"
             )
 
         # print thread scaling benchmark
@@ -160,7 +156,7 @@ def print_benchmark_results_in_human_readable_way(data):
         num_threads = len(times) - 1
         for i in range(1, num_threads + 1):
             print(f"{i:7d}", end=" ")
-            for j, N in enumerate(bresult["Ns"]):
+            for j, _N in enumerate(bresult["Ns"]):
                 speedup = times[1][j] / times[i][j]
                 print(f"{speedup:9.2f}x", end=" | ")
             print()
@@ -241,8 +237,7 @@ def list_benchmark_modules():
 
     dir_path = os.path.dirname(__file__)
     modules = glob.glob(os.path.join(dir_path, "benchmark_*"))
-    modules = [f[len(dir_path) + 1 : -3] for f in modules]
-    return modules
+    return [f[len(dir_path) + 1 : -3] for f in modules]
 
 
 def main_run(args):
@@ -254,8 +249,8 @@ def main_run(args):
     """
     results = []
     modules = list_benchmark_modules()
-    for m in modules:
-        m = try_importing(m)
+    for m_loop in modules:
+        m = try_importing(m_loop)
         if m:
             try:
                 r = m.run()
@@ -308,24 +303,18 @@ def main_compare(args):
         }
         if _thread:
             info["threads"] = _thread
-            print(
-                "Threads: {}, N: {}, " "ratio: {:0.2f}".format(str(_thread), _N, ratio)
-            )
+            print(f"Threads: {_thread!s}, N: {_N}, ratio: {ratio:0.2f}")
         else:
             print(f"N: {_N}, ratio: {ratio:0.2f}")
 
         if ratio < 1:
-            print(
-                "\t{:6.6} is {:0.2f} times " "slower than {:6.6}".format(rt, ratio, ro)
-            )
+            print(f"\t{rt:6.6} is {ratio:0.2f} times slower than {ro:6.6}")
             slowers.append(info)
         if ratio > 1:
-            print(
-                "\t{:6.6} is {:0.2f} times " "faster than {:6.6}".format(rt, ratio, ro)
-            )
+            print(f"\t{rt:6.6} is {ratio:0.2f} times faster than {ro:6.6}")
             fasters.append(info)
         if ratio == 1:
-            print("\t{:6.6} and {:6.6} " "have the same speed".format(rt, ro))
+            print(f"\t{rt:6.6} and {ro:6.6} have the same speed")
             sames.append(info)
 
     for this_res in rev_this_benchmark:
@@ -337,14 +326,14 @@ def main_compare(args):
                 print(benchmark_desc(this_res["name"], this_res["params"]))
                 print(
                     "\nShowing runtime "
-                    "{:6.6} ({:6.6}) / "
-                    "{:6.6} ({:6.6})".format(ro, rev_other, rt, rev_this)
+                    f"{ro:6.6} ({rev_other:6.6}) / "
+                    f"{rt:6.6} ({rev_this:6.6})"
                 )
                 print()
 
                 # compare size scaling behavior
-                for N in this_res["Ns"]:
-                    N = str(N)
+                for N_loop in this_res["Ns"]:
+                    N = str(N_loop)
                     this_t = this_res["size_scale"][N]
                     other_t = other_res["size_scale"][N]
                     compare_helper(this_t, other_t, N, None)
@@ -398,8 +387,7 @@ if __name__ == "__main__":
         "filename",
         default="benchmark.json",
         nargs="?",
-        help="The collection that contains the benchmark data"
-        "default='benchmark.json'.",
+        help="The collection that contains the benchmark datadefault='benchmark.json'.",
     )
     parser_report.set_defaults(func=main_report)
 
@@ -409,11 +397,11 @@ if __name__ == "__main__":
         "git-revisions of this repository. "
         "For example, to compare the current revision "
         "(HEAD) with the "
-        "'main' branch revision, execute `{} compare "
+        f"'main' branch revision, execute `{sys.argv[0]} compare "
         "main HEAD`. In this specific "
         "case one could omit both arguments, since 'main'"
         " and 'HEAD' are the two "
-        "default arguments.".format(sys.argv[0]),
+        "default arguments.",
     )
     parser_compare.add_argument(
         "rev_other",
@@ -437,8 +425,7 @@ if __name__ == "__main__":
         "--filename",
         default="benchmark.json",
         nargs="?",
-        help="The collection that contains the benchmark data"
-        "default='benchmark.json'.",
+        help="The collection that contains the benchmark datadefault='benchmark.json'.",
     )
     parser_compare.add_argument(
         "-f",

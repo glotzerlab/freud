@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import io
@@ -12,8 +12,9 @@ try:
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.ticker import FormatStrFormatter, MaxNLocator
-except ImportError:
-    raise ImportError("matplotlib must be installed for freud.plot.")
+except ImportError as exc:
+    msg = "matplotlib must be installed for freud.plot."
+    raise ImportError(msg) from exc
 
 
 def _ax_to_bytes(ax):
@@ -61,7 +62,7 @@ def _set_3d_axes_equal(ax, limits=None):
     return ax
 
 
-def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
+def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
     """Helper function to plot a :class:`~.box.Box` object.
 
     Args:
@@ -81,6 +82,8 @@ def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
             :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
             :meth:`matplotlib.axes.Axes.plot`.
     """
+    if image is None:
+        image = [0, 0, 0]
     box = freud.box.Box.from_box(box)
 
     if ax is None:
@@ -102,7 +105,7 @@ def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
         corners += np.asarray(image)
         corners = box.make_absolute(corners)[:, :2]
         color = kwargs.pop("color", "k")
-        ax.plot(corners[:, 0], corners[:, 1], color=color, *args, **kwargs)
+        ax.plot(corners[:, 0], corners[:, 1], color=color, *args, **kwargs)  # noqa: B026
         ax.set_aspect("equal", "datalim")
         ax.set_xlabel("$x$")
         ax.set_ylabel("$y$")
@@ -250,8 +253,8 @@ def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
         sorted_keys,
         sorted_freqs,
         title="Cluster Frequency",
-        xlabel="Keys of {} largest clusters (total clusters: "
-        "{})".format(len(sorted_freqs), len(freqs)),
+        xlabel=f"Keys of {len(sorted_freqs)} largest clusters (total clusters: "
+        f"{len(freqs)})",
         ylabel="Number of particles",
         ax=ax,
     )
@@ -454,7 +457,8 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
         colors = np.random.RandomState().permutation(np.arange(len(patches)))
         num_colors = np.unique(colors).size
     else:
-        raise RuntimeError(f"Invalid color_by option {color_by}.")
+        msg = f"Invalid color_by option {color_by}."
+        raise RuntimeError(msg)
 
     # Ensure we have enough colors to uniquely identify the cells
     continuous_colorby_options = ["area"]
@@ -468,6 +472,7 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
                     "Consider providing a colormap to the cmap "
                     "argument.",
                     UserWarning,
+                    stacklevel=2,
                 )
             cmap = "tab20"
 

@@ -1,8 +1,20 @@
 # Change Log
-The format is based on
-[Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-and this project adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog] and this project adheres to
+[Semantic Versioning].
+
+[Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
+[Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+
+## 3.2.0 -- not yet released
+
+### Added
+* Support Python 3.13.
+
+### Changed
+* Switch from Cython to nanobind.
+* Switch from scikit-build to scikit-build-core.
+* Lint C++ code with the clang-tidy 18.
+* Lint and format Python code with ruff.
 
 ## v3.1.0 -- 2024-06-17
 

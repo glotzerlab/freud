@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import numpy as np
@@ -131,8 +131,8 @@ class TestUnitCell:
 
 
 class TestRandomSystem:
-    @pytest.mark.parametrize("N", (0, 1, 10, 100, 1000))
-    @pytest.mark.parametrize("is2D", (True, False))
+    @pytest.mark.parametrize("N", [0, 1, 10, 100, 1000])
+    @pytest.mark.parametrize("is2D", [True, False])
     def test_sizes_and_dimensions(self, N, is2D):
         box, points = freud.data.make_random_system(
             box_size=10, num_points=N, is2D=is2D

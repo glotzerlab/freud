@@ -8,8 +8,7 @@ on:
 
 jobs:
   update:
-    uses: glotzerlab/workflows/.github/workflows/update-conda-lockfiles.yaml@ea2e25d07af862a1c696a932c2bd6b242d142049 # 0.2.0
+    uses: glotzerlab/workflows/.github/workflows/update-conda-lockfiles.yaml@e130dd2814c7db5635babe4427dedcbd5aab76d4 # 0.5.0
     secrets: inherit
     with:
       branch: main
-      path: .github/workflows/env-files

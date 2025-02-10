@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -34,7 +34,9 @@ class UnitCell:
             (Default value = ``[[0, 0, 0]]``).
     """
 
-    def __init__(self, box, basis_positions=[[0, 0, 0]]):
+    def __init__(self, box, basis_positions=None):
+        if basis_positions is None:
+            basis_positions = [[0, 0, 0]]
         self._box = freud.box.Box.from_box(box)
         self._basis_positions = basis_positions
 
@@ -105,15 +107,12 @@ class UnitCell:
             nz = 1 if self.box.is2D else num_replicas
 
         if not all(int(n) == n and n > 0 for n in (nx, ny, nz)):
-            raise ValueError(
-                "The number of replicas must be a positive "
-                "integer in each dimension."
-            )
+            msg = "The number of replicas must be a positive integer in each dimension."
+            raise ValueError(msg)
 
         if self.box.is2D and nz != 1:
-            raise ValueError(
-                "The number of replicas in z must be 1 for a " "2D unit cell."
-            )
+            msg = "The number of replicas in z must be 1 for a 2D unit cell."
+            raise ValueError(msg)
 
         if any([n > 1 for n in (nx, ny, nz)]):
             pbuff = freud.locality.PeriodicBuffer()
@@ -125,7 +124,7 @@ class UnitCell:
                 include_input_points=True,
             )
             box = pbuff.buffer_box * scale
-            positions = pbuff.buffer_points
+            positions = np.copy(pbuff.buffer_points)
         else:
             box = self.box * scale
             positions = self.box.make_absolute(self.basis_positions)
