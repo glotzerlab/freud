@@ -36,6 +36,27 @@ class TestUnitCell:
             points, [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
         )
 
+    @pytest.mark.parametrize("fn", ["tests/example_file.cif"])
+    def test_cif(self, fn):
+        """Test that the data from cif files is correct"""
+        EXPECTED_L = 3.6
+        box, points = freud.data.UnitCell.from_cif(fn).generate_system()
+        points /= EXPECTED_L
+
+        # Boxes are equal within fp precision
+        npt.assert_allclose(
+            [*box.to_dict().values()],
+            [*freud.box.Box.cube(EXPECTED_L).to_dict().values()],
+            rtol=1e-15,
+            atol=1e-15,
+        )
+        npt.assert_allclose(
+            points[::-1],
+            [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]],
+            rtol=1e-15,
+            atol=1e-15,
+        )
+
     @pytest.mark.parametrize("scale", [0.5, 2])
     def test_scale(self, scale):
         """Test the generation of a scaled structure."""
