@@ -235,12 +235,13 @@ class UnitCell:
 
     @classmethod
     def from_cif(cls, filename: str):
-        """Create a unit cell from a `CIF` file.
+        """Create a unit cell from a `CIF`_ file.
 
         This method reads the Wyckoff sites and symmetry operations from a CIF file,
-        reconstructing the basis positions from this data.
+        reconstructing the basis positions from this data using `parsnip`_.
 
-        .. _`CIF`: <https://www.iucr.org/resources/cif>
+        .. _`CIF`: https://www.iucr.org/resources/cif
+        .. _`parsnip`: https://github.com/glotzerlab/parsnip
 
         .. warning::
 
