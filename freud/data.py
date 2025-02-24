@@ -13,6 +13,7 @@ a future release.
 """
 
 import numpy as np
+import parsnip
 
 import freud
 
@@ -231,6 +232,32 @@ class UnitCell:
         """
         fractions = np.array([[0, 0, 0], [0.5, 0.5, 0]])
         return cls([1, np.sqrt(3)], fractions)
+
+    @classmethod
+    def from_cif(cls, filename: str):
+        """Create a unit cell from a `CIF`_ file.
+
+        This method reads the Wyckoff sites and symmetry operations from a CIF file,
+        reconstructing the basis positions from this data using `parsnip`_.
+
+        .. _`CIF`: https://www.iucr.org/resources/cif
+        .. _`parsnip`: https://github.com/glotzerlab/parsnip
+
+        .. warning::
+
+            Correctly reconstructing a unit cell from a CIF file requires approximately
+            four decimal places of precision in the stored data. Atom sites with less
+            data than this may have missing or duplicate points.
+
+        Args:
+            filename (:class:`str`):
+                A string containing the path to the file to load.
+
+        Returns:
+            :class:`~.UnitCell`: A unit cell
+        """
+        cif = parsnip.CifFile(filename)
+        return cls(freud.box.Box(*cif.box), cif.build_unit_cell())
 
 
 def make_random_system(box_size, num_points, is2D=False, seed=None):
