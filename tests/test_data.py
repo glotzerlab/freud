@@ -1,6 +1,9 @@
 # Copyright (c) 2010-2025 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+import os
+import pathlib
+
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -36,7 +39,10 @@ class TestUnitCell:
             points, [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
         )
 
-    @pytest.mark.parametrize("fn", ["tests/example_file.cif"])
+    @pytest.mark.parametrize(
+        "fn",
+        [pathlib.Path(os.path.realpath(__file__)).parent / "example_file.cif"],
+    )
     def test_cif(self, fn):
         """Test that the data from cif files is correct"""
         EXPECTED_L = 3.6
