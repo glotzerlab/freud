@@ -312,6 +312,9 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
     Partial structure factors can be computed by providing ``query_points`` and
     total number of points in the system ``N_total`` to the :py:meth:`compute`
     method. The normalization criterion is based on the Faber-Ziman formalism.
+    The implemented normalization scheme produces partial structure factors that
+    converge to the corresponding particle fraction in the infinite-:math:k limit for
+    pure (diagonal) terms, and to zero for the mixed partial structure factor.
     For particle types :math:`\alpha` and :math:`\beta`, we compute the total
     scattering function as a sum of the partial scattering functions as:
 
@@ -319,6 +322,13 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
 
         S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
         N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
+
+    To convert the partial structure factor to the normalization scheme where all the
+    partial structure factors converge to unity in the infinite-:math:k limit, the
+    users can use the following formula (see :cite:`Liu2016`):
+
+    .. math::
+        S_{\alpha \beta, \text{norm2}} = \frac{S_{\alpha \beta}}{x_{\alpha} x_{\beta}} + 1 - \frac{\delta_{\alpha \beta}}{x_{\beta}}
 
     Args:
         bins (unsigned int):
