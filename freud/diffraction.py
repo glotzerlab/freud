@@ -328,7 +328,8 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
     users can use the following formula (see :cite:`Liu2016`):
 
     .. math::
-        S_{\alpha \beta, \text{norm2}} = \frac{S_{\alpha \beta}}{x_{\alpha} x_{\beta}} + 1 - \frac{\delta_{\alpha \beta}}{x_{\beta}}
+        S_{\alpha \beta, \text{norm2}} = \frac{S_{\alpha \beta}}{x_{\alpha} x_{\beta}}
+        + 1 - \frac{\delta_{\alpha \beta}}{x_{\beta}}
 
     Args:
         bins (unsigned int):
