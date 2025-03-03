@@ -124,10 +124,8 @@ jobs:
             scipy==${{ matrix.python.oldest_scipy }}
             gsd==${{ matrix.python.oldest_gsd }}
             matplotlib==${{ matrix.python.oldest_matplotlib }}
-          # Test only the currently ported modules
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest test_box_box.py test_parallel.py test_locality_*.py test_data.py test_pmft.py test_util.py test_msd_msd.py test_interface.py test_order_*.py test_cluster.py test_diffraction_*.py -v --log-level=DEBUG"
 
-          # CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
       - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:

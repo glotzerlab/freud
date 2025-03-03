@@ -29,7 +29,7 @@ classifiers=[
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-dependencies = ["numpy>=1.19", "rowan>=1.2.1", "scipy>=1.1"]
+dependencies = ["numpy>=1.19", "rowan>=1.2.1", "scipy>=1.1", "parsnip-cif>=0.2.0"]
 keywords = ["simulation", "analysis", "molecular dynamics", "soft matter",
             "particle", "system", "computational", "physics"]
 
