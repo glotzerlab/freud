@@ -436,8 +436,8 @@ class PMFTXY(_PMFT):
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
-        cmap (str): String name of Matplotlib colormap.
-            (Default value = :code:`"viridis"`).
+        cmap (str):
+            String name of a Matplotlib colormap. (Default value = :code:`"viridis"`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
