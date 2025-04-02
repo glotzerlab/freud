@@ -648,7 +648,7 @@ class Box:
 
             >>> box = freud.box.Box.cube(L=10)
             >>> box.to_array()
-            array([10., 10., 10., 0., 0., 0.])
+            (10.0, 10.0, 10.0, 0.0, 0.0, 0.0)
 
         Returns:
             tuple:
