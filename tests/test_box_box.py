@@ -450,6 +450,13 @@ class TestBox:
         for k, v in box_dict.items():
             npt.assert_allclose(v, box2[k])
 
+    def test_to_array(self):
+        box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        npt.assert_equal(box.to_array(), [*box.to_dict().values()][:6])
+
+        box2 = freud.box.Box.cube(0.001)
+        npt.assert_allclose(box2.to_array(), [0.001, 0.001, 0.001, 0, 0, 0])
+
     def test_from_box(self):
         """Test various methods of initializing a box"""
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
