@@ -429,20 +429,22 @@ class PMFTXY(_PMFT):
         except (AttributeError, ImportError):
             return None
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, cmap="viridis"):
         """Plot PMFTXY.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
+        cmap (str):
+            String name of a Matplotlib colormap. (Default value = :code:`"viridis"`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
 
-        return freud.plot.pmft_plot(self, ax)
+        return freud.plot.pmft_plot(self, ax, cmap=cmap)
 
 
 class PMFTXYZ(_PMFT):
