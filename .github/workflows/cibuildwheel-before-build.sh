@@ -14,7 +14,7 @@ pip install cmake
 
 PACKAGE_DIR=$1
 PLATFORM=$2
-TBB_VERSION="2021.2.0"
+TBB_VERSION="2022.1.0"
 TBB_ZIP="v${TBB_VERSION}.zip"
 curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip -q "${TBB_ZIP}"
