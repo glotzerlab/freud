@@ -41,7 +41,7 @@ std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<flo
  *  SO(3). This computation can be performed using a hyperspherical coordinate
  *  representation of the rotations. For details, see "Design rules for
  *  engineering colloidal plastic crystals of hard polyhedra – phase behavior
- *  and directional entropic forces" by https://doi.org/10.1039/C8SM02643B{#Karas et al.}	.
+ *  and directional entropic forces" :cite:`Karas2019`.
  */
 class RotationalAutocorrelation
 {
