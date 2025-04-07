@@ -246,7 +246,7 @@ class Benchmark:
                 print(f"{N:^22d}", end=" | ")
             print()
 
-        nproc_increment = int(os.environ.get("BENCHMARK_NPROC_INCREMENT", 1))
+        nproc_increment = int(os.environ.get("BENCHMARK_NPROC_INCREMENT", "1"))
         nprocs = int(os.environ.get("BENCHMARK_NPROC", multiprocessing.cpu_count()))
 
         # loop over the cores
