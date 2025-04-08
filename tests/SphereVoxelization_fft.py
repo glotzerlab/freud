@@ -25,7 +25,7 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
 
     # enlarge the box for the fft by adding more segments of the same length
     # we will cut the extra off later so the fft will be aperiodic.
-    buf_size = 0 if periodic else int(round(eff_rad + 1))
+    buf_size = 0 if periodic else round(eff_rad + 1)
     new_width = 2 * buf_size + width
 
     # make the grid with the points on it
@@ -68,7 +68,7 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
 
     # enlarge the box for the fft by adding more segments of the same length
     # we will cut the extra off later so the fft will be aperiodic.
-    buf_size = 0 if periodic else int(round(eff_rad + 1))
+    buf_size = 0 if periodic else round(eff_rad + 1)
     new_width = 2 * buf_size + width
 
     # make the grid with the points on it
@@ -99,7 +99,7 @@ def _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim):
     arr = np.zeros(d)
     img_points = points / (box_size / width)  # points in units of grid spacing
     for pt in img_points:
-        shifted_pt = tuple(int(round(pt[i])) for i in range(ndim))
+        shifted_pt = tuple(round(pt[i]) for i in range(ndim))
         arr[shifted_pt] = 1
     return arr
 
@@ -107,7 +107,7 @@ def _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim):
 def _make_sphere_3d(new_width, eff_rad):
     """Makes a grid in 3D with voxels that are within ``eff_rad`` of the
     center having value 1 and other voxels having value 0."""
-    r_rad = int(round(eff_rad))
+    r_rad = round(eff_rad)
     ctr = new_width // 2
     arr = np.zeros((new_width, new_width, new_width))
 

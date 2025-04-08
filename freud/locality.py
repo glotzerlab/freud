@@ -64,7 +64,7 @@ class _QueryArgs:
             self.exclude_ii = exclude_ii
         if scale is not None:
             self.scale = scale
-        if len(kwargs):
+        if len(kwargs) > 0:
             err_str = ", ".join(f"{k} = {v}" for k, v in kwargs.items())
             raise ValueError(
                 "The following invalid query arguments were provided: " + err_str
