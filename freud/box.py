@@ -639,15 +639,15 @@ class Box:
             ]
         )
 
-    def to_array(self):
-        r"""Returns the box lengths and tilt factors as a flat (6,) array.
+    def to_box_params(self):
+        r"""Returns the box lengths and tilt factors as a flat (6,) tuple.
 
         The output from this method can be saved as a `GSD box <https://gsd.readthedocs.io/en/stable/schema-hoomd.html#chunk-configuration-box>`_.
 
         Example::
 
             >>> box = freud.box.Box.cube(L=10)
-            >>> box.to_array()
+            >>> box.to_box_params()
             (10.0, 10.0, 10.0, 0.0, 0.0, 0.0)
 
         Returns:
