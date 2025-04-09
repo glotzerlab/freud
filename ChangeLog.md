@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## 3.X.X -- XXXX-XX-XX
+
+### Added
+* `to_box_params` method for `freud.Box`
+
 ## 3.2.0 -- 2025-02-10
 
 ### Added

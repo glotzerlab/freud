@@ -639,6 +639,24 @@ class Box:
             ]
         )
 
+    def to_box_params(self):
+        r"""Returns the box lengths and tilt factors as a flat (6,) tuple.
+
+        The output from this method can be saved as a `GSD box <https://gsd.readthedocs.io/en/stable/schema-hoomd.html#chunk-configuration-box>`_.
+
+        Example::
+
+            >>> box = freud.box.Box.cube(L=10)
+            >>> box.to_box_params()
+            (10.0, 10.0, 10.0, 0.0, 0.0, 0.0)
+
+        Returns:
+            tuple:
+                The box extents along each axis and tilt factors
+                :math:`(L_x, L_y, L_z, xy, xz, yz)`.
+        """
+        return (self.Lx, self.Ly, self.Lz, self.xy, self.xz, self.yz)
+
     def to_box_lengths_and_angles(self):
         r"""Return the box lengths and angles.
 
