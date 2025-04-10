@@ -317,7 +317,7 @@ def histogram_plot(
     return ax
 
 
-def pmft_plot(pmft, ax=None):
+def pmft_plot(pmft, ax=None, cmap="viridis"):
     """Helper function to draw 2D PMFT diagram.
 
     Args:
@@ -326,6 +326,8 @@ def pmft_plot(pmft, ax=None):
         ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
+        cmap (str): String name of Matplotlib colormap.
+            (Default value = :code:`"viridis"`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
@@ -338,11 +340,10 @@ def pmft_plot(pmft, ax=None):
         fig = plt.figure()
         ax = fig.subplots()
 
-    pmft_arr = np.copy(pmft.PMFT)
+    pmft_arr = np.copy(pmft.pmft)
     pmft_arr[np.isinf(pmft_arr)] = np.nan
 
-    xlims = (pmft.X[0], pmft.X[-1])
-    ylims = (pmft.Y[0], pmft.Y[-1])
+    xlims, ylims = pmft.bounds
     ax.set_xlim(xlims)
     ax.set_ylim(ylims)
     ax.xaxis.set_ticks([i for i in range(int(xlims[0]), int(xlims[1] + 1))])
@@ -358,7 +359,7 @@ def pmft_plot(pmft, ax=None):
         np.flipud(pmft_arr),
         extent=[xlims[0], xlims[1], ylims[0], ylims[1]],
         interpolation="nearest",
-        cmap="viridis",
+        cmap=cmap,
         vmin=-2.5,
         vmax=3.0,
     )
