@@ -38,10 +38,10 @@ void getImages(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, con
     box->getImages(vecs_data, Nvecs, images_data);
 }
 
-void wrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<float>& out)
+void wrap(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs, const nb_array<float>& out)
 {
     const unsigned int Nvecs = vecs.shape(0);
-    auto* vecs_data = reinterpret_cast<vec3<float>*>(vecs.data());
+    const auto* vecs_data = reinterpret_cast<const vec3<float>*>(vecs.data());
     auto* out_data = reinterpret_cast<vec3<float>*>(out.data());
     box->wrap(vecs_data, Nvecs, out_data);
 }
