@@ -21,7 +21,7 @@ void makeFractional(const std::shared_ptr<Box>& box, const nb_array<float>& vecs
 
 void getImages(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<int>& images);
 
-void wrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<float>& out);
+void wrap(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs, const nb_array<float>& out);
 
 void unwrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<int>& images,
             const nb_array<float>& out);
