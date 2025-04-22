@@ -39,6 +39,9 @@ jobs:
         - base: ubuntu
           version: latest
           arch: 'x86_64'
+        - base: ubuntu
+          version: 24.04-arm
+          arch: 'aarch64'
         # - base: windows
         #   version: latest
         #   arch: 'amd64'
