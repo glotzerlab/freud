@@ -25,14 +25,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
         python: ['39', '310', '311', '312', '313']
         include:
-          # Test macOS and windows on oldest and latest versions.
+          # Test macOS, windows, and ARM Linux on oldest and latest versions.
+          - os: 'ubuntu-24.04-arm'
+            python: '313'
           - os: 'macos-14'
-            python: '312'
+            python: '313'
           - os: 'windows-latest'
-            python: '312'
+            python: '313'
           - os: 'windows-latest'
             python: '39'
           - os: 'macos-14'
