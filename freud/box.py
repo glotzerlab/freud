@@ -408,7 +408,7 @@ class Box:
 
         Example::
 
-            >>> import freud
+            >>> import freud  # doctest: +SKIP
             >>> box = freud.Box.cube(10)
             >>> points = [[-1, -1, 0], [-1, 1, 0], [2, 0, 0]]
             >>> box.center(points)
