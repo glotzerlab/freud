@@ -22,7 +22,8 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 void compute(const std::shared_ptr<LocalDescriptors>& local_descriptors,
              const std::shared_ptr<locality::NeighborQuery>& nq,
-             const nb_array<const float, nanobind::shape<-1, 3>>& query_points, const unsigned int n_query_points,
+             const nb_array<const float, nanobind::shape<-1, 3>>& query_points,
+             const unsigned int n_query_points,
              const nb_array<const float, nanobind::shape<-1, 4>>& orientations,
              const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
              const unsigned int max_num_neighbors)

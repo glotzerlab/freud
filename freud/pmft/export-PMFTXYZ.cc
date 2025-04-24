@@ -30,7 +30,8 @@ void accumulateXYZ(const std::shared_ptr<PMFTXYZ>& self, const std::shared_ptr<l
     unsigned int const num_query_points = query_points.shape(0);
     const auto* query_orientations_data = reinterpret_cast<const quat<float>*>(query_orientations.data());
     const auto* query_points_data = reinterpret_cast<const vec3<float>*>(query_points.data());
-    const auto* equivalent_orientations_data = reinterpret_cast<const quat<float>*>(equivalent_orientations.data());
+    const auto* equivalent_orientations_data
+        = reinterpret_cast<const quat<float>*>(equivalent_orientations.data());
     unsigned int const num_equivalent_orientations = equivalent_orientations.shape(0);
     self->accumulate(nq, query_orientations_data, query_points_data, num_query_points,
                      equivalent_orientations_data, num_equivalent_orientations, std::move(nlist), qargs);

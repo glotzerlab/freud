@@ -42,8 +42,8 @@ void compute_env_rmsd_min(const std::shared_ptr<EnvironmentRMSDMinimizer>& env_r
                           const std::shared_ptr<locality::NeighborQuery>& nq,
                           const std::shared_ptr<locality::NeighborList>& nlist,
                           const locality::QueryArgs& qargs,
-                          const nb_array<const float, nanobind::shape<-1, 3>>& motif, const unsigned int motif_size,
-                          const bool registration)
+                          const nb_array<const float, nanobind::shape<-1, 3>>& motif,
+                          const unsigned int motif_size, const bool registration)
 {
     const auto* motif_data = reinterpret_cast<const vec3<float>*>(motif.data());
     env_rmsd_min->compute(nq, nlist, qargs, motif_data, motif_size, registration);

@@ -14,7 +14,8 @@ namespace nb = nanobind;
 
 namespace freud { namespace box { namespace wrap {
 
-void makeAbsolute(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs, const nb_array<float>& out)
+void makeAbsolute(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs,
+                  const nb_array<float>& out)
 {
     unsigned int const Nvecs = vecs.shape(0);
     const auto* vecs_data = reinterpret_cast<const vec3<float>*>(vecs.data());
@@ -22,7 +23,8 @@ void makeAbsolute(const std::shared_ptr<Box>& box, const nb_array<const float>& 
     box->makeAbsolute(vecs_data, Nvecs, out_data);
 }
 
-void makeFractional(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs, const nb_array<float>& out)
+void makeFractional(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs,
+                    const nb_array<float>& out)
 {
     unsigned int const Nvecs = vecs.shape(0);
     const auto* vecs_data = reinterpret_cast<const vec3<float>*>(vecs.data());
@@ -30,7 +32,8 @@ void makeFractional(const std::shared_ptr<Box>& box, const nb_array<const float>
     box->makeFractional(vecs_data, Nvecs, out_data);
 }
 
-void getImages(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs, const nb_array<int>& images)
+void getImages(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs,
+               const nb_array<int>& images)
 {
     const unsigned int Nvecs = vecs.shape(0);
     const auto* vecs_data = reinterpret_cast<const vec3<float>*>(vecs.data());
@@ -46,8 +49,8 @@ void wrap(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs, co
     box->wrap(vecs_data, Nvecs, out_data);
 }
 
-void unwrap(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs, const nb_array<const int>& images,
-            const nb_array<float>& out)
+void unwrap(const std::shared_ptr<Box>& box, const nb_array<const float>& vecs,
+            const nb_array<const int>& images, const nb_array<float>& out)
 {
     const unsigned int Nvecs = vecs.shape(0);
     const auto* vecs_data = reinterpret_cast<const vec3<float>*>(vecs.data());
