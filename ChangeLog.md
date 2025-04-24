@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ### Fixed
 * `PMFTXY.plot` executes without errors.
+* Allow input arguments to be passed read-only NumPy arrays.
 
 ### Added
 * `to_box_params` method for `freud.Box`
