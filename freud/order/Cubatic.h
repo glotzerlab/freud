@@ -65,7 +65,7 @@ public:
     void reset();
 
     //! Compute the cubatic order parameter
-    void compute(quat<float>* orientations, unsigned int num_orientations);
+    void compute(const quat<float>* orientations, unsigned int num_orientations);
 
     unsigned int getNumParticles() const
     {
@@ -132,7 +132,7 @@ private:
      *
      *  \return The cubatic tensor M_{\omega}.
      */
-    tensor4 calcCubaticTensor(quat<float>& orientation);
+    tensor4 calcCubaticTensor(const quat<float>& orientation);
 
     //! Calculate the scalar cubatic order parameter.
     /*! Implements eq. 22.
@@ -156,7 +156,7 @@ private:
     //! Calculate the global tensor for the system.
     /*! Implements the third line of eq. 27, the calculation of \bar{M}.
      */
-    tensor4 calculateGlobalTensor(quat<float>* orientations) const;
+    tensor4 calculateGlobalTensor(const quat<float>* orientations) const;
 
     //! Calculate a random quaternion.
     /*! To calculate a random quaternion in a way that obeys the right

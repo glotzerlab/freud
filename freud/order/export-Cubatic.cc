@@ -17,10 +17,10 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 
 void computeCubatic(const std::shared_ptr<Cubatic>& self,
-                    const nb_array<float, nanobind::shape<-1, 4>>& orientations)
+                    const nb_array<const float, nanobind::shape<-1, 4>>& orientations)
 {
     unsigned int const num_orientations = orientations.shape(0);
-    auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
+    const auto* orientations_data = reinterpret_cast<const quat<float>*>(orientations.data());
 
     self->compute(orientations_data, num_orientations);
 }

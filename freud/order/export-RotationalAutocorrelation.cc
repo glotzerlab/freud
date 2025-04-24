@@ -17,12 +17,12 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 
 void computeRotationalAutocorrelation(const std::shared_ptr<RotationalAutocorrelation>& self,
-                                      const nb_array<float, nanobind::shape<-1, 4>>& ref_orientations,
-                                      const nb_array<float, nanobind::shape<-1, 4>>& orientations)
+                                      const nb_array<const float, nanobind::shape<-1, 4>>& ref_orientations,
+                                      const nb_array<const float, nanobind::shape<-1, 4>>& orientations)
 {
     unsigned int const num_orientations = orientations.shape(0);
-    auto* ref_orientations_data = reinterpret_cast<quat<float>*>(ref_orientations.data());
-    auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
+    const auto* ref_orientations_data = reinterpret_cast<const quat<float>*>(ref_orientations.data());
+    const auto* orientations_data = reinterpret_cast<const quat<float>*>(orientations.data());
 
     self->compute(ref_orientations_data, orientations_data, num_orientations);
 }
