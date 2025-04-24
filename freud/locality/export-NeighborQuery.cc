@@ -27,7 +27,7 @@ std::shared_ptr<NeighborQueryIterator> query(const std::shared_ptr<NeighborQuery
                                              const QueryArgs& qargs)
 {
     unsigned int const n_query_points = query_points.shape(0);
-    const vec3<float>* query_points_data = (const vec3<float>*) query_points.data();
+    const auto* query_points_data = (const vec3<float>*) query_points.data();
     return nq->query(query_points_data, n_query_points, qargs);
 }
 
