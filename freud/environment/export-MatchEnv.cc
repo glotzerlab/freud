@@ -31,10 +31,10 @@ void compute_env_motif_match(const std::shared_ptr<EnvironmentMotifMatch>& env_m
                              const std::shared_ptr<locality::NeighborQuery>& nq,
                              const std::shared_ptr<locality::NeighborList>& nlist,
                              const locality::QueryArgs& qargs,
-                             const nb_array<float, nanobind::shape<-1, 3>>& motif,
+                             const nb_array<const float, nanobind::shape<-1, 3>>& motif,
                              const unsigned int motif_size, const float threshold, const bool registration)
 {
-    auto* motif_data = reinterpret_cast<vec3<float>*>(motif.data());
+    const auto* motif_data = reinterpret_cast<const vec3<float>*>(motif.data());
     env_motif_match->compute(nq, nlist, qargs, motif_data, motif_size, threshold, registration);
 }
 
@@ -42,20 +42,20 @@ void compute_env_rmsd_min(const std::shared_ptr<EnvironmentRMSDMinimizer>& env_r
                           const std::shared_ptr<locality::NeighborQuery>& nq,
                           const std::shared_ptr<locality::NeighborList>& nlist,
                           const locality::QueryArgs& qargs,
-                          const nb_array<float, nanobind::shape<-1, 3>>& motif, const unsigned int motif_size,
+                          const nb_array<const float, nanobind::shape<-1, 3>>& motif, const unsigned int motif_size,
                           const bool registration)
 {
-    auto* motif_data = reinterpret_cast<vec3<float>*>(motif.data());
+    const auto* motif_data = reinterpret_cast<const vec3<float>*>(motif.data());
     env_rmsd_min->compute(nq, nlist, qargs, motif_data, motif_size, registration);
 }
 
 std::pair<float, std::map<unsigned int, unsigned int>>
-compute_minimize_RMSD(const box::Box& box, const nb_array<float, nanobind::shape<-1, 3>>& refPoints1,
+compute_minimize_RMSD(const box::Box& box, const nb_array<const float, nanobind::shape<-1, 3>>& refPoints1,
                       nb_array<float, nanobind::shape<-1, 3>>& refPoints2, unsigned int numRef,
                       float min_rmsd, bool registration)
 {
     float min_rmsd_modified = min_rmsd;
-    auto* refPoints1_data = reinterpret_cast<vec3<float>*>(refPoints1.data());
+    const auto* refPoints1_data = reinterpret_cast<const vec3<float>*>(refPoints1.data());
     auto* refPoints2_data = reinterpret_cast<vec3<float>*>(refPoints2.data());
     return std::make_pair(
         min_rmsd_modified,
@@ -63,11 +63,11 @@ compute_minimize_RMSD(const box::Box& box, const nb_array<float, nanobind::shape
 }
 
 std::map<unsigned int, unsigned int>
-compute_is_similar(const box::Box& box, const nb_array<float, nanobind::shape<-1, 3>>& refPoints1,
+compute_is_similar(const box::Box& box, const nb_array<const float, nanobind::shape<-1, 3>>& refPoints1,
                    nb_array<float, nanobind::shape<-1, 3>>& refPoints2, unsigned int numRef,
                    float threshold_sq, bool registration)
 {
-    auto* refPoints1_data = reinterpret_cast<vec3<float>*>(refPoints1.data());
+    const auto* refPoints1_data = reinterpret_cast<const vec3<float>*>(refPoints1.data());
     auto* refPoints2_data = reinterpret_cast<vec3<float>*>(refPoints2.data());
     return isSimilar(box, refPoints1_data, refPoints2_data, numRef, threshold_sq, registration);
 }

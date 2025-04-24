@@ -100,8 +100,8 @@ std::shared_ptr<const util::ManagedArray<float>> BondOrder::getBondOrder()
 }
 
 void BondOrder::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
-                           quat<float>* orientations, vec3<float>* query_points,
-                           quat<float>* query_orientations, unsigned int n_query_points,
+                           const quat<float>* orientations, const vec3<float>* query_points,
+                           const quat<float>* query_orientations, unsigned int n_query_points,
                            const std::shared_ptr<freud::locality::NeighborList>& nlist,
                            freud::locality::QueryArgs qargs)
 {

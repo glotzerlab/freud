@@ -34,7 +34,7 @@ public:
     virtual ~Nematic() = default;
 
     //! Compute the nematic order parameter
-    void compute(vec3<float>* orientations, unsigned int n);
+    void compute(const vec3<float>* orientations, unsigned int n);
 
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter() const;

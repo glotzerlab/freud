@@ -23,14 +23,14 @@ namespace wrap {
 // Wrapper function for accumulate
 void accumulateCF(const std::shared_ptr<CorrelationFunction>& self,
                   const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
-                  const nb_array<std::complex<double>, nanobind::shape<-1>>& values,
-                  const nb_array<float, nanobind::shape<-1, 3>>& query_points,
-                  const nb_array<std::complex<double>, nanobind::shape<-1>>& query_values,
+                  const nb_array<const std::complex<double>, nanobind::shape<-1>>& values,
+                  const nb_array<const float, nanobind::shape<-1, 3>>& query_points,
+                  const nb_array<const std::complex<double>, nanobind::shape<-1>>& query_values,
                   const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs)
 {
-    auto* values_data = reinterpret_cast<std::complex<double>*>(values.data());
-    auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
-    auto* query_values_data = reinterpret_cast<std::complex<double>*>(query_values.data());
+    const auto* values_data = reinterpret_cast<const std::complex<double>*>(values.data());
+    const auto* query_points_data = reinterpret_cast<const vec3<float>*>(query_points.data());
+    const auto* query_values_data = reinterpret_cast<const std::complex<double>*>(query_values.data());
 
     const unsigned int num_query_points = query_points.shape(0);
 

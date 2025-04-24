@@ -43,7 +43,7 @@ vec3<float> Nematic::getNematicDirector() const
     return m_nematic_director;
 }
 
-void Nematic::compute(vec3<float>* orientations, unsigned int n)
+void Nematic::compute(const vec3<float>* orientations, unsigned int n)
 {
     m_n = n;
     m_particle_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_n, 3, 3});
