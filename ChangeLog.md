@@ -7,8 +7,13 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## 3.X.X -- XXXX-XX-XX
 
+### Fixed
+* `PMFTXY.plot` executes without errors.
+
 ### Added
 * `to_box_params` method for `freud.Box`
+* `cmap` argument to `PMFTXY.plot`.
+* Provide Linux aarch64 binaries.
 
 ## 3.2.0 -- 2025-02-10
 

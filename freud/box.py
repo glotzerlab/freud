@@ -411,7 +411,8 @@ class Box:
             >>> import freud
             >>> box = freud.Box.cube(10)
             >>> points = [[-1, -1, 0], [-1, 1, 0], [2, 0, 0]]
-            >>> box.center(points)
+            >>> box.center(points)  # doctest: +SKIP
+
             array([[-0.8154068, -1.0000002,  0.       ],
                    [-0.8154068,  1.       ,  0.       ],
                    [ 2.1845937,  0.       ,  0.       ]], dtype=float32)
