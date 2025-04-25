@@ -19,16 +19,16 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
 void compute(const std::shared_ptr<AngularSeparationGlobal>& angular_separation,
-             const nb_array<float, nanobind::shape<-1, 4>>& global_orientations,
-             const nb_array<float, nanobind::shape<-1, 4>>& orientations,
-             const nb_array<float, nanobind::shape<-1, 4>>& equiv_orientations)
+             const nb_array<const float, nanobind::shape<-1, 4>>& global_orientations,
+             const nb_array<const float, nanobind::shape<-1, 4>>& orientations,
+             const nb_array<const float, nanobind::shape<-1, 4>>& equiv_orientations)
 {
     unsigned int const n_global = global_orientations.shape(0);
     unsigned int const n_points = orientations.shape(0);
     unsigned int const n_equiv_orientations = equiv_orientations.shape(0);
-    auto* global_orientations_data = reinterpret_cast<quat<float>*>(global_orientations.data());
-    auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
-    auto* equiv_orientations_data = reinterpret_cast<quat<float>*>(equiv_orientations.data());
+    const auto* global_orientations_data = reinterpret_cast<const quat<float>*>(global_orientations.data());
+    const auto* orientations_data = reinterpret_cast<const quat<float>*>(orientations.data());
+    const auto* equiv_orientations_data = reinterpret_cast<const quat<float>*>(equiv_orientations.data());
     angular_separation->compute(global_orientations_data, n_global, orientations_data, n_points,
                                 equiv_orientations_data, n_equiv_orientations);
 }

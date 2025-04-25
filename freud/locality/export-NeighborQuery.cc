@@ -23,33 +23,35 @@ namespace freud { namespace locality {
 namespace wrap {
 
 std::shared_ptr<NeighborQueryIterator> query(const std::shared_ptr<NeighborQuery>& nq,
-                                             const nb_array<float, nb::shape<-1, 3>>& query_points,
+                                             const nb_array<const float, nb::shape<-1, 3>>& query_points,
                                              const QueryArgs& qargs)
 {
     unsigned int const n_query_points = query_points.shape(0);
-    const vec3<float>* query_points_data = (vec3<float>*) query_points.data();
+    const auto* query_points_data = (const vec3<float>*) query_points.data();
     return nq->query(query_points_data, n_query_points, qargs);
 }
 
-void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, const nb_array<float, nb::shape<-1, 3>>& points)
+void AABBQueryConstructor(AABBQuery* nq, const box::Box& box,
+                          const nb_array<const float, nb::shape<-1, 3>>& points)
 {
     unsigned int const n_points = points.shape(0);
-    auto* points_data = (vec3<float>*) points.data();
+    const auto* points_data = (const vec3<float>*) points.data();
     new (nq) AABBQuery(box, points_data, n_points);
 }
 
-void LinkCellConstructor(LinkCell* nq, const box::Box& box, const nb_array<float, nb::shape<-1, 3>>& points,
-                         float cell_width)
+void LinkCellConstructor(LinkCell* nq, const box::Box& box,
+                         const nb_array<const float, nb::shape<-1, 3>>& points, float cell_width)
 {
     unsigned int const n_points = points.shape(0);
-    auto* points_data = (vec3<float>*) points.data();
+    const auto* points_data = (const vec3<float>*) points.data();
     new (nq) LinkCell(box, points_data, n_points, cell_width);
 }
 
-void RawPointsConstructor(RawPoints* nq, const box::Box& box, const nb_array<float, nb::shape<-1, 3>>& points)
+void RawPointsConstructor(RawPoints* nq, const box::Box& box,
+                          const nb_array<const float, nb::shape<-1, 3>>& points)
 {
     unsigned int const n_points = points.shape(0);
-    auto* points_data = (vec3<float>*) points.data();
+    const auto* points_data = (vec3<float>*) points.data();
     new (nq) RawPoints(box, points_data, n_points);
 }
 

@@ -30,7 +30,7 @@ nanobind::tuple get_width(const std::shared_ptr<GaussianDensity>& self)
 
 void computeDensity(const std::shared_ptr<GaussianDensity>& self,
                     const std::shared_ptr<locality::NeighborQuery>& nq,
-                    const nb_array<float, nanobind::shape<-1>>& values)
+                    const nb_array<const float, nanobind::shape<-1>>& values)
 {
     const auto* values_data = values.is_valid() ? reinterpret_cast<const float*>(values.data()) : nullptr;
     self->compute(nq.get(), values_data);

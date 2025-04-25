@@ -19,9 +19,9 @@ namespace wrap {
 
 void accumulate(const std::shared_ptr<StaticStructureFactor>& self,
                 const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
-                const nb_array<float, nanobind::shape<-1, 3>>& query_points, unsigned int n_total)
+                const nb_array<const float, nanobind::shape<-1, 3>>& query_points, unsigned int n_total)
 {
-    auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
+    const auto* query_points_data = reinterpret_cast<const vec3<float>*>(query_points.data());
     const unsigned int n_query_points = query_points.shape(0);
     self->accumulate(neighbor_query, query_points_data, n_query_points, n_total);
 };

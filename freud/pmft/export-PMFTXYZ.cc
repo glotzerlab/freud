@@ -22,15 +22,16 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 
 void accumulateXYZ(const std::shared_ptr<PMFTXYZ>& self, const std::shared_ptr<locality::NeighborQuery>& nq,
-                   const nb_array<float, nanobind::shape<-1, 4>>& query_orientations,
-                   const nb_array<float, nanobind::shape<-1, 3>>& query_points,
-                   const nb_array<float, nanobind::shape<-1, 4>>& equivalent_orientations,
+                   const nb_array<const float, nanobind::shape<-1, 4>>& query_orientations,
+                   const nb_array<const float, nanobind::shape<-1, 3>>& query_points,
+                   const nb_array<const float, nanobind::shape<-1, 4>>& equivalent_orientations,
                    std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs)
 {
     unsigned int const num_query_points = query_points.shape(0);
-    auto* query_orientations_data = reinterpret_cast<quat<float>*>(query_orientations.data());
-    auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
-    auto* equivalent_orientations_data = reinterpret_cast<quat<float>*>(equivalent_orientations.data());
+    const auto* query_orientations_data = reinterpret_cast<const quat<float>*>(query_orientations.data());
+    const auto* query_points_data = reinterpret_cast<const vec3<float>*>(query_points.data());
+    const auto* equivalent_orientations_data
+        = reinterpret_cast<const quat<float>*>(equivalent_orientations.data());
     unsigned int const num_equivalent_orientations = equivalent_orientations.shape(0);
     self->accumulate(nq, query_orientations_data, query_points_data, num_query_points,
                      equivalent_orientations_data, num_equivalent_orientations, std::move(nlist), qargs);

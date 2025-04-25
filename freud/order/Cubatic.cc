@@ -161,7 +161,7 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
     m_system_vectors[2] = vec3<float>(0, 0, 1);
 }
 
-tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)
+tensor4 Cubatic::calcCubaticTensor(const quat<float>& orientation)
 {
     tensor4 calculated_tensor = tensor4();
     for (auto& m_system_vector : m_system_vectors)
@@ -214,7 +214,7 @@ util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float
     return particle_tensor;
 }
 
-tensor4 Cubatic::calculateGlobalTensor(quat<float>* orientations) const
+tensor4 Cubatic::calculateGlobalTensor(const quat<float>* orientations) const
 {
     tensor4 global_tensor = tensor4();
     util::ManagedArray<tensor4> particle_tensor = calculatePerParticleTensor(orientations);
@@ -241,7 +241,7 @@ tensor4 Cubatic::calculateGlobalTensor(quat<float>* orientations) const
     return global_tensor - m_gen_r4_tensor;
 }
 
-void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
+void Cubatic::compute(const quat<float>* orientations, unsigned int num_orientations)
 {
     m_n = num_orientations;
     m_particle_order_parameter = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_n});

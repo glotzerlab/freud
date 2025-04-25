@@ -25,11 +25,11 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 
 void compute(const std::shared_ptr<Filter>& filter, std::shared_ptr<NeighborQuery> nq,
-             const nb_array<float, nb::shape<-1, 3>>& query_points, std::shared_ptr<NeighborList> nlist,
+             const nb_array<const float, nb::shape<-1, 3>>& query_points, std::shared_ptr<NeighborList> nlist,
              const QueryArgs& qargs)
 {
     const auto num_query_points = query_points.shape(0);
-    const auto* query_points_data = (vec3<float>*) query_points.data();
+    const auto* query_points_data = (const vec3<float>*) query_points.data();
     filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs);
 }
 

@@ -22,9 +22,9 @@ namespace wrap {
 
 void accumulateBondOrder(const std::shared_ptr<BondOrder>& self,
                          const std::shared_ptr<locality::NeighborQuery>& nq,
-                         const nb_array<float, nb::shape<-1, 4>>& orientations,
-                         const nb_array<float, nb::shape<-1, 3>>& query_points,
-                         const nb_array<float, nb::shape<-1, 4>>& query_orientations,
+                         const nb_array<const float, nb::shape<-1, 4>>& orientations,
+                         const nb_array<const float, nb::shape<-1, 3>>& query_points,
+                         const nb_array<const float, nb::shape<-1, 4>>& query_orientations,
                          const std::shared_ptr<locality::NeighborList>& nlist,
                          const locality::QueryArgs& qargs)
 {
@@ -38,9 +38,9 @@ void accumulateBondOrder(const std::shared_ptr<BondOrder>& self,
     //   auto* query_points_data= reinterpret_cast<vec3<float>*>(query_points.data());
     // }
 
-    auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
-    auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
-    auto* query_orientations_data = reinterpret_cast<quat<float>*>(query_orientations.data());
+    const auto* orientations_data = reinterpret_cast<const quat<float>*>(orientations.data());
+    const auto* query_points_data = reinterpret_cast<const vec3<float>*>(query_points.data());
+    const auto* query_orientations_data = reinterpret_cast<const quat<float>*>(query_orientations.data());
 
     self->accumulate(nq, orientations_data, query_points_data, query_orientations_data, n_query_points, nlist,
                      qargs);

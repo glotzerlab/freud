@@ -21,11 +21,12 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
 
-void ConstructFromArrays(NeighborList* nlist, const nb_array<unsigned int, nb::ndim<1>>& query_point_indices,
+void ConstructFromArrays(NeighborList* nlist,
+                         const nb_array<const unsigned int, nb::ndim<1>>& query_point_indices,
                          unsigned int num_query_points,
-                         const nb_array<unsigned int, nb::ndim<1>>& point_indices, unsigned int num_points,
-                         const nb_array<float, nb::shape<-1, 3>>& vectors,
-                         const nb_array<float, nb::ndim<1>>& weights)
+                         const nb_array<const unsigned int, nb::ndim<1>>& point_indices,
+                         unsigned int num_points, const nb_array<const float, nb::shape<-1, 3>>& vectors,
+                         const nb_array<const float, nb::ndim<1>>& weights)
 {
     const unsigned int num_bonds = query_point_indices.shape(0);
     const auto* query_point_indices_data = (const unsigned int*) query_point_indices.data();
@@ -36,8 +37,8 @@ void ConstructFromArrays(NeighborList* nlist, const nb_array<unsigned int, nb::n
                              num_points, vectors_data, weights_data);
 }
 
-void ConstructAllPairs(NeighborList* nlist, const nb_array<float, nb::shape<-1, 3>>& points,
-                       const nb_array<float, nb::shape<-1, 3>>& query_points, const box::Box& box,
+void ConstructAllPairs(NeighborList* nlist, const nb_array<const float, nb::shape<-1, 3>>& points,
+                       const nb_array<const float, nb::shape<-1, 3>>& query_points, const box::Box& box,
                        const bool exclude_ii)
 {
     const unsigned int num_points = points.shape(0);
@@ -47,7 +48,8 @@ void ConstructAllPairs(NeighborList* nlist, const nb_array<float, nb::shape<-1, 
     new (nlist) NeighborList(points_data, query_points_data, box, exclude_ii, num_points, num_query_points);
 }
 
-unsigned int filter(const std::shared_ptr<NeighborList>& nlist, const nb_array<bool, nb::ndim<1>>& filter)
+unsigned int filter(const std::shared_ptr<NeighborList>& nlist,
+                    const nb_array<const bool, nb::ndim<1>>& filter)
 {
     const bool* filter_data = (const bool*) filter.data();
     return nlist->filter(filter_data);
