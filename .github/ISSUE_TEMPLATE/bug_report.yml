@@ -40,7 +40,7 @@ body:
     attributes:
       label: freud Version
       description: What version of freud are you using?
-      placeholder: 3.3.0
+      placeholder: 3.3.1
     validations:
       required: true
   - type: input
