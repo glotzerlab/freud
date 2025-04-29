@@ -62,8 +62,8 @@ When using **freud** to process data for publication, please `use this citation
 Installation
 ============
 
-**freud** is available on conda-forge_ for the *linux-64*, *osx-64*, *osx-arm64* and *win-64*
-architectures. Install with:
+**freud** is available on conda-forge_ for the *linux-64*, *linux-aarch64*, *linux-ppc64le*,
+*osx-64*, *osx-arm64* and *win-64* architectures. Install with:
 
 .. code:: bash
 
