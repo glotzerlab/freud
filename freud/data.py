@@ -43,10 +43,10 @@ class UnitCell:
 
     def generate_system(
         self,
-        num_replicas: tuple[int, int, int] | int = 1,
-        scale: float = 1.0,
-        sigma_noise: float = 0.0,
-        seed: int | None = None,
+        num_replicas=1,
+        scale=1.0,
+        sigma_noise=0.0,
+        seed=None,
     ):
         """Generate a system from the unit cell.
 
