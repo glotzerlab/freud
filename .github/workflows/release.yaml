@@ -150,7 +150,7 @@ jobs:
           python-version: "3.13"
 
       - name: Set up Python environment
-        uses: glotzerlab/workflows/setup-uv@a36a97114c60241b26217ce92abbb64621ac67c7 # 0.6.0
+        uses: glotzerlab/workflows/setup-uv@1855eec25e87bdbc06359aa3adc355b59272cae3 # 0.7.0
         with:
           lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
 
