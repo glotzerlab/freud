@@ -5,7 +5,7 @@ updates:
   target-branch: main
   schedule:
     interval: "cron"
-    cronjob: "9 12 */100,1-7 2,5,8,11 4"
+    cronjob: "9 12 * 2,5,8,11 4#1"
   pull-request-branch-name:
     separator: "-"
   groups:
