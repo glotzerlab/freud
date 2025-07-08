@@ -16,6 +16,7 @@ import numpy as np
 import freud._environment
 import freud.box
 import freud.locality
+import freud.plot
 import freud.util
 from freud._util import (  # noqa F401
     ManagedArray_double,
@@ -824,7 +825,6 @@ class EnvironmentCluster(_MatchEnv):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
@@ -837,8 +837,6 @@ class EnvironmentCluster(_MatchEnv):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

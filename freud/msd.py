@@ -12,6 +12,7 @@ import numpy as np
 
 import freud.box
 import freud.parallel
+import freud.plot
 from freud.util import _Compute
 
 logger = logging.getLogger(__name__)
@@ -256,7 +257,6 @@ class MSD(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         if self.mode == "window":
             xlabel = "Window size"
@@ -273,8 +273,6 @@ class MSD(_Compute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

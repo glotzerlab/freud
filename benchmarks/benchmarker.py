@@ -2,6 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import argparse
+import glob
 import importlib
 import json
 import os
@@ -233,7 +234,6 @@ def list_benchmark_modules():
             containing this script with name benchmark_*.
 
     """
-    import glob
 
     dir_path = os.path.dirname(__file__)
     modules = glob.glob(os.path.join(dir_path, "benchmark_*"))

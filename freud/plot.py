@@ -9,9 +9,16 @@ import numpy as np
 import freud
 
 try:
+    import matplotlib.colors
     import matplotlib.pyplot as plt
+    from matplotlib import cm
     from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.collections import PatchCollection
+    from matplotlib.colorbar import Colorbar
+    from matplotlib.patches import Polygon
     from matplotlib.ticker import FormatStrFormatter, MaxNLocator
+    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 except ImportError as exc:
     msg = "matplotlib must be installed for freud.plot."
     raise ImportError(msg) from exc
@@ -92,7 +99,6 @@ def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
             ax = fig.subplots()
         else:
             # This import registers the 3d projection
-            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
             ax = fig.add_subplot(111, projection="3d")
 
@@ -170,7 +176,6 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
             ax = fig.subplots()
         else:
             # This import registers the 3d projection
-            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
             ax = fig.add_subplot(111, projection="3d")
 
@@ -332,8 +337,6 @@ def pmft_plot(pmft, ax=None, cmap="viridis"):
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     # Plot figures
     if ax is None:
@@ -385,8 +388,6 @@ def density_plot(density, box, ax=None):
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if ax is None:
         fig = plt.figure()
@@ -434,11 +435,6 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib import cm
-    from matplotlib.collections import PatchCollection
-    from matplotlib.colorbar import Colorbar
-    from matplotlib.patches import Polygon
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if ax is None:
         fig = plt.figure()
@@ -536,9 +532,6 @@ def diffraction_plot(
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    import matplotlib.colors
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if vmin is None:
         vmin = 4e-6 * N_points

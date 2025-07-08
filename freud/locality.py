@@ -12,6 +12,7 @@ import numpy as np
 
 import freud._locality
 import freud.box
+import freud.plot
 import freud.util
 from freud._util import (  # noqa F401
     ManagedArray_double,
@@ -428,7 +429,6 @@ class NeighborQuery:
             :class:`matplotlib.collections.PathCollection`):
                 Axis and point data for the plot.
         """
-        import freud.plot
 
         return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)  # noqa: B026 - it works
 
@@ -1224,7 +1224,6 @@ class Voronoi(_Compute):
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.
         """
-        import freud.plot
 
         if not self._box.is2D:
             return None
@@ -1232,8 +1231,6 @@ class Voronoi(_Compute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

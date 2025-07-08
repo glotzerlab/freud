@@ -13,6 +13,7 @@ import numpy as np
 
 import freud
 import freud._density
+import freud.plot
 import freud.util
 from freud.locality import _PairCompute, _SpatialHistogram1D
 from freud.util import _Compute
@@ -157,7 +158,6 @@ class CorrelationFunction(_SpatialHistogram1D):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         return freud.plot.line_plot(
             self.bin_centers,
@@ -170,8 +170,6 @@ class CorrelationFunction(_SpatialHistogram1D):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -295,7 +293,6 @@ class GaussianDensity(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         if not self.box.is2D:
             return None
@@ -303,8 +300,6 @@ class GaussianDensity(_Compute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -398,7 +393,6 @@ class SphereVoxelization(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         if not self.box.is2D:
             return None
@@ -406,8 +400,6 @@ class SphereVoxelization(_Compute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -676,7 +668,6 @@ class RDF(_SpatialHistogram1D):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         return freud.plot.line_plot(
             self.bin_centers,
@@ -689,8 +680,6 @@ class RDF(_SpatialHistogram1D):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

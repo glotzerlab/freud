@@ -43,6 +43,7 @@ import rowan
 
 import freud._pmft
 import freud.locality
+import freud.plot
 from freud.locality import _SpatialHistogram
 from freud.util import _Compute
 
@@ -423,8 +424,6 @@ class PMFTXY(_PMFT):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -442,7 +441,6 @@ class PMFTXY(_PMFT):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         return freud.plot.pmft_plot(self, ax, cmap=cmap)
 

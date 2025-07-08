@@ -14,12 +14,15 @@ finalized in a future release.
 
 import logging
 
+import matplotlib.cm
+import matplotlib.colors
 import numpy as np
 import rowan
 import scipy.ndimage
 
 import freud._diffraction
 import freud.locality
+import freud.plot
 import freud.util
 from freud.util import _Compute
 
@@ -55,8 +58,6 @@ class _StaticStructureFactor(_Compute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -260,7 +261,6 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         return freud.plot.line_plot(
             self.k_values[self.k_values > self.min_valid_k],
@@ -500,7 +500,6 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         return freud.plot.line_plot(
             self.bin_centers[self.bin_centers > self.min_valid_k],
@@ -828,8 +827,6 @@ class DiffractionPattern(_Compute):
             ((output_size, output_size, 4) :class:`numpy.ndarray`):
                 RGBA array of pixels.
         """
-        import matplotlib.cm
-        import matplotlib.colors
 
         if vmin is None:
             vmin = 4e-6 * self.N_points
@@ -867,16 +864,12 @@ class DiffractionPattern(_Compute):
         if vmax is None:
             vmax = 0.7 * self.N_points
 
-        import freud.plot
-
         return freud.plot.diffraction_plot(
             self.diffraction, self.k_values, self.N_points, ax, cmap, vmin, vmax
         )
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

@@ -20,6 +20,7 @@ import numpy as np
 
 import freud._order
 import freud.locality
+import freud.plot
 from freud.locality import _PairCompute
 from freud.util import _Compute
 
@@ -344,7 +345,6 @@ class Hexatic(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
             prime="'" if self.weighted else "", k=self.k
@@ -360,8 +360,6 @@ class Hexatic(_PairCompute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -601,7 +599,6 @@ class Steinhardt(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         ls = self.l
         if not isinstance(ls, list):
@@ -632,8 +629,6 @@ class Steinhardt(_PairCompute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -792,7 +787,6 @@ class SolidLiquid(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
 
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
@@ -805,8 +799,6 @@ class SolidLiquid(_PairCompute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
