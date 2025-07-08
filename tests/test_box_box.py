@@ -565,7 +565,7 @@ class TestBox:
         with pytest.warns(
             UserWarning, match="Setting Lz for a 2-dimensional box has no effect!"
         ):
-            box.Lz = 1.0
+            box.L = [1.0, 1.0, 1.0]
         assert box.Lz == 0.0
         assert box.dimensions == 2
         box.dimensions = 3
