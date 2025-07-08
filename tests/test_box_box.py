@@ -552,14 +552,19 @@ class TestBox:
 
     def test_set_dimensions(self):
         b = np.asarray([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        with pytest.warns(UserWarning):
+        with pytest.warns(
+            UserWarning,
+            match="Specifying z-dimensions in a 2-dimensional box has no effect!",
+        ):
             box = freud.Box.from_box(b, dimensions=2)
         assert box.dimensions == 2
 
     def test_2_dimensional(self):
         # Setting Lz for a 2D box throws a warning that we hide
         box = freud.box.Box.square(L=1)
-        with pytest.warns(UserWarning):
+        with pytest.warns(
+            UserWarning, match="Setting Lz for a 2-dimensional box has no effect!"
+        ):
             box.Lz = 1.0
         assert box.Lz == 0.0
         assert box.dimensions == 2
