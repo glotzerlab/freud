@@ -20,7 +20,13 @@ import numpy as np
 
 import freud._order
 import freud.locality
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 from freud.locality import _PairCompute
 from freud.util import _Compute
 
@@ -345,7 +351,9 @@ class Hexatic(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
             prime="'" if self.weighted else "", k=self.k
         )
@@ -599,7 +607,9 @@ class Steinhardt(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         ls = self.l
         if not isinstance(ls, list):
             ls = [ls]
@@ -787,7 +797,9 @@ class SolidLiquid(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:

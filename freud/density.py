@@ -13,7 +13,13 @@ import numpy as np
 
 import freud
 import freud._density
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 import freud.util
 from freud.locality import _PairCompute, _SpatialHistogram1D
 from freud.util import _Compute
@@ -158,6 +164,9 @@ class CorrelationFunction(_SpatialHistogram1D):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
 
         return freud.plot.line_plot(
             self.bin_centers,
@@ -293,7 +302,9 @@ class GaussianDensity(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         if not self.box.is2D:
             return None
         return freud.plot.density_plot(self.density, self.box, ax=ax)
@@ -393,7 +404,9 @@ class SphereVoxelization(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         if not self.box.is2D:
             return None
         return freud.plot.density_plot(self.voxels, self.box, ax=ax)
@@ -668,7 +681,9 @@ class RDF(_SpatialHistogram1D):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         return freud.plot.line_plot(
             self.bin_centers,
             self.rdf,

@@ -13,7 +13,13 @@ import warnings
 import numpy as np
 
 import freud._box
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 import freud.util
 
 logger = logging.getLogger(__name__)
@@ -728,6 +734,9 @@ class Box:  # noqa: PLW1641
                 Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
                 :meth:`matplotlib.axes.Axes.plot`.
         """
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         if image is None:
             image = [0, 0, 0]
         return freud.plot.box_plot(

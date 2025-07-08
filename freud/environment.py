@@ -16,7 +16,13 @@ import numpy as np
 import freud._environment
 import freud.box
 import freud.locality
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 import freud.util
 from freud._util import (  # noqa F401
     ManagedArray_double,
@@ -825,7 +831,9 @@ class EnvironmentCluster(_MatchEnv):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:

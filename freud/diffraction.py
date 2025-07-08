@@ -22,7 +22,13 @@ import scipy.ndimage
 
 import freud._diffraction
 import freud.locality
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 import freud.util
 from freud.util import _Compute
 
@@ -261,7 +267,9 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         return freud.plot.line_plot(
             self.k_values[self.k_values > self.min_valid_k],
             self.S_k[self.k_values > self.min_valid_k],
@@ -500,7 +508,9 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         return freud.plot.line_plot(
             self.bin_centers[self.bin_centers > self.min_valid_k],
             self.S_k[self.bin_centers > self.min_valid_k],
@@ -863,7 +873,9 @@ class DiffractionPattern(_Compute):
 
         if vmax is None:
             vmax = 0.7 * self.N_points
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         return freud.plot.diffraction_plot(
             self.diffraction, self.k_values, self.N_points, ax, cmap, vmin, vmax
         )

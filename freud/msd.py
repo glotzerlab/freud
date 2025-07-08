@@ -12,7 +12,13 @@ import numpy as np
 
 import freud.box
 import freud.parallel
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 from freud.util import _Compute
 
 logger = logging.getLogger(__name__)
@@ -257,7 +263,9 @@ class MSD(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         if self.mode == "window":
             xlabel = "Window size"
         else:

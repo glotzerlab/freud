@@ -12,7 +12,13 @@ import numpy as np
 
 import freud._locality
 import freud.box
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 import freud.util
 from freud._util import (  # noqa F401
     ManagedArray_double,
@@ -429,7 +435,9 @@ class NeighborQuery:
             :class:`matplotlib.collections.PathCollection`):
                 Axis and point data for the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)  # noqa: B026 - it works
 
 
@@ -1224,7 +1232,9 @@ class Voronoi(_Compute):
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         if not self._box.is2D:
             return None
         return freud.plot.voronoi_plot(self, self._box, ax, color_by, cmap)

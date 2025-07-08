@@ -43,7 +43,13 @@ import rowan
 
 import freud._pmft
 import freud.locality
-import freud.plot
+
+try:
+    import freud.plot
+
+    _HAS_MPL = True
+except ImportError:
+    _HAS_MPL = False
 from freud.locality import _SpatialHistogram
 from freud.util import _Compute
 
@@ -441,7 +447,9 @@ class PMFTXY(_PMFT):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         return freud.plot.pmft_plot(self, ax, cmap=cmap)
 
 
