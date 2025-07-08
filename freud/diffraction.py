@@ -14,8 +14,6 @@ finalized in a future release.
 
 import logging
 
-import matplotlib.cm
-import matplotlib.colors
 import numpy as np
 import rowan
 import scipy.ndimage
@@ -24,6 +22,9 @@ import freud._diffraction
 import freud.locality
 
 try:
+    import matplotlib.cm
+    import matplotlib.colors
+
     import freud.plot
 
     _HAS_MPL = True
@@ -843,7 +844,9 @@ class DiffractionPattern(_Compute):
 
         if vmax is None:
             vmax = 0.7 * self.N_points
-
+        if not _HAS_MPL:
+            msg = "Plotting requires matplotlib."
+            raise ImportError(msg)
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
         cmap = matplotlib.colormaps[cmap]
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
