@@ -19,7 +19,7 @@ import freud.util
 logger = logging.getLogger(__name__)
 
 
-class Box:
+class Box:  # noqa: PLW1641
     r"""The freud Box class for simulation boxes.
 
     This class defines an arbitrary triclinic geometry within which all points are confined.
