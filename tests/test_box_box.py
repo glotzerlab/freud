@@ -563,7 +563,8 @@ class TestBox:
         # Setting Lz for a 2D box throws a warning that we hide
         box = freud.box.Box.square(L=1)
         with pytest.warns(
-            UserWarning, match="Setting Lz for a 2-dimensional box has no effect!"
+            UserWarning,
+            match="Specifying z-dimensions in a 2-dimensional box has no effect!",
         ):
             box.L = [1.0, 1.0, 1.0]
         assert box.Lz == 0.0
