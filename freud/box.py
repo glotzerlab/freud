@@ -19,6 +19,9 @@ import freud.util
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
+
 logger = logging.getLogger(__name__)
 
 
@@ -732,8 +735,7 @@ class Box:  # noqa: PLW1641
                 :meth:`matplotlib.axes.Axes.plot`.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         if image is None:
             image = [0, 0, 0]
         return freud.plot.box_plot(

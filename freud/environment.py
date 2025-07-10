@@ -34,6 +34,8 @@ from freud.locality import _Compute, _PairCompute, _SpatialHistogram
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 
 class AngularSeparationNeighbor(_PairCompute):
@@ -830,8 +832,7 @@ class EnvironmentCluster(_MatchEnv):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:

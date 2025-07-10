@@ -27,6 +27,8 @@ from freud.util import _Compute
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 logger = logging.getLogger(__name__)
 
@@ -350,8 +352,7 @@ class Hexatic(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
             prime="'" if self.weighted else "", k=self.k
         )
@@ -606,8 +607,7 @@ class Steinhardt(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         ls = self.l
         if not isinstance(ls, list):
             ls = [ls]
@@ -796,8 +796,7 @@ class SolidLiquid(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:

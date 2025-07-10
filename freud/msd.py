@@ -18,6 +18,8 @@ from freud.util import _Compute
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 logger = logging.getLogger(__name__)
 
@@ -262,8 +264,7 @@ class MSD(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         if self.mode == "window":
             xlabel = "Window size"
         else:

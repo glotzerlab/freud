@@ -51,6 +51,8 @@ from freud.util import _Compute
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 
 def _quat_to_z_angle(orientations, num_points):
@@ -447,8 +449,7 @@ class PMFTXY(_PMFT):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         return freud.plot.pmft_plot(self, ax, cmap=cmap)
 
 

@@ -30,6 +30,8 @@ from freud.util import _Compute
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
 
@@ -434,8 +436,7 @@ class NeighborQuery:
                 Axis and point data for the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)  # noqa: B026 - it works
 
 
@@ -1231,8 +1232,7 @@ class Voronoi(_Compute):
             :class:`matplotlib.axes.Axes`: Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         if not self._box.is2D:
             return None
         return freud.plot.voronoi_plot(self, self._box, ax, color_by, cmap)

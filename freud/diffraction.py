@@ -30,6 +30,8 @@ if _HAS_MPL:
     import matplotlib.colors
 
     import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 logger = logging.getLogger(__name__)
 
@@ -267,8 +269,7 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         return freud.plot.line_plot(
             self.k_values[self.k_values > self.min_valid_k],
             self.S_k[self.k_values > self.min_valid_k],
@@ -508,8 +509,7 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
+            raise ImportError(msg_mpl)
         return freud.plot.line_plot(
             self.bin_centers[self.bin_centers > self.min_valid_k],
             self.S_k[self.bin_centers > self.min_valid_k],
@@ -836,15 +836,12 @@ class DiffractionPattern(_Compute):
             ((output_size, output_size, 4) :class:`numpy.ndarray`):
                 RGBA array of pixels.
         """
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         if vmin is None:
             vmin = 4e-6 * self.N_points
-
         if vmax is None:
             vmax = 0.7 * self.N_points
-        if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
         cmap = matplotlib.colormaps[cmap]
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
@@ -869,14 +866,12 @@ class DiffractionPattern(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         if vmin is None:
             vmin = 4e-6 * self.N_points
-
         if vmax is None:
             vmax = 0.7 * self.N_points
-        if not _HAS_MPL:
-            msg = "Plotting requires matplotlib."
-            raise ImportError(msg)
         return freud.plot.diffraction_plot(
             self.diffraction, self.k_values, self.N_points, ax, cmap, vmin, vmax
         )
