@@ -36,21 +36,21 @@ jobs:
       fail-fast: false
       matrix:
         os:
-        - base: ubuntu
-          version: latest
-          arch: 'x86_64'
-        - base: ubuntu
-          version: 24.04-arm
-          arch: 'aarch64'
-        # - base: windows
+        # - base: ubuntu
         #   version: latest
-        #   arch: 'amd64'
-        - base: macos
-          version: 14
-          arch: 'arm64'
-        - base: macos
-          version: 13
-          arch: 'x86_64'
+        #   arch: 'x86_64'
+        # - base: ubuntu
+        #   version: 24.04-arm
+        #   arch: 'aarch64'
+        - base: windows
+          version: latest
+          arch: 'amd64'
+        # - base: macos
+        #   version: 14
+        #   arch: 'arm64'
+        # - base: macos
+        #   version: 13
+        #   arch: 'x86_64'
 
         python:
         # Pinned versions installed in CIBW_TEST_REQIURES are kept. Those defined installed in
@@ -99,6 +99,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: "recursive"
+          
+      # Configure compilers for Windows. Does nothing on Linux/Mac.
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Build wheels
         uses: pypa/cibuildwheel@faf86a6ed7efa889faf6996aa23820831055001a # v2.23.3
@@ -119,6 +123,9 @@ jobs:
           CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package} macos"
           CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
 
+          # Repair the wheels. Only needed on Windows; cibuildwheel repairs correctly on Linux/Mac.
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "powershell .github/workflows/cibuildwheel-repair-wheel.ps1 \"{dest_dir}\" \"{wheel}\""
+
           # Test the wheels.
           CIBW_TEST_REQUIRES: >
             pytest==${{ matrix.python.oldest_pytest }}
@@ -128,7 +135,14 @@ jobs:
             gsd==${{ matrix.python.oldest_gsd }}
             matplotlib==${{ matrix.python.oldest_matplotlib }}
 
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
+          # Test the wheels.
+          CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
+          CIBW_BEFORE_TEST_MACOS: "source .github/workflows/cibuildwheel-before-test.sh {package}"
+          CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -n auto"
+          CIBW_TEST_COMMAND_LINUX: "cd {project}/tests && python -m pytest . -v --log-level=DEBUG --rootdir={project}/tests"
+          CIBW_TEST_COMMAND_MACOS: "cd {project}/tests && python -m pytest . -v --log-level=DEBUG --rootdir={project}/tests"
+          CIBW_TEST_COMMAND_WINDOWS: "cd {project}/tests && python -c \"import freud; print(freud.__version__)\""
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
