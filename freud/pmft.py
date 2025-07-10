@@ -38,6 +38,8 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
     :code:`nan`.
 """
 
+from importlib.util import find_spec
+
 import numpy as np
 import rowan
 
@@ -45,6 +47,12 @@ import freud._pmft
 import freud.locality
 from freud.locality import _SpatialHistogram
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 
 def _quat_to_z_angle(orientations, num_points):
@@ -423,8 +431,6 @@ class PMFTXY(_PMFT):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -442,8 +448,8 @@ class PMFTXY(_PMFT):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         return freud.plot.pmft_plot(self, ax, cmap=cmap)
 
 

@@ -3,18 +3,27 @@
 
 import io
 import warnings
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud
 
-try:
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import matplotlib.colors
     import matplotlib.pyplot as plt
+    from matplotlib import cm
     from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.collections import PatchCollection
+    from matplotlib.colorbar import Colorbar
+    from matplotlib.patches import Polygon
     from matplotlib.ticker import FormatStrFormatter, MaxNLocator
-except ImportError as exc:
-    msg = "matplotlib must be installed for freud.plot."
-    raise ImportError(msg) from exc
+    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+else:
+    msg = "matplotlib must be installed for freud.plot. "
+    raise ImportError(msg)
 
 
 def _ax_to_bytes(ax):
@@ -92,7 +101,6 @@ def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
             ax = fig.subplots()
         else:
             # This import registers the 3d projection
-            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
             ax = fig.add_subplot(111, projection="3d")
 
@@ -170,7 +178,6 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
             ax = fig.subplots()
         else:
             # This import registers the 3d projection
-            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
             ax = fig.add_subplot(111, projection="3d")
 
@@ -332,8 +339,6 @@ def pmft_plot(pmft, ax=None, cmap="viridis"):
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     # Plot figures
     if ax is None:
@@ -385,8 +390,6 @@ def density_plot(density, box, ax=None):
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if ax is None:
         fig = plt.figure()
@@ -434,11 +437,6 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib import cm
-    from matplotlib.collections import PatchCollection
-    from matplotlib.colorbar import Colorbar
-    from matplotlib.patches import Polygon
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if ax is None:
         fig = plt.figure()
@@ -536,9 +534,6 @@ def diffraction_plot(
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    import matplotlib.colors
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if vmin is None:
         vmin = 4e-6 * N_points

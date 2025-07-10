@@ -9,16 +9,23 @@ wrapping vectors outside the box back into it.
 
 import logging
 import warnings
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud._box
 import freud.util
 
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
+
 logger = logging.getLogger(__name__)
 
 
-class Box:
+class Box:  # noqa: PLW1641
     r"""The freud Box class for simulation boxes.
 
     This class defines an arbitrary triclinic geometry within which all points are confined.
@@ -727,8 +734,8 @@ class Box:
                 Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
                 :meth:`matplotlib.axes.Axes.plot`.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         if image is None:
             image = [0, 0, 0]
         return freud.plot.box_plot(

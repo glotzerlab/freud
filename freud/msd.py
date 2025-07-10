@@ -7,12 +7,19 @@ mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
 import logging
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud.box
 import freud.parallel
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 logger = logging.getLogger(__name__)
 
@@ -256,8 +263,8 @@ class MSD(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         if self.mode == "window":
             xlabel = "Window size"
         else:
@@ -273,8 +280,6 @@ class MSD(_Compute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

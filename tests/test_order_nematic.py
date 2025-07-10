@@ -110,7 +110,10 @@ class TestNematicOrder:
 
         op = freud.order.Nematic()
 
-        with pytest.warns(UserWarning):
+        with pytest.warns(
+            UserWarning,
+            match="Including zero vector in the orientations array may lead to undefined behavior.",
+        ):
             op.compute(orientations)
 
     def test_repr(self):

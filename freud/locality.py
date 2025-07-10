@@ -7,6 +7,7 @@ locate points based on their proximity to other points.
 """
 
 import inspect
+from importlib.util import find_spec
 
 import numpy as np
 
@@ -25,6 +26,12 @@ from freud._util import (  # noqa F401
 )
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
 
@@ -428,8 +435,8 @@ class NeighborQuery:
             :class:`matplotlib.collections.PathCollection`):
                 Axis and point data for the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)  # noqa: B026 - it works
 
 
@@ -1224,16 +1231,14 @@ class Voronoi(_Compute):
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         if not self._box.is2D:
             return None
         return freud.plot.voronoi_plot(self, self._box, ax, color_by, cmap)
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

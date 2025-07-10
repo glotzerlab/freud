@@ -10,6 +10,7 @@ characterize the particle environment.
 
 import collections.abc
 import warnings
+from importlib.util import find_spec
 
 import numpy as np
 
@@ -29,6 +30,12 @@ from freud._util import (  # noqa F401
 )
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.locality import _Compute, _PairCompute, _SpatialHistogram
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 
 class AngularSeparationNeighbor(_PairCompute):
@@ -824,8 +831,8 @@ class EnvironmentCluster(_MatchEnv):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
@@ -837,8 +844,6 @@ class EnvironmentCluster(_MatchEnv):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

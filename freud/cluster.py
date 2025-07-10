@@ -6,6 +6,8 @@ The :class:`freud.cluster` module aids in finding and computing the properties
 of clusters of points in a system.
 """
 
+from importlib.util import find_spec
+
 import numpy as np
 
 import freud._cluster
@@ -13,6 +15,12 @@ import freud.locality
 import freud.util
 from freud.locality import _PairCompute
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 
 class Cluster(_PairCompute):
@@ -100,8 +108,8 @@ class Cluster(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
@@ -110,8 +118,6 @@ class Cluster(_PairCompute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

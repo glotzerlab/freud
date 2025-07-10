@@ -14,6 +14,7 @@ import collections.abc
 import logging
 import time
 import warnings
+from importlib.util import find_spec
 from math import floor
 
 import numpy as np
@@ -22,6 +23,12 @@ import freud._order
 import freud.locality
 from freud.locality import _PairCompute
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
+else:
+    msg_mpl = "Plotting requires matplotlib."
 
 logger = logging.getLogger(__name__)
 
@@ -344,8 +351,8 @@ class Hexatic(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
             prime="'" if self.weighted else "", k=self.k
         )
@@ -360,8 +367,6 @@ class Hexatic(_PairCompute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -601,8 +606,8 @@ class Steinhardt(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         ls = self.l
         if not isinstance(ls, list):
             ls = [ls]
@@ -632,8 +637,6 @@ class Steinhardt(_PairCompute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -792,8 +795,8 @@ class SolidLiquid(_PairCompute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import freud.plot
-
+        if not _HAS_MPL:
+            raise ImportError(msg_mpl)
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
@@ -805,8 +808,6 @@ class SolidLiquid(_PairCompute):
 
     def _repr_png_(self):
         try:
-            import freud.plot
-
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
