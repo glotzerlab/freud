@@ -9,19 +9,16 @@ wrapping vectors outside the box back into it.
 
 import logging
 import warnings
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud._box
-
-try:
-    import freud.plot
-
-    _HAS_MPL = True
-except ImportError:
-    _HAS_MPL = False
 import freud.util
 
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
 logger = logging.getLogger(__name__)
 
 

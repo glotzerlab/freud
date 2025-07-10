@@ -7,19 +7,17 @@ mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
 import logging
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud.box
 import freud.parallel
-
-try:
-    import freud.plot
-
-    _HAS_MPL = True
-except ImportError:
-    _HAS_MPL = False
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
 
 logger = logging.getLogger(__name__)
 

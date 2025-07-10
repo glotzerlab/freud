@@ -3,12 +3,14 @@
 
 import io
 import warnings
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud
 
-try:
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
     import matplotlib.colors
     import matplotlib.pyplot as plt
     from matplotlib import cm
@@ -19,9 +21,9 @@ try:
     from matplotlib.ticker import FormatStrFormatter, MaxNLocator
     from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-except ImportError as exc:
-    msg = "matplotlib must be installed for freud.plot."
-    raise ImportError(msg) from exc
+else:
+    msg = "matplotlib must be installed for freud.plot. "
+    raise ImportError(msg)
 
 
 def _ax_to_bytes(ax):

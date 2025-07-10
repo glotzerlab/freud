@@ -7,18 +7,12 @@ locate points based on their proximity to other points.
 """
 
 import inspect
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud._locality
 import freud.box
-
-try:
-    import freud.plot
-
-    _HAS_MPL = True
-except ImportError:
-    _HAS_MPL = False
 import freud.util
 from freud._util import (  # noqa F401
     ManagedArray_double,
@@ -32,6 +26,10 @@ from freud._util import (  # noqa F401
 )
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
 
 ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
 

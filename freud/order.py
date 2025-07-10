@@ -14,21 +14,19 @@ import collections.abc
 import logging
 import time
 import warnings
+from importlib.util import find_spec
 from math import floor
 
 import numpy as np
 
 import freud._order
 import freud.locality
-
-try:
-    import freud.plot
-
-    _HAS_MPL = True
-except ImportError:
-    _HAS_MPL = False
 from freud.locality import _PairCompute
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
 
 logger = logging.getLogger(__name__)
 

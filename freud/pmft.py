@@ -38,20 +38,19 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
     :code:`nan`.
 """
 
+from importlib.util import find_spec
+
 import numpy as np
 import rowan
 
 import freud._pmft
 import freud.locality
-
-try:
-    import freud.plot
-
-    _HAS_MPL = True
-except ImportError:
-    _HAS_MPL = False
 from freud.locality import _SpatialHistogram
 from freud.util import _Compute
+
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import freud.plot
 
 
 def _quat_to_z_angle(orientations, num_points):
