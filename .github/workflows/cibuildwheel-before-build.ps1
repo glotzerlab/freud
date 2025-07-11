@@ -1,7 +1,7 @@
 $PACKAGE_DIR = $args[0]
 
 # Install a modern version of CMake for compatibility with modern Visual Studio
-pip install cmake
+pip install "cmake<3.31.3"
 
 $TBB_VERSION = "2022.1.0"
 $TBB_ZIP = "v${TBB_VERSION}.zip"
