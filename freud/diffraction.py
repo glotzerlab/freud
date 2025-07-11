@@ -13,7 +13,6 @@ finalized in a future release.
 """
 
 import logging
-from importlib.util import find_spec
 
 import numpy as np
 import rowan
@@ -23,15 +22,6 @@ import freud._diffraction
 import freud.locality
 import freud.util
 from freud.util import _Compute
-
-_HAS_MPL = find_spec("matplotlib") is not None
-if _HAS_MPL:
-    import matplotlib.cm
-    import matplotlib.colors
-
-    import freud.plot
-else:
-    msg_mpl = "Plotting requires matplotlib."
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +55,8 @@ class _StaticStructureFactor(_Compute):
 
     def _repr_png_(self):
         try:
+            import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -268,8 +260,8 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        if not _HAS_MPL:
-            raise ImportError(msg_mpl)
+        import freud.plot
+
         return freud.plot.line_plot(
             self.k_values[self.k_values > self.min_valid_k],
             self.S_k[self.k_values > self.min_valid_k],
@@ -508,8 +500,8 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        if not _HAS_MPL:
-            raise ImportError(msg_mpl)
+        import freud.plot
+
         return freud.plot.line_plot(
             self.bin_centers[self.bin_centers > self.min_valid_k],
             self.S_k[self.bin_centers > self.min_valid_k],
@@ -676,7 +668,15 @@ class DiffractionPattern(_Compute):
             mode="constant",
         )
 
-    def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
+    def compute(
+        self,
+        system,
+        view_orientation=None,
+        zoom=4,
+        peak_width=1,
+        weights=None,
+        reset=True,
+    ):
         r"""Computes diffraction pattern.
 
         Args:
@@ -691,6 +691,12 @@ class DiffractionPattern(_Compute):
             peak_width (float, optional):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
+            weights ((:math:`N`,) :class:`numpy.ndarray`, optional):
+                SLD weights for each point in the system. If provided, the
+                diffraction pattern will be normalized such that the sum of the
+                weights is equal to the number of points in the system, resulting in
+                :math:`S(0) = N`. If not provided, all points are assumed to
+                have a weight of 1. (Default value = :code:`None`).
             reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computations; if False, will accumulate data (Default
@@ -717,12 +723,19 @@ class DiffractionPattern(_Compute):
         xy = rowan.rotate(view_orientation, system.points)[:, 0:2]
         xy = xy @ inv_shear.T
 
+        # Normalize weights s.t. S(0) = N
+        if weights is not None:
+            weights = weights * len(weights) / np.sum(weights)
+
         # Map positions to [0, 1] and compute a histogram "image"
         # Use grid_size+1 bin edges so that there are grid_size bins
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
-            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, self.grid_size + 1)
+            xy[:, 0],
+            xy[:, 1],
+            bins=np.linspace(0, 1, self.grid_size + 1),
+            weights=weights,
         )
 
         # Compute FFT and convolve with Gaussian
@@ -836,12 +849,15 @@ class DiffractionPattern(_Compute):
             ((output_size, output_size, 4) :class:`numpy.ndarray`):
                 RGBA array of pixels.
         """
-        if not _HAS_MPL:
-            raise ImportError(msg_mpl)
+        import matplotlib.cm
+        import matplotlib.colors
+
         if vmin is None:
             vmin = 4e-6 * self.N_points
+
         if vmax is None:
             vmax = 0.7 * self.N_points
+
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
         cmap = matplotlib.colormaps[cmap]
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
@@ -866,18 +882,22 @@ class DiffractionPattern(_Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        if not _HAS_MPL:
-            raise ImportError(msg_mpl)
         if vmin is None:
             vmin = 4e-6 * self.N_points
+
         if vmax is None:
             vmax = 0.7 * self.N_points
+
+        import freud.plot
+
         return freud.plot.diffraction_plot(
             self.diffraction, self.k_values, self.N_points, ax, cmap, vmin, vmax
         )
 
     def _repr_png_(self):
         try:
+            import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
