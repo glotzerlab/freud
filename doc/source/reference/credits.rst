@@ -25,6 +25,7 @@ The following people contributed to the development of freud:
 * Emily Siew, University of Michigan
 * Eric Harper, University of Michigan
 * Erin Teich, University of Michigan
+* Fabian Prandl, University of Tübingen
 * Gabby Jones, University of Michigan
 * Greg van Anders, University of Michigan
 * James Antonaglia, University of Michigan
