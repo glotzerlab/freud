@@ -149,159 +149,159 @@ jobs:
           name: dist-${{ matrix.os.base }}-${{ matrix.os.version }}-${{ matrix.python.version }}
           path: ./wheelhouse/*.whl
 
-  build_sdist:
-    name: Build source distribution
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          submodules: "recursive"
+  # build_sdist:
+  #   name: Build source distribution
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: checkout
+  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  #       with:
+  #         submodules: "recursive"
 
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: "3.13"
+  #     - name: Set up Python
+  #       uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+  #       with:
+  #         python-version: "3.13"
 
-      - name: Set up Python environment
-        uses: glotzerlab/workflows/setup-uv@1855eec25e87bdbc06359aa3adc355b59272cae3 # 0.7.0
-        with:
-          lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
+  #     - name: Set up Python environment
+  #       uses: glotzerlab/workflows/setup-uv@1855eec25e87bdbc06359aa3adc355b59272cae3 # 0.7.0
+  #       with:
+  #         lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
 
-      - name: Build sdist
-        run: python -m build --installer uv --sdist --outdir dist/ .
+  #     - name: Build sdist
+  #       run: python -m build --installer uv --sdist --outdir dist/ .
 
-      - name: Check sdist size
-        run: du -hs dist/*
+  #     - name: Check sdist size
+  #       run: du -hs dist/*
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: dist-sdist
-          path: dist/*.tar.gz
+  #     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+  #       with:
+  #         name: dist-sdist
+  #         path: dist/*.tar.gz
 
-  upload_pypi:
-    name: Publish [PyPI]
-    needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
-    concurrency: upload
-    permissions:
-      id-token: write
+  # upload_pypi:
+  #   name: Publish [PyPI]
+  #   needs: [build_wheels, build_sdist]
+  #   runs-on: ubuntu-latest
+  #   concurrency: upload
+  #   permissions:
+  #     id-token: write
 
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          merge-multiple: 'true'
-          pattern: dist-*
-          path: dist
+  #   steps:
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+  #       with:
+  #         merge-multiple: 'true'
+  #         pattern: dist-*
+  #         path: dist
 
-      - name: Check files
-        run: ls -lR dist
+  #     - name: Check files
+  #       run: ls -lR dist
 
-      - name: Upload to PyPI
-        # upload to PyPI on every tag starting with 'v'
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+  #     - name: Upload to PyPI
+  #       # upload to PyPI on every tag starting with 'v'
+  #       if: startsWith(github.ref, 'refs/tags/v')
+  #       uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
 
-      - name: Upload to TestPyPI
-        # upload to TestPyPI on non-tags
-        if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
-        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          skip-existing: true
+  #     - name: Upload to TestPyPI
+  #       # upload to TestPyPI on non-tags
+  #       if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+  #       uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+  #       with:
+  #         repository-url: https://test.pypi.org/legacy/
+  #         skip-existing: true
 
-      - name: Slack notification
-        if: startsWith(github.ref, 'refs/tags/v') || failure()
-        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
-        with:
-          status: ${{ job.status }}
-          channel: '#dev-freud'
+  #     - name: Slack notification
+  #       if: startsWith(github.ref, 'refs/tags/v') || failure()
+  #       uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
+  #       with:
+  #         status: ${{ job.status }}
+  #         channel: '#dev-freud'
 
-  source:
-    name: Build source tarball
-    runs-on: ubuntu-latest
+  # source:
+  #   name: Build source tarball
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      with:
-        path: code
-        submodules: true
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  #     with:
+  #       path: code
+  #       submodules: true
 
-    - name: Determine filename-safe ref from GITHUB_REF_NAME
-      run: echo ref="$(echo "${GITHUB_REF_NAME}" | sed  -e 's/\//-/g')" >> "$GITHUB_ENV"
+  #   - name: Determine filename-safe ref from GITHUB_REF_NAME
+  #     run: echo ref="$(echo "${GITHUB_REF_NAME}" | sed  -e 's/\//-/g')" >> "$GITHUB_ENV"
 
-    - name: Copy source
-      run: cp -R code "${name}-${ref}"
+  #   - name: Copy source
+  #     run: cp -R code "${name}-${ref}"
 
-    - name: Remove .git
-      run: rm -rf "${name}-${ref}/.git"
+  #   - name: Remove .git
+  #     run: rm -rf "${name}-${ref}/.git"
 
-    - name: Remove examples data
-      run: rm -rf "${name}-${ref}/doc/source/gettingstarted/examples" && ls -laR "${name}-${ref}"
+  #   - name: Remove examples data
+  #     run: rm -rf "${name}-${ref}/doc/source/gettingstarted/examples" && ls -laR "${name}-${ref}"
 
-    - name: Tar/zstd source
-      run: tar --zstd -cvf "${name}-${ref}.tar.zst" "${name}-${ref}"
+  #   - name: Tar/zstd source
+  #     run: tar --zstd -cvf "${name}-${ref}.tar.zst" "${name}-${ref}"
 
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      with:
-        name: source
-        path: |
-          *.tar.*
+  #   - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+  #     with:
+  #       name: source
+  #       path: |
+  #         *.tar.*
 
-  release-notes:
-    name: Extract release notes
-    runs-on: ubuntu-latest
+  # release-notes:
+  #   name: Extract release notes
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      with:
-        path: code
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  #     with:
+  #       path: code
 
-    - name: Write release-notes.md
-      # 1. Search for the content from the start of the file to the 2nd version heading.
-      # 2. Remove the 2nd version heading.
-      # 3. Search for the content after the first version heading (removes any description at the
-      #    start of the file.
-      # 4. Remove the 1st version heading.
-      # This leaves the content of the release notes for the current release.
-      run: >
-        grep -P -m 2 -B 10000 "^## v*\d*\.\d*\.\d*" ChangeLog.md |
-        sed '$d' |
-        grep -P -A 10000 "^## v*\d*\.\d*\.\d*" |
-        sed '1d' |
-        tee "${GITHUB_WORKSPACE}/release-notes.md"
-      working-directory: code
+  #   - name: Write release-notes.md
+  #     # 1. Search for the content from the start of the file to the 2nd version heading.
+  #     # 2. Remove the 2nd version heading.
+  #     # 3. Search for the content after the first version heading (removes any description at the
+  #     #    start of the file.
+  #     # 4. Remove the 1st version heading.
+  #     # This leaves the content of the release notes for the current release.
+  #     run: >
+  #       grep -P -m 2 -B 10000 "^## v*\d*\.\d*\.\d*" ChangeLog.md |
+  #       sed '$d' |
+  #       grep -P -A 10000 "^## v*\d*\.\d*\.\d*" |
+  #       sed '1d' |
+  #       tee "${GITHUB_WORKSPACE}/release-notes.md"
+  #     working-directory: code
 
-    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-      with:
-        name: release-notes
-        path: |
-          release-notes.md
+  #   - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+  #     with:
+  #       name: release-notes
+  #       path: |
+  #         release-notes.md
 
-  publish_github:
-    name: Publish [GitHub]
-    needs: [release-notes, source]
-    runs-on: ubuntu-latest
+  # publish_github:
+  #   name: Publish [GitHub]
+  #   needs: [release-notes, source]
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-      with:
-        merge-multiple: true
+  #   steps:
+  #   - name: Download artifacts
+  #     uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+  #     with:
+  #       merge-multiple: true
 
-    - name: List files
-      run: ls -lR
+  #   - name: List files
+  #     run: ls -lR
 
-    - name: Create release
-      uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          *.zst
-        body_path: release-notes.md
-        make_latest: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Create release
+  #     uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
+  #     if: startsWith(github.ref, 'refs/tags/')
+  #     with:
+  #       files: |
+  #         *.zst
+  #       body_path: release-notes.md
+  #       make_latest: true
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

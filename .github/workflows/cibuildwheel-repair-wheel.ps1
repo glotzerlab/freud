@@ -4,4 +4,5 @@ $WHEEL = $args[1]
 # Install delvewheel for Windows wheel repairs
 pip install delvewheel
 
+# From https://cibuildwheel.pypa.io/en/stable/options/#repair-wheel-command
 delvewheel repair --add-path "C:/Program Files (x86)/TBB/bin/" -w "${DEST_DIR}" "${WHEEL}"
