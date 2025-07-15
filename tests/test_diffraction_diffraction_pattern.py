@@ -245,14 +245,13 @@ class TestDiffractionPattern:
         weights = np.random.uniform(0, 10, N)
         dp = freud.diffraction.DiffractionPattern(grid_size=256)
         weighted_diffraction = dp.compute((box, positions), weights=weights, reset=True)
-        
+
         assert np.allclose(weighted_diffraction.diffraction[128, 128], len(positions))
 
         dp = freud.diffraction.DiffractionPattern(grid_size=256)
 
         unweighted_diffraction = dp.compute((box, positions), reset=True)
-        
-        assert (unweighted_diffraction.diffraction != weighted_diffraction.diffraction).any()
-        
-        
-        
+
+        assert (
+            unweighted_diffraction.diffraction != weighted_diffraction.diffraction
+        ).any()
