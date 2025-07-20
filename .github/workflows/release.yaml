@@ -119,6 +119,9 @@ jobs:
           CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package} macos"
           CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
 
+          # Repair the wheels. Only needed on Windows; cibuildwheel repairs correctly on Linux/Mac.
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "powershell .github/workflows/cibuildwheel-repair-wheel.ps1 \"{dest_dir}\" \"{wheel}\""
+
           # Test the wheels.
           CIBW_TEST_REQUIRES: >
             pytest==${{ matrix.python.oldest_pytest }}
