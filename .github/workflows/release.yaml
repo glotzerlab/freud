@@ -42,9 +42,9 @@ jobs:
         - base: ubuntu
           version: 24.04-arm
           arch: 'aarch64'
-        # - base: windows
-        #   version: latest
-        #   arch: 'amd64'
+        - base: windows
+          version: latest
+          arch: 'amd64'
         - base: macos
           version: 14
           arch: 'arm64'
@@ -119,6 +119,9 @@ jobs:
           CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package} macos"
           CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
 
+          # Repair the wheels. Only needed on Windows; cibuildwheel repairs correctly on Linux/Mac.
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "powershell .github/workflows/cibuildwheel-repair-wheel.ps1 \"{dest_dir}\" \"{wheel}\""
+
           # Test the wheels.
           CIBW_TEST_REQUIRES: >
             pytest==${{ matrix.python.oldest_pytest }}
@@ -128,7 +131,7 @@ jobs:
             gsd==${{ matrix.python.oldest_gsd }}
             matplotlib==${{ matrix.python.oldest_matplotlib }}
 
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
+          CIBW_TEST_COMMAND: "pytest {package}/tests -v --log-level=DEBUG"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
