@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## 3.X.X -- XXXX-XX-XX
 
+### Added
+* Windows wheels on PyPI.
+
 ### Fixed
 * Type hinting in `UnitCell` no longer infers incorrect type.
 
