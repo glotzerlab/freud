@@ -51,6 +51,7 @@ The following people contributed to the development of freud:
 * Philipp Schönhöfer, University of Michigan
 * Richmond Newman, University of Michigan
 * Rose Cersonsky, University of Michigan
+* Rubén Chaves
 * Ryan Marson, University of Michigan
 * Suraj Kannur, University of Michigan
 * Tim Moore, University of Michigan
