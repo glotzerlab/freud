@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## 3.X.X -- XXXX-XX-XX
+
+### Added
+* Windows wheels on PyPI.
+
+### Fixed
+* Type hinting in `UnitCell` no longer infers incorrect type.
+
 ## 3.3.1 -- 2025-04-28
 
 ### Fixed
