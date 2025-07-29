@@ -81,6 +81,18 @@ class TestMSD:
             npt.assert_allclose(solution, simple, atol=1e-6)
             npt.assert_allclose(solution_particle, simple_particle, atol=1e-5)
 
+    def test_MSD_compute(self):
+        n_frames = 5
+        n_particles = 10
+
+        # Random positions: shape (N frames, particles, 3)
+        positions = np.random.rand(n_frames, n_particles, 3).astype(np.float32)
+        images = np.zeros((n_frames, n_particles, 3), dtype=np.int32)
+        box = freud.box.Box.cube(10)
+
+        msd = freud.msd.MSD(box=box, mode="window")
+        msd.compute(positions=positions, images=images)
+
     def test_repr(self):
         msd = freud.msd.MSD()
         assert str(msd) == str(eval(repr(msd)))
