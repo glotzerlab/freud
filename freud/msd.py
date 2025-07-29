@@ -206,7 +206,9 @@ class MSD(_Compute):
         if self._box is not None and images is not None:
             unwrapped_positions = positions.copy()
             for i in range(positions.shape[0]):
-                unwrapped_positions[i, :, :] = self._box.unwrap(unwrapped_positions[i, :, :], images[i, :, :])
+                unwrapped_positions[i, :, :] = self._box.unwrap(
+                    unwrapped_positions[i, :, :], images[i, :, :]
+                )
             positions = unwrapped_positions
 
         if self.mode == "window":
