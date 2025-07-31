@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ### Fixed
 * Type hinting in `UnitCell` no longer infers incorrect type.
+* Fixed `MSD` compute to correctly preprocess the data for msd calculation.
 
 ## 3.3.1 -- 2025-04-28
 
