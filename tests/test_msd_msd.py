@@ -81,6 +81,26 @@ class TestMSD:
             npt.assert_allclose(solution, simple, atol=1e-6)
             npt.assert_allclose(solution_particle, simple_particle, atol=1e-5)
 
+    def test_MSD_compute(self):
+        n_frames = 5
+        n_particles = 10
+
+        positions = np.zeros((n_frames, n_particles, 3), dtype=np.float32)
+        for t in range(n_frames):
+            # at frame t, x = t, y = z = 0
+            positions[t, :, 0] = t
+
+        images = np.zeros((n_frames, n_particles, 3), dtype=np.int32)
+        box = freud.box.Box.cube(30)
+
+        msd = freud.msd.MSD(box=box, mode="window")
+        msd.compute(positions=positions, images=images, reset=False)
+
+        expected_msd = np.arange(n_frames) ** 2
+        expected_particle = np.tile(expected_msd, (n_particles, 1)).T
+        assert np.allclose(msd.msd, expected_msd)
+        assert np.allclose(msd.particle_msd, expected_particle)
+
     def test_repr(self):
         msd = freud.msd.MSD()
         assert str(msd) == str(eval(repr(msd)))

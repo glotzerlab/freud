@@ -205,7 +205,11 @@ class MSD(_Compute):
         # Make sure we aren't modifying the provided array
         if self._box is not None and images is not None:
             unwrapped_positions = positions.copy()
-            positions = self._box.wrap(unwrapped_positions, images)
+            for i in range(positions.shape[0]):
+                unwrapped_positions[i, :, :] = self._box.unwrap(
+                    unwrapped_positions[i, :, :], images[i, :, :]
+                )
+            positions = unwrapped_positions
 
         if self.mode == "window":
             # First compute the first term r^2(k+m) - r^2(k)
