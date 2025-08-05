@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ### Added
 * Windows wheels on PyPI.
+* SLD for computation of the Diffraction Pattern.
 
 ### Fixed
 * Type hinting in `UnitCell` no longer infers incorrect type.

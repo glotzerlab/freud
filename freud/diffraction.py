@@ -676,7 +676,15 @@ class DiffractionPattern(_Compute):
             mode="constant",
         )
 
-    def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
+    def compute(
+        self,
+        system,
+        view_orientation=None,
+        zoom=4,
+        peak_width=1,
+        weights=None,
+        reset=True,
+    ):
         r"""Computes diffraction pattern.
 
         Args:
@@ -691,6 +699,13 @@ class DiffractionPattern(_Compute):
             peak_width (float, optional):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
+            weights ((:math:`N`,) :class:`numpy.ndarray`, optional):
+                Scattering length density (SLD) weights for each point in the system.
+                If provided, the diffraction pattern will be normalized such
+                that the sum of the weights is equal to the number of points in
+                the system, resulting in :math:`S(0) = N`. If not provided,
+                all points are assumed to have a weight of 1.
+                (Default value = :code:`None`).
             reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computations; if False, will accumulate data (Default
@@ -717,12 +732,19 @@ class DiffractionPattern(_Compute):
         xy = rowan.rotate(view_orientation, system.points)[:, 0:2]
         xy = xy @ inv_shear.T
 
+        # Normalize weights s.t. S(0) = N
+        if weights is not None:
+            weights = weights * len(weights) / np.sum(weights)
+
         # Map positions to [0, 1] and compute a histogram "image"
         # Use grid_size+1 bin edges so that there are grid_size bins
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
-            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, self.grid_size + 1)
+            xy[:, 0],
+            xy[:, 1],
+            bins=np.linspace(0, 1, self.grid_size + 1),
+            weights=weights,
         )
 
         # Compute FFT and convolve with Gaussian
