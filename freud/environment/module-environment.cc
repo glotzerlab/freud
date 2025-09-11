@@ -15,7 +15,7 @@ void export_MatchEnv(nanobind::module_& m);
 }; // namespace freud::environment::detail
 using namespace freud::environment::detail;
 
-NB_MODULE(_environment, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
+NB_MODULE(_environment, module) // NOLINT: caused by nanobind
 {
     export_AngularSeparationNeighbor(module);
     export_AngularSeparationGlobal(module);

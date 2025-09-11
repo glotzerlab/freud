@@ -307,8 +307,8 @@ class Hexatic(_PairCompute):
                 (Default value: None).
         """
 
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, neighbors=neighbors
+        nq, nlist, qargs, _l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, neighbors=neighbors)
         )
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
         return self
@@ -581,8 +581,8 @@ class Steinhardt(_PairCompute):
         """
 
         # Call the pair compute setup function
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, neighbors=neighbors
+        nq, nlist, qargs, _l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, neighbors=neighbors)
         )
 
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
@@ -708,8 +708,8 @@ class SolidLiquid(_PairCompute):
                 (Default value: None).
         """
 
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, neighbors=neighbors
+        nq, nlist, qargs, _l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, neighbors=neighbors)
         )
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
         return self

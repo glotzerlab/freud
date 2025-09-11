@@ -93,7 +93,7 @@ class AngularSeparationNeighbor(_PairCompute):
                 (Default value: None).
         """  # noqa: E501
         equiv_orientations = np.asarray(equiv_orientations)
-        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+        nq, nlist, qargs, query_points, _num_query_points = self._preprocess_arguments(
             system, query_points, neighbors
         )
 
@@ -335,8 +335,8 @@ class BondOrder(_SpatialHistogram):
         if reset:
             self._reset()
 
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, query_points, neighbors
+        nq, nlist, qargs, _l_query_points, num_query_points = (
+            self._preprocess_arguments(system, query_points, neighbors)
         )
         if orientations is None:
             orientations = np.array([[1, 0, 0, 0]] * nq.points.shape[0])
@@ -783,8 +783,8 @@ class EnvironmentCluster(_MatchEnv):
                 option incurs a significant performance penalty.
                 (Default value = :code:`False`)
         """  # noqa: E501
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, neighbors=cluster_neighbors
+        nq, nlist, qargs, _l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, neighbors=cluster_neighbors)
         )
 
         if env_neighbors is None:
@@ -898,8 +898,8 @@ class EnvironmentMotifMatch(_MatchEnv):
                 it minimizes the RMSD between the two sets
                 (Default value = False).
         """
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, neighbors=env_neighbors
+        nq, nlist, qargs, _l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, neighbors=env_neighbors)
         )
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
@@ -975,8 +975,8 @@ class _EnvironmentRMSDMinimizer(_MatchEnv):
                 Vector of minimal RMSD values, one value per particle.
 
         """
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, neighbors=neighbors
+        nq, nlist, qargs, _l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, neighbors=neighbors)
         )
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
@@ -1051,7 +1051,7 @@ class LocalBondProjection(_PairCompute):
                 (Default value: None).
         """  # noqa: E501
         equiv_orientations = np.asarray(equiv_orientations)
-        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+        nq, nlist, qargs, query_points, _num_query_points = self._preprocess_arguments(
             system, query_points, neighbors
         )
 

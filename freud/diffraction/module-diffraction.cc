@@ -13,7 +13,7 @@ void export_StaticStructureFactorDirect(nanobind::module_& m);
 
 using namespace freud::diffraction::detail;
 
-NB_MODULE(_diffraction, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
+NB_MODULE(_diffraction, module) // NOLINT: caused by nanobind
 {
     export_StaticStructureFactor(module);
     export_StaticStructureFactorDebye(module);

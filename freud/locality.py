@@ -1294,7 +1294,7 @@ class Filter(_PairCompute):
                 Query points used to calculate the unfiltered neighborlist. Uses
                 the system's points if :code:`None` (Default value = :code:`None`).
         """
-        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+        nq, nlist, qargs, query_points, _num_query_points = self._preprocess_arguments(
             system, query_points, neighbors
         )
 

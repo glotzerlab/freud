@@ -141,14 +141,14 @@ class TestUnitCell:
 
         np.random.seed(0)
         first_rand = np.random.randint(num_points)
-        box, points = freud.data.UnitCell.fcc().generate_system(
+        _box, _points = freud.data.UnitCell.fcc().generate_system(
             sigma_noise=sigma, seed=1
         )
         second_rand = np.random.randint(num_points)
 
         np.random.seed(0)
         third_rand = np.random.randint(num_points)
-        box, points = freud.data.UnitCell.fcc().generate_system(
+        _box, _points = freud.data.UnitCell.fcc().generate_system(
             sigma_noise=sigma, seed=2
         )
         fourth_rand = np.random.randint(num_points)
@@ -174,14 +174,14 @@ class TestRandomSystem:
 
         np.random.seed(0)
         first_rand = np.random.randint(num_points)
-        box, points = freud.data.make_random_system(
+        _box, _points = freud.data.make_random_system(
             box_size=box_size, num_points=num_points, seed=1
         )
         second_rand = np.random.randint(num_points)
 
         np.random.seed(0)
         third_rand = np.random.randint(num_points)
-        box, points = freud.data.make_random_system(
+        _box, _points = freud.data.make_random_system(
             box_size=box_size, num_points=num_points, seed=2
         )
         fourth_rand = np.random.randint(num_points)

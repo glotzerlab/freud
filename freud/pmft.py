@@ -191,7 +191,7 @@ class PMFTR12(_PMFT):
         if reset:
             self._reset()
 
-        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+        nq, nlist, qargs, query_points, _num_query_points = self._preprocess_arguments(
             system, query_points, neighbors
         )
 
@@ -293,7 +293,7 @@ class PMFTXYT(_PMFT):
         if reset:
             self._reset()
 
-        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+        nq, nlist, qargs, query_points, _num_query_points = self._preprocess_arguments(
             system, query_points, neighbors
         )
 

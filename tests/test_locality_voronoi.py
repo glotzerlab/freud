@@ -264,7 +264,7 @@ class TestVoronoi:
         # Drop the tiny facets that come from numerical imprecision
         nlist = nlist.filter(nlist.weights > 1e-5)
 
-        unique_indices, counts = np.unique(
+        _unique_indices, counts = np.unique(
             nlist.query_point_indices, return_counts=True
         )
 

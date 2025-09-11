@@ -119,7 +119,7 @@ class TestCorrelationFunction:
         dr = r_max / bins
         num_points = 1000
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
+        _box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j * ang)
         ocf = freud.density.CorrelationFunction(bins, r_max)
@@ -213,7 +213,7 @@ class TestCorrelationFunction:
         bins = 10
         num_points = 100
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
+        _box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
         ang = np.random.random_sample(num_points).astype(np.float64) * 2.0 * np.pi
         comp = np.exp(1j * ang)
         ocf = freud.density.CorrelationFunction(bins, r_max)

@@ -8,7 +8,7 @@
 
 using namespace freud::parallel;
 
-NB_MODULE(_parallel, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
+NB_MODULE(_parallel, module) // NOLINT: caused by nanobind
 {
     module.def("setNumThreads", &setNumThreads);
 }

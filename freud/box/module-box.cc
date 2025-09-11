@@ -6,14 +6,16 @@
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
+#include <utility>
+
 #include "Box.h"
 #include "export-Box.h"
 
 using namespace freud::box;
 
-NB_MODULE(_box, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
+NB_MODULE(_box, module) // NOLINT: caused by nanobind
 {
-    nanobind::class_<Box>(module, "Box")
+    nanobind::class_<Box>(std::move(module), "Box")
         // constructors
         .def(nanobind::init<float, float, float, float, float, float, bool>())
         // getters and setters

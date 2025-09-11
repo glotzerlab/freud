@@ -1,12 +1,8 @@
-ci:
-  autoupdate_schedule: quarterly
-  autofix_prs: false
-
 exclude: (?:^extern/)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v5.0.0'
+    rev: 'v6.0.0'
     hooks:
       - id: end-of-file-fixer
         exclude: |
@@ -27,8 +23,8 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-json
       - id: check-yaml
+        exclude: "\\.clang-format"
       - id: debug-statements
-      - id: requirements-txt-fixer
   - repo: https://github.com/glotzerlab/fix-license-header
     rev: v0.4.1
     hooks:
@@ -37,8 +33,7 @@ repos:
         exclude: |
           (?x)(
               ^doc/|
-              ^extern/|
-              ^requirements/
+              ^extern/
               )
         types_or: [c, c++, python]
         args:
@@ -54,33 +49,16 @@ repos:
         args:
           - --py39-plus
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.12.2'
+    rev: 'v0.13.0'
     hooks:
     - id: ruff-format
-    - id: ruff
+    - id: ruff-check
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
       - id: cmake-format
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v20.1.7'
+    rev: 'v21.1.0'
     hooks:
       - id: clang-format
         types_or: [c, c++]
-# The following pre-commit hooks should only be run manually because they have
-# dependencies that cannot be pip installed.
-  - repo: local
-    hooks:
-    - id: clang-tidy
-      stages: [manual]  # Requires clang-tidy.
-      name: clang-tidy
-      entry: clang-tidy-18
-      language: system
-      types: [c++]
-      # Exclude external files.
-      exclude: |
-        (?x)^(
-          ^extern/
-        )
-      args:
-      - --warnings-as-errors=*

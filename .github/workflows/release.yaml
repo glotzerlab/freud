@@ -4,14 +4,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 on:
   push:
     branches:
       - "main"
-      - "nanobind"
       - "next"
     tags:
       - "*"
@@ -58,13 +57,6 @@ jobs:
         # store the pinned requirements in a requirements file.
         # Generate these version sets with commands like this:
         # echo -e "numpy==1.21.6\nscipy\ngsd\nmatplotlib\nsympy" | uv pip compile --python-platform linux --python-version 3.9 --only-binary :all: - --resolution=lowest --no-deps
-        - version: 'cp39'
-          oldest_numpy: '1.22.4'
-          oldest_scipy: '1.7.3'
-          oldest_gsd: '3.2.0'
-          oldest_matplotlib: '3.5.0'
-          oldest_pytest: '8.2.1'
-          oldest_sympy: '1.10'
         - version: 'cp310'
           oldest_numpy: '1.22.4'
           oldest_scipy: '1.7.3'
@@ -140,7 +132,7 @@ jobs:
 
   build_sdist:
     name: Build source distribution
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -154,11 +146,9 @@ jobs:
 
       - name: Set up Python environment
         uses: glotzerlab/workflows/setup-uv@1855eec25e87bdbc06359aa3adc355b59272cae3 # 0.7.0
-        with:
-          lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
 
       - name: Build sdist
-        run: python -m build --installer uv --sdist --outdir dist/ .
+        run: uv build --sdist --out-dir dist/ .
 
       - name: Check sdist size
         run: du -hs dist/*

@@ -148,7 +148,7 @@ class StaticStructureFactorTest:
 
     def test_attribute_access(self, sf_params):
         """Ensure parameters are initialized properly."""
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        _bins, k_max, k_min, _num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
 
         # only test common attribute in the super implementation
@@ -186,7 +186,7 @@ class StaticStructureFactorTest:
 
     def test_attribute_shapes(self, sf_params):
         """Ensure attributes have the right shape."""
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        bins, k_max, k_min, _num_sampled_k_points = sf_params
 
         sf = self.build_structure_factor_object(*sf_params)
 
@@ -262,13 +262,13 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         """Ensure parameters are initialized properly."""
         super().test_attribute_access(sf_params)
 
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        bins, _k_max, _k_min, _num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
         assert sf.num_k_values == bins
 
     def test_bin_precision(self, sf_params):
         """Ensure bin edges and bounds are precise."""
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        bins, k_max, k_min, _num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
         expected_k_values = np.linspace(k_min, k_max, bins)
         npt.assert_allclose(sf.k_values, expected_k_values, rtol=1e-5, atol=1e-5)
@@ -283,7 +283,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         """Ensure attributes have the right shape."""
         super().test_attribute_shapes(sf_params)
 
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        bins, _k_max, _k_min, _num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
 
         assert sf.k_values.shape == (bins,)
@@ -421,7 +421,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         """Ensure parameters are initialized properly."""
         super().test_attribute_access(sf_params)
 
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        _bins, _k_max, _k_min, num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
         assert sf.num_sampled_k_points == num_sampled_k_points
         with pytest.raises(AttributeError):
@@ -432,7 +432,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
     )
     def test_bin_precision(self, sf_params):
         """Ensure bin edges and bounds are precise."""
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        bins, k_max, k_min, _num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
         expected_bin_edges = np.histogram_bin_edges(
             np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
@@ -451,7 +451,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         """Ensure attributes have the right shape."""
         super().test_attribute_shapes(sf_params)
 
-        bins, k_max, k_min, num_sampled_k_points = sf_params
+        bins, _k_max, _k_min, _num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
 
         assert sf.bin_centers.shape == (bins,)
@@ -470,7 +470,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         dsf_reciprocal = pytest.importorskip("dsf.reciprocal")
         binned_statistic = pytest.importorskip("scipy.stats").binned_statistic
 
-        bins, k_max, k_min, num_sampled_k_points = sf_params_kmin_zero
+        bins, k_max, _k_min, num_sampled_k_points = sf_params_kmin_zero
 
         # Compute structure factor from freud
         sf_direct = freud.diffraction.StaticStructureFactorDirect(

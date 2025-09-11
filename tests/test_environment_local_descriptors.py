@@ -165,7 +165,7 @@ class TestLocalDescriptors:
         l_max = 8
         L = 10
 
-        box, positions = freud.data.make_random_system(L, N)
+        _box, _positions = freud.data.make_random_system(L, N)
 
         with pytest.raises(ValueError):
             freud.environment.LocalDescriptors(l_max, True, mode="particle_local_wrong")

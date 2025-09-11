@@ -16,7 +16,7 @@ void export_HexaticTranslational(nanobind::module_& m);
 
 using namespace freud::order::detail;
 
-NB_MODULE(_order, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
+NB_MODULE(_order, module) // NOLINT: caused by nanobind
 {
     export_Nematic(module);
     export_RotationalAutocorrelation(module);

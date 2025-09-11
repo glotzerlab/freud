@@ -102,8 +102,8 @@ class CorrelationFunction(_SpatialHistogram1D):
             self.is_complex = False
             self._reset()
 
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, query_points, neighbors
+        nq, nlist, qargs, l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, query_points, neighbors)
         )
 
         self.is_complex = (
@@ -637,8 +637,8 @@ class RDF(_SpatialHistogram1D):
         if reset:
             self._reset()
 
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, query_points, neighbors
+        nq, nlist, qargs, l_query_points, _num_query_points = (
+            self._preprocess_arguments(system, query_points, neighbors)
         )
 
         self._cpp_obj.accumulateRDF(
