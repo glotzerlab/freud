@@ -36,7 +36,7 @@ jobs:
         run: |
           cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
       - name: clang-tidy
-        run: git ls-files | grep -E '^freud.*(.h|.hpp|.hh|.cc|.cpp)$' | xargs -I {} clang-tidy-18 -fix -p build --warnings-as-errors=* {}
+        run: git ls-files | grep -E '^freud.*(.h|.hpp|.hh|.cc|.cpp)$' | xargs clang-tidy-18 -fix -p build --warnings-as-errors=*
       - run: git diff --color
 
   prek:
