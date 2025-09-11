@@ -13,10 +13,6 @@ on:
 
   workflow_dispatch:
 
-defaults:
-  run:
-    shell: bash -leo pipefail {0}
-
 jobs:
   clang-tidy:
     name: Check C++ Code Style
