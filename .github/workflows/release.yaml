@@ -161,7 +161,7 @@ jobs:
   upload_pypi:
     name: Publish [PyPI]
     needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     concurrency: upload
     permissions:
       id-token: write
@@ -199,7 +199,7 @@ jobs:
 
   source:
     name: Build source tarball
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
@@ -231,7 +231,7 @@ jobs:
 
   release-notes:
     name: Extract release notes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
@@ -263,7 +263,7 @@ jobs:
   publish_github:
     name: Publish [GitHub]
     needs: [release-notes, source]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Download artifacts
