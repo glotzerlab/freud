@@ -2,7 +2,7 @@
 authors = ["Joshua A. Anderson <joaander@umich.edu>"]
 channels = ["conda-forge"]
 name = "freud"
-platforms = ["linux-64", "osx-arm64", "win-64"]
+platforms = ["linux-64", "linux-aarch64", "osx-arm64", "win-64"]
 version = "0.1.0"
 
 [tasks]
