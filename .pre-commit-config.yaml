@@ -2,7 +2,7 @@ exclude: (?:^extern/)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v5.0.0'
+    rev: 'v6.0.0'
     hooks:
       - id: end-of-file-fixer
         exclude: |
@@ -49,16 +49,16 @@ repos:
         args:
           - --py39-plus
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.12.2'
+    rev: 'v0.13.0'
     hooks:
     - id: ruff-format
-    - id: ruff
+    - id: ruff-check
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
       - id: cmake-format
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v20.1.7'
+    rev: 'v21.1.0'
     hooks:
       - id: clang-format
         types_or: [c, c++]

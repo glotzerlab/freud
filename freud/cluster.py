@@ -66,7 +66,7 @@ class Cluster(_PairCompute):
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """
-        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+        nq, nlist, qargs, _query_points, num_query_points = self._preprocess_arguments(
             system, neighbors=neighbors
         )
         if keys is not None:
