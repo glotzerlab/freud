@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04]
-        python: ['39', '310', '311', '312', '313']
+        python: ['310', '311', '312', '313']
         include:
           # Test macOS, windows, and ARM Linux on oldest and latest versions.
           - os: 'ubuntu-24.04-arm'
