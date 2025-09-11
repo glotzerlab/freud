@@ -15,7 +15,8 @@ void export_SphereVoxelization(nanobind::module_& m);
 
 using namespace freud::density::detail;
 
-NB_MODULE(_density, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
+NB_MODULE(_density,
+          module) // NOLINT(misc-use-anonymous-namespace, modernize-avoid-c-arrays): caused by nanobind
 {
     export_RDF(module);
     export_GaussianDensity(module);

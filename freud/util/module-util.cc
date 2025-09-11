@@ -11,7 +11,7 @@ void export_Vector(nanobind::module_& module);
 
 using namespace freud::util::detail;
 
-NB_MODULE(_util, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
+NB_MODULE(_util, module) // NOLINT(misc-use-anonymous-namespace, modernize-avoid-c-arrays): caused by nanobind
 {
     export_ManagedArray(module);
     export_Vector(module);
