@@ -5,21 +5,14 @@ Contributing to **freud**
 Code Conventions
 ================
 
-Pre-commit
-----------
+prek
+----
 
-It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`__ to ensure code is compliant with all automated linters and style checks before pushing to the repository:
-
-.. code-block:: bash
-
-    pip install pre-commit
-    pre-commit install
-
-To manually run `pre-commit <https://pre-commit.com/>`__ for all the files present in the repository, run the following command:
+To manually run `prek <https://prek.j178.dev/>`__ for all the files present in the repository, run the following command:
 
 .. code-block:: bash
 
-    pre-commit run --all-files --show-diff-on-failure
+    prek run --all-files --show-diff-on-failure
 
 
 Python
@@ -46,7 +39,7 @@ C++
 
 C++ code should follow the result of running :code:`clang-format` with the style specified in the file :code:`.clang-format`.
 Please refer to the `clang-format documentation <https://clang.llvm.org/docs/ClangFormat.html>`__ for details.
-The :code:`clang-format` style will be automatically enforced by pre-commit via CI.
+The :code:`clang-format` style will be automatically enforced by prek via CI.
 When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the **freud** repository.
 
 The :code:`check-style` step of continuous integration (CI) runs :code:`clang-tidy`.

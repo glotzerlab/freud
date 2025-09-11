@@ -36,9 +36,9 @@ jobs:
           - os: 'windows-latest'
             python: '313'
           - os: 'windows-latest'
-            python: '39'
+            python: '310'
           - os: 'macos-14'
-            python: '39'
+            python: '310'
 
     steps:
       - name: Checkout Code
