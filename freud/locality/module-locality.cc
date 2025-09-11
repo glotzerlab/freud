@@ -26,8 +26,7 @@ void export_FilterSANN(nanobind::module_& module);
 
 using namespace freud::locality::detail;
 
-NB_MODULE(_locality,
-          module) // NOLINT(misc-use-anonymous-namespace, modernize-avoid-c-arrays): caused by nanobind
+NB_MODULE(_locality, module) // NOLINT: caused by nanobind
 {
     // for using ITERATOR_TERMINATOR at the python level
     module.def("get_iterator_terminator", []() { return freud::locality::ITERATOR_TERMINATOR; });

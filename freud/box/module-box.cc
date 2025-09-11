@@ -13,7 +13,7 @@
 
 using namespace freud::box;
 
-NB_MODULE(_box, module) // NOLINT(misc-use-anonymous-namespace, modernize-avoid-c-arrays): caused by nanobind
+NB_MODULE(_box, module) // NOLINT: caused by nanobind
 {
     nanobind::class_<Box>(std::move(module), "Box")
         // constructors

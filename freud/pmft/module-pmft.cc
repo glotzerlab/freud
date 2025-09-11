@@ -15,7 +15,7 @@ void export_PMFTXYT(nanobind::module_& m);
 
 using namespace freud::pmft::detail;
 
-NB_MODULE(_pmft, module) // NOLINT(misc-use-anonymous-namespace, modernize-avoid-c-arrays): caused by nanobind
+NB_MODULE(_pmft, module) // NOLINT: caused by nanobind
 {
     export_PMFT(module);
     export_PMFTXY(module);

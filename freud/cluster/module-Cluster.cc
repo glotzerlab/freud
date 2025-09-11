@@ -15,8 +15,7 @@ void export_ClusterProperties(nb::module_& module);
 
 using namespace freud::cluster::detail;
 
-NB_MODULE(_cluster,
-          module) // NOLINT(misc-use-anonymous-namespace, modernize-avoid-c-arrays): caused by nanobind
+NB_MODULE(_cluster, module) // NOLINT: caused by nanobind
 {
     export_Cluster(module);
     export_ClusterProperties(module);
