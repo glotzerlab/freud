@@ -25,7 +25,6 @@ repos:
       - id: check-yaml
         exclude: "\\.clang-format"
       - id: debug-statements
-      - id: requirements-txt-fixer
   - repo: https://github.com/glotzerlab/fix-license-header
     rev: v0.4.1
     hooks:
@@ -34,8 +33,7 @@ repos:
         exclude: |
           (?x)(
               ^doc/|
-              ^extern/|
-              ^requirements/
+              ^extern/
               )
         types_or: [c, c++, python]
         args:
