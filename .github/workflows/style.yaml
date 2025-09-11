@@ -26,11 +26,12 @@ jobs:
         with:
           submodules: true
       - name: Create Python Environment
-        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
+        uses: prefix-dev/setup-pixi@fef5c9568ca6c4ff7707bf840ab0692ba3f08293 # v0.9.0
         with:
-          micromamba-version: '2.0.2-2'
-          environment-name: test
-          environment-file: .github/workflows/environments/py313-conda-lock.yml
+          pixi-version: v0.54.1
+          cache: false
+          environments: py313
+          activate-environment: true
       - name: Configure compile_commands.json
         run: |
           cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True

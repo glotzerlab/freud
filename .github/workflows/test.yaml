@@ -1,7 +1,7 @@
 name: test
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 on:
@@ -47,32 +47,19 @@ jobs:
           submodules: true
 
       - name: Create Python Environment
-        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
+        uses: prefix-dev/setup-pixi@fef5c9568ca6c4ff7707bf840ab0692ba3f08293 # v0.9.0
         with:
-          micromamba-version: '2.0.2-2'
-          environment-name: test
-          environment-file: .github/workflows/environments/py${{ matrix.python }}-conda-lock.yml
+          pixi-version: v0.54.1
+          cache: false
+          environments: py${{ matrix.python }}
+          activate-environment: true
 
       - name: Build and Install freud
         run: |
           uv pip install . --no-build-isolation --no-deps -v
 
       - name: Run Tests
-        run: |
-          # Enable tests only for nanobind-converted modules
-          pytest tests/test_box_box.py -v
-          pytest tests/test_parallel.py -v
-          pytest tests/test_locality_*.py -v
-          pytest tests/test_data.py -v
-          pytest tests/test_pmft.py -v
-          pytest tests/test_util.py -v
-          pytest tests/test_environment*.py -v
-          pytest tests/test_diffraction*.py -v
-          pytest tests/test_interface.py -v
-          pytest tests/test_msd_msd.py -v
-          pytest tests/test_cluster.py -v
-          pytest tests/test_order_*.py -v
-          # pytest tests/ -v
+        run: pytest tests/ -v
 
   tests_complete:
     name: All tests
