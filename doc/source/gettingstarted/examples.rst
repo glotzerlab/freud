@@ -60,19 +60,5 @@ The examples below go into greater detail about specific applications of **freud
     examples/examples/Calculating RDF from GSD files
     examples/examples/Calculating Strain via Voxelization
     examples/examples/Visualization with fresnel
-    examples/examples/Visualization with plato
-    examples/examples/Visualizing 3D Voronoi and Voxelization
     examples/examples/Identifying Local Environments in a Complex Crystal
     examples/examples/Smectic
-
-
-Benchmarks
-==========
-
-Performance is a central consideration for **freud**. Below are some benchmarks comparing **freud** to other tools offering similar analysis methods.
-
-.. toctree::
-    :maxdepth: 1
-    :glob:
-
-    examples/examples/Benchmarking*
