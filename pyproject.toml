@@ -46,7 +46,7 @@ wheel.py-api = "cp312"
 [tool.cibuildwheel]
 archs = ["auto64"]
 skip = ["pp*","*musllinux*","cp3??t-*"]
-test-requires = ["pytest==8.2.1", "numpy==1.26.2", "scipy==1.11.2", "gsd==3.2.0", "matplotlib==3.7.3", "sympy==1.10"]
+test-requires = ["pytest==8.2.1", "numpy==2.3.3", "scipy==1.16.2", "gsd==3.2.0", "matplotlib==3.7.3", "sympy==1.10"]
 test-command = "pytest {package}/tests -v --log-level=DEBUG" 
 
 # Use abi3audit to catch issues with Limited API wheels
