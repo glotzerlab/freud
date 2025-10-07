@@ -150,7 +150,8 @@ target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
 target_set_install_rpath(_diffraction)
 
 # box
-nanobind_add_module(_box STABLE_ABI box/module-box.cc box/export-Box.cc box/export-Box.h)
+nanobind_add_module(_box STABLE_ABI box/module-box.cc box/export-Box.cc
+                    box/export-Box.h)
 target_link_libraries(_box PUBLIC TBB::tbb)
 target_set_install_rpath(_box)
 
@@ -204,8 +205,13 @@ target_set_install_rpath(_parallel)
 
 # pmft
 nanobind_add_module(
-  _pmft STABLE_ABI pmft/module-pmft.cc pmft/export-PMFTXY.cc pmft/export-PMFTXYZ.cc
-  pmft/export-PMFTR12.cc pmft/export-PMFTXYT.cc)
+  _pmft
+  STABLE_ABI
+  pmft/module-pmft.cc
+  pmft/export-PMFTXY.cc
+  pmft/export-PMFTXYZ.cc
+  pmft/export-PMFTR12.cc
+  pmft/export-PMFTXYT.cc)
 target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
@@ -223,8 +229,9 @@ target_link_libraries(_density PUBLIC freud)
 target_set_install_rpath(_density)
 
 # util
-nanobind_add_module(_util STABLE_ABI util/module-util.cc util/export-ManagedArray.cc
-                    util/export-Vector.cc util/export-Vector.h)
+nanobind_add_module(
+  _util STABLE_ABI util/module-util.cc util/export-ManagedArray.cc
+  util/export-Vector.cc util/export-Vector.h)
 target_link_libraries(_util PUBLIC freud)
 target_set_install_rpath(_util)
 

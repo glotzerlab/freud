@@ -27,8 +27,12 @@ find_package(
   COMPONENTS Interpreter Development.Module Development.SABIModule
   REQUIRED)
 
-if((NOT Python_INTERPRETER_ID STREQUAL "Python") OR (NOT TARGET Python::SABIModule))
-  message(SEND_ERROR "Cannot activate stable ABI build: Interpreter ${Python_INTERPRETER_ID}, SABI: ${Python_SABI_LIBRARIES}" )
+if((NOT Python_INTERPRETER_ID STREQUAL "Python") OR (NOT TARGET
+                                                     Python::SABIModule))
+  message(
+    SEND_ERROR
+      "Cannot activate stable ABI build: Interpreter ${Python_INTERPRETER_ID}, SABI: ${Python_SABI_LIBRARIES}"
+  )
 endif()
 
 find_package_config_first(TBB)
