@@ -14,10 +14,6 @@ on:
 
   workflow_dispatch:
 
-defaults:
-  run:
-    shell: bash -leo pipefail {0}
-
 jobs:
   run_tests:
     name: Unit test [py${{ matrix.python }} ${{ matrix.os }}]
@@ -26,7 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04]
-        python: ['310', '311', '312', '313']
+        python: ['312', '313']
         include:
           # Test macOS, windows, and ARM Linux on oldest and latest versions.
           - os: 'ubuntu-24.04-arm'
@@ -36,9 +32,9 @@ jobs:
           - os: 'windows-latest'
             python: '313'
           - os: 'windows-latest'
-            python: '310'
+            python: '312'
           - os: 'macos-14'
-            python: '310'
+            python: '312'
 
     steps:
       - name: Checkout Code

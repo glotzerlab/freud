@@ -31,7 +31,7 @@ function(copy_files_to_build files target validate_pattern)
   foreach(file ${files})
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${file}
-      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file} POST_BUILD
+      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file}
       COMMAND ${CMAKE_COMMAND} ARGS -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${file}
               ${CMAKE_CURRENT_BINARY_DIR}/${file}
       COMMENT "Copy ${relative_dir}/${file}")
