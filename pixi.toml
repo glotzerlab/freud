@@ -25,6 +25,7 @@ scikit-build-core = "*"
 scipy = "*"
 sympy = "*"
 uv = "*"
+sphinx-inline-tabs = "*"
 
 [feature.py312.dependencies]
 python = "3.12.*"

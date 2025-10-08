@@ -43,6 +43,7 @@ extensions = [
     "jupyter_sphinx",
     "sphinxcontrib.bibtex",
     "sphinx_copybutton",
+    'sphinx_inline_tabs',
 ]
 
 if os.getenv("READTHEDOCS"):
