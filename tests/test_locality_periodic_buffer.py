@@ -13,7 +13,7 @@ class TestPeriodicBuffer:
         L = 10  # Box length
         N = 50  # Number of points
 
-        box, positions = freud.data.make_random_system(L, N, is2D=True)
+        box, positions = freud.data.make_random_system(L, N, is2D=True, seed=1)
         positions.flags["WRITEABLE"] = False
 
         pbuff = freud.locality.PeriodicBuffer()
@@ -59,7 +59,7 @@ class TestPeriodicBuffer:
         N = 50  # Number of points
         np.random.seed(0)
 
-        box, positions = freud.data.make_random_system(L, N, is2D=False)
+        box, positions = freud.data.make_random_system(L, N, is2D=False, seed=1)
         positions.flags["WRITEABLE"] = False
 
         pbuff = freud.locality.PeriodicBuffer()
@@ -213,7 +213,7 @@ class TestPeriodicBuffer:
         L = 10  # Box length
         N = 50  # Number of points
 
-        box, positions = freud.data.make_random_system(L, N, is2D=is2d)
+        box, positions = freud.data.make_random_system(L, N, is2D=is2d, seed=1)
         positions.flags["WRITEABLE"] = False
 
         pbuff = freud.locality.PeriodicBuffer()

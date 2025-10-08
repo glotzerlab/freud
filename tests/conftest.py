@@ -8,7 +8,7 @@ def nlist_lifetime_check(get_nlist_func):
     """Ensure nlist exists past the lifetime of the compute that created it."""
     L = 10
     N = 100
-    sys = freud.data.make_random_system(L, N)
+    sys = freud.data.make_random_system(L, N, seed=1)
 
     nlist = get_nlist_func(sys)
 

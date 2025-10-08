@@ -222,7 +222,7 @@ class TestCluster:
         """Assert that some properties are returned as ragged arrays."""
         N = 100
         L = 10
-        sys = freud.data.make_random_system(L, N)
+        sys = freud.data.make_random_system(L, N, seed=1)
         env_cluster = freud.environment.EnvironmentCluster()
         qargs = dict(r_max=2.0)  # Using r_max ensures different env sizes
         env_cluster.compute(sys, threshold=0.8, cluster_neighbors=qargs)
@@ -511,7 +511,7 @@ class TestEnvironmentMotifMatch:
             [[0, 1, 0], [1, 0, 0], [0, 0, 1], [0, 0, -1], [-1, 0, 0], [0, -1, 0]]
         )
 
-        sys = freud.data.make_random_system(L, N)
+        sys = freud.data.make_random_system(L, N, seed=1)
         env_mm = freud.environment.EnvironmentMotifMatch()
         qargs = dict(r_max=2.0)  # Using r_max ensures different env sizes
         env_mm.compute(sys, motif, threshold=0.8, env_neighbors=qargs)

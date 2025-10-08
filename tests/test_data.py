@@ -162,7 +162,7 @@ class TestRandomSystem:
     @pytest.mark.parametrize("is2D", [True, False])
     def test_sizes_and_dimensions(self, N, is2D):
         box, points = freud.data.make_random_system(
-            box_size=10, num_points=N, is2D=is2D
+            box_size=10, num_points=N, is2D=is2D, seed=1
         )
         assert points.shape == (N, 3)
         assert box.is2D == is2D

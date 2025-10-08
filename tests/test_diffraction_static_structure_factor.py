@@ -80,7 +80,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*sf_params)
-        box, points = freud.data.make_random_system(L, N, seed=123)
+        box, points = freud.data.make_random_system(L, N, seed=123, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
@@ -96,7 +96,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*sf_params)
-        box, points = freud.data.make_random_system(L, N, seed=123)
+        box, points = freud.data.make_random_system(L, N, seed=123, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
@@ -117,7 +117,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*large_k_params)
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
@@ -129,7 +129,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*large_k_params)
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         N_A = N // 3
         A_points = system.points[:N_A]
@@ -141,7 +141,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*large_k_params)
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         sf.compute(system)
         npt.assert_allclose(np.mean(sf.S_k), 1, rtol=1e-5, atol=2e-2)
@@ -206,7 +206,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*sf_params_kmin_zero)
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         sf.compute(system)
         assert np.isclose(sf.S_k[0], N)
@@ -219,10 +219,10 @@ class StaticStructureFactorTest:
         # points. We test N points, N*2 points, and N*3 points. On average, the
         # number of points is N * 2.
         for i in range(1, 4):
-            box, points = freud.data.make_random_system(L, N * i)
+            box, points = freud.data.make_random_system(L, N * i, seed=1)
             sf.compute((box, points), reset=False)
         assert np.isclose(sf.S_k[0], N * 2)
-        box, points = freud.data.make_random_system(L, N * 2)
+        box, points = freud.data.make_random_system(L, N * 2, seed=1)
         sf.compute((box, points), reset=True)
         assert np.isclose(sf.S_k[0], N * 2)
 
@@ -249,7 +249,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
 
         sf1 = self.build_structure_factor_object(bins, k_max)
         sf2 = self.build_structure_factor_object(upper_bins, k_max, k_min=k_min)
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         sf1.compute(system)
         sf2.compute(system)
@@ -379,7 +379,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         L = 10
         N = 100
         sf = freud.diffraction.StaticStructureFactorDebye(num_k_values=100, k_max=10)
-        box, points = freud.data.make_random_system(L, N, is2D=True)
+        box, points = freud.data.make_random_system(L, N, is2D=True, seed=1)
         sf.compute((box, points))
 
         # compute structure factor using python implementation
@@ -405,7 +405,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
 
         sf1 = self.build_structure_factor_object(bins, k_max)
         sf2 = self.build_structure_factor_object(upper_bins, k_max, k_min=k_min)
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=1)
         system = freud.AABBQuery.from_system((box, points))
         sf1.compute(system)
         sf2.compute(system)

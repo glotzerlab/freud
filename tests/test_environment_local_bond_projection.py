@@ -21,8 +21,8 @@ class TestLocalBondProjection:
 
         N_query = N // 3
 
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
-        _, query_points = freud.data.make_random_system(boxlen, N_query, is2D=True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
+        _, query_points = freud.data.make_random_system(boxlen, N_query, is2D=True, seed=1)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
@@ -54,7 +54,7 @@ class TestLocalBondProjection:
         r_guess = 3
         query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 

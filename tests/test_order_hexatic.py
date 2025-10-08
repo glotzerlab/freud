@@ -26,7 +26,7 @@ class TestHexatic:
     def test_order_size(self):
         boxlen = 10
         N = 500
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
         hop = freud.order.Hexatic()
         hop.compute((box, points))
         npt.assert_equal(len(hop.particle_order), N)
@@ -34,7 +34,7 @@ class TestHexatic:
     def test_compute_random(self):
         boxlen = 10
         N = 500
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
         hop = freud.order.Hexatic()
         hop.compute((box, points))
         npt.assert_allclose(np.mean(hop.particle_order), 0.0 + 0.0j, atol=1e-1)
@@ -78,7 +78,7 @@ class TestHexatic:
     def test_weighted_random(self, k):
         boxlen = 10
         N = 5000
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100, seed=1)
         voro = freud.locality.Voronoi()
         voro.compute(system=(box, points))
 
@@ -113,7 +113,7 @@ class TestHexatic:
     def test_weighted_zero_one(self):
         boxlen = 10
         N = 5000
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100, seed=1)
         voro = freud.locality.Voronoi()
         voro.compute(system=(box, points))
 
@@ -201,7 +201,7 @@ class TestHexatic:
     def test_3d_box(self):
         boxlen = 10
         N = 500
-        box, points = freud.data.make_random_system(boxlen, N, is2D=False)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=False, seed=1)
         hop = freud.order.Hexatic()
         with pytest.raises(ValueError):
             hop.compute((box, points))
@@ -216,7 +216,7 @@ class TestHexatic:
     def test_repr_png(self):
         boxlen = 10
         N = 500
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
         hop = freud.order.Hexatic()
         with pytest.raises(AttributeError):
             hop.plot()
