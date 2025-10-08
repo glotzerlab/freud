@@ -15,7 +15,9 @@ class TestAngularSeparationGlobal:
         N = 500
 
         _box, _points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
-        _, _query_points = freud.data.make_random_system(boxlen, N // 3, is2D=True, seed=1)
+        _, _query_points = freud.data.make_random_system(
+            boxlen, N // 3, is2D=True, seed=1
+        )
 
         ang = freud.environment.AngularSeparationGlobal()
 
@@ -71,7 +73,9 @@ class TestAngularSeparationNeighbor:
         N = 500
 
         _box, _points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
-        _, _query_points = freud.data.make_random_system(boxlen, N // 3, is2D=True, seed=1)
+        _, _query_points = freud.data.make_random_system(
+            boxlen, N // 3, is2D=True, seed=1
+        )
 
         ang = freud.environment.AngularSeparationNeighbor()
 

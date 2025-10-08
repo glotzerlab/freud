@@ -39,7 +39,9 @@ class TestRDF:
         bins = 10
         num_points = 100
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         rdf = freud.density.RDF(r_max=r_max, bins=bins)
 
         # Test protected attribute access

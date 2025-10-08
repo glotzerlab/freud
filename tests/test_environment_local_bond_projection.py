@@ -22,7 +22,9 @@ class TestLocalBondProjection:
         N_query = N // 3
 
         box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
-        _, query_points = freud.data.make_random_system(boxlen, N_query, is2D=True, seed=1)
+        _, query_points = freud.data.make_random_system(
+            boxlen, N_query, is2D=True, seed=1
+        )
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 

@@ -18,7 +18,9 @@ class TestSphereVoxelization:
         r_max = 10.0
         num_points = 10
         box_size = r_max * 10
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         for w in (width, (width, width), [width, width]):
             vox = freud.density.SphereVoxelization(w, r_max)
 
@@ -64,7 +66,9 @@ class TestSphereVoxelization:
         r_max = 10.0
         num_points = 10
         box_size = r_max * 10
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=False, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=False, seed=1
+        )
         for w in (width, (width, width, width), [width, width, width]):
             vox = freud.density.SphereVoxelization(w, r_max)
 
@@ -111,7 +115,9 @@ class TestSphereVoxelization:
         box_size = r_max * 3.1
 
         # test that computing a 3D system after computing a 2D system will fail
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         vox = freud.density.SphereVoxelization(width, r_max)
         vox.compute(system=(box, points))
 
@@ -122,7 +128,9 @@ class TestSphereVoxelization:
             vox.compute((test_box, test_points))
 
         # test that computing a 2D system after computing a 3D system will fail
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=False, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=False, seed=1
+        )
         vox = freud.density.SphereVoxelization(width, r_max)
         vox.compute(system=(box, points))
 
@@ -145,7 +153,9 @@ class TestSphereVoxelization:
         r_max = 10.0
         num_points = 100
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         vox = freud.density.SphereVoxelization(width, r_max)
 
         with pytest.raises(AttributeError):

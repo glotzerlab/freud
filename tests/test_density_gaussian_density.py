@@ -23,7 +23,9 @@ class TestGaussianDensity:
         sigma = 0.1
         num_points = 10000
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         for w in (width, (width, width), [width, width]):
             gd = freud.density.GaussianDensity(w, r_max, sigma)
 
@@ -60,7 +62,9 @@ class TestGaussianDensity:
         box_size = r_max * 3.1
 
         # test that a 3D system computed after computing a 2D system will fail
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute((box, points))
 
@@ -71,7 +75,9 @@ class TestGaussianDensity:
             gd.compute((test_box, test_points))
 
         # test that a 2D system computed after computing a 3D system will fail
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=False, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=False, seed=1
+        )
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute((box, points))
 
@@ -89,7 +95,9 @@ class TestGaussianDensity:
         sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         gd.compute(system=(box, points))
         # This has discretization error as well as single-precision error
         assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
@@ -103,7 +111,9 @@ class TestGaussianDensity:
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
 
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=False, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=False, seed=1
+        )
         gd.compute(system=(box, points))
         # This has discretization error as well as single-precision error
         assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
@@ -147,7 +157,9 @@ class TestGaussianDensity:
         gd = freud.density.GaussianDensity(width, r_max, sigma)
 
         for num_points in [1, 10, 100]:
-            system = freud.data.make_random_system(width, num_points, is2D=False, seed=1)
+            system = freud.data.make_random_system(
+                width, num_points, is2D=False, seed=1
+            )
             values = np.random.rand(num_points)
             gd.compute(system, values)
             assert np.isclose(np.sum(gd.density), np.sum(values), rtol=1e-4)
@@ -166,7 +178,9 @@ class TestGaussianDensity:
         sigma = 0.01
         num_points = 100
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         gd = freud.density.GaussianDensity(width, r_max, sigma)
 
         with pytest.raises(AttributeError):
