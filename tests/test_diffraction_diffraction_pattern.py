@@ -94,7 +94,7 @@ class TestDiffractionPattern:
     @pytest.mark.parametrize(
         ("box", "positions"),
         [
-            freud.data.make_random_system(box_size=10, num_points=1000),
+            freud.data.make_random_system(box_size=10, num_points=1000, seed=1),
             freud.data.UnitCell.bcc().generate_system(10),
         ],
     )
@@ -142,7 +142,7 @@ class TestDiffractionPattern:
     def test_k_values_and_k_vectors(self, size):
         dp = freud.diffraction.DiffractionPattern()
 
-        box, positions = freud.data.make_random_system(size, 1)
+        box, positions = freud.data.make_random_system(size, 1, seed=1)
         zoom = 4
         view_orientation = np.asarray([1, 0, 0, 0])
         dp.compute((box, positions), view_orientation=view_orientation, zoom=zoom)

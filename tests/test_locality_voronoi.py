@@ -340,7 +340,7 @@ class TestVoronoi:
             vor.polytopes
         with pytest.raises(AttributeError):
             vor.volumes
-        box, points = freud.data.make_random_system(L, N, is2D=False)
+        box, points = freud.data.make_random_system(L, N, is2D=False, seed=1)
         vor.compute((box, points))
 
         # Ensure attributes are accessible after calling compute

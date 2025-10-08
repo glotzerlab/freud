@@ -19,7 +19,7 @@ class TestNeighborList:
         )
 
         # Initialize Box and cell list
-        box, points = freud.data.make_random_system(self.L, self.N)
+        box, points = freud.data.make_random_system(self.L, self.N, seed=1)
         self.nq = freud.locality.AABBQuery(box, points)
         self.nlist = self.nq.query(points, self.query_args).toNeighborList()
 
@@ -220,7 +220,7 @@ class TestNeighborList:
     def test_all_pairs(self):
         N = 100
         L = 10
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=1)
 
         # do one with exclude_ii
         nlist = freud.locality.NeighborList.all_pairs((box, points))
@@ -231,7 +231,7 @@ class TestNeighborList:
 
         # do one without exclude_ii and query_points
         M = 50
-        box, query_points = freud.data.make_random_system(L, M)
+        box, query_points = freud.data.make_random_system(L, M, seed=1)
         nlist = freud.locality.NeighborList.all_pairs(
             (box, points), query_points, exclude_ii=False
         )

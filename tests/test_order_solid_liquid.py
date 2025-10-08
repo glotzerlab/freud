@@ -16,7 +16,7 @@ class TestSolidLiquid:
         N = 1000
         L = 10
 
-        box, positions = freud.data.make_random_system(L, N)
+        box, positions = freud.data.make_random_system(L, N, seed=1)
 
         comp = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
         comp.compute((box, positions), neighbors=dict(r_max=2.0))
@@ -28,7 +28,7 @@ class TestSolidLiquid:
         N = 1000
         L = 10
 
-        box, positions = freud.data.make_random_system(L, N)
+        box, positions = freud.data.make_random_system(L, N, seed=1)
 
         query_args = dict(r_max=2.0, exclude_ii=True)
         comp = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6).compute(

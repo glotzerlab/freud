@@ -13,32 +13,42 @@ conda-forge package
 ^^^^^^^^^^^^^^^^^^^
 
 **freud** is available on conda-forge_ for the *linux-64*, *osx-64*, *osx-arm64* and *win-64*
-architectures. Execute one of the following commands to install **freud**:
+architectures:
 
-.. code-block:: bash
+.. tab:: Pixi
 
-   micromamba install freud
+   .. code-block:: bash
 
-**OR**
+      pixi add freud
 
-.. code-block:: bash
+.. tab:: Micromamba
 
-   mamba install freud
+   .. code-block:: bash
+
+      micromamba install freud
+
+.. tab:: Mamba
+
+   .. code-block:: bash
+
+      mamba install freud
 
 PyPI
 ^^^^
 
-Use **uv** or **pip** to install **freud** binaries from PyPI_ into a virtual environment:
+Install **freud** binaries from PyPI_ into a virtual environment:
 
-.. code:: bash
+.. tab:: uv
 
-   uv pip install freud-analysis
+   .. code-block:: bash
 
-**OR**
+      uv pip install freud-analysis
 
-.. code:: bash
+.. tab:: pip
 
-   python3 -m pip install freud-analysis
+   .. code-block:: bash
+
+      python3 -m pip install freud-analysis
 
 .. _conda-forge: https://conda-forge.org/
 .. _PyPI: https://pypi.org/
@@ -58,34 +68,43 @@ To build **freud** from source:
 
     cd freud
 
-3. `Install with uv`_::
+3.
+   .. tab:: uv
 
-    uv pip install .
+      `Install with uv`_::
 
-4. **OR** `Install prerequisites`_ and `Build with CMake for development`_:
+          uv pip install .
 
-   .. code-block:: bash
+   .. tab:: CMake
 
-      micromamba install cmake ninja numpy python tbb-devel nanobind scikit-build-core gsd matplotlib pytest rowan scipy sympy
+      `Install prerequisites`_ and `Build with CMake for development`_:
 
-   .. code-block:: bash
+      .. code-block:: bash
 
-      cmake -B build -S . -GNinja
-      cd build
-      ninja
+         eval "$(pixi shell-hook --environment py313)"
+
+      .. code-block:: bash
+
+         cmake -B build -S . -GNinja
+         cd build
+         ninja
 
 To run the tests:
 
-1. `Run tests`_::
+1. `Run tests`_:
 
-    cd tests
-    PYTHONPATH=../build python3 -m pytest
+   .. code-block:: bash
+
+      cd tests
+      PYTHONPATH=../build python3 -m pytest
 
 To build the documentation from source:
 
-1. `Install prerequisites`_::
+1. `Install prerequisites`_:
 
-    micromamba install sphinx furo nbsphinx jupyter_sphinx sphinxcontrib-bibtex sphinx-copybutton
+   .. code-block:: bash
+
+      eval "$(pixi shell-hook --environment py313)"
 
 2. `Build the documentation`_:
 
@@ -113,7 +132,7 @@ Install prerequisites
 - **Intel Threading Building Blocks** >= 2019.7
 - **nanobind** >= 2.0.0
 - **NumPy** >= 1.19.0
-- **Python** >= 3.9
+- **Python** >= 3.12
 - **scikit-build-core**
 
 **To execute unit tests:**

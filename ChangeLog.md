@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## 3.5.0 -- (2025-10-08)
+
+### Changed
+* Build with `abi3` for Python >=3.12.
+
+### Removed
+* Support for Python <3.12.
+
 ## 3.4.0 -- 2025-08-05
 
 ### Added

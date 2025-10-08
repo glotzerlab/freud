@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15...3.30)
+cmake_minimum_required(VERSION 3.26...4.1)
 
 project(freud)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -23,9 +23,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(CMake)
 
 find_package(
-  Python 3.9
-  COMPONENTS Interpreter Development.Module
+  Python 3.12
+  COMPONENTS Interpreter Development.Module Development.SABIModule
   REQUIRED)
+
+if((NOT Python_INTERPRETER_ID STREQUAL "Python") OR (NOT TARGET
+                                                     Python::SABIModule))
+  message(
+    SEND_ERROR
+      "Cannot activate stable ABI build: Interpreter ${Python_INTERPRETER_ID}, SABI: ${Python_SABI_LIBRARIES}"
+  )
+endif()
 
 find_package_config_first(TBB)
 

@@ -39,7 +39,9 @@ class TestRDF:
         bins = 10
         num_points = 100
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True, seed=1
+        )
         rdf = freud.density.RDF(r_max=r_max, bins=bins)
 
         # Test protected attribute access
@@ -84,7 +86,7 @@ class TestRDF:
         bins = 10
         num_points = 100
         box_size = r_max * 3.1
-        sys = freud.data.make_random_system(box_size, num_points, is2D=True)
+        sys = freud.data.make_random_system(box_size, num_points, is2D=True, seed=1)
         rdf = freud.density.RDF(r_max=r_max, bins=bins, normalization_mode=mode)
         rdf.compute(sys)
 
@@ -96,7 +98,7 @@ class TestRDF:
         tolerance = 0.1
         box_size = r_max * 3.1
 
-        box, points = freud.data.make_random_system(box_size, num_points)
+        box, points = freud.data.make_random_system(box_size, num_points, seed=1)
         # This test is slow, and since it's a validation of the underlying
         # algorithm and not the API we don't need to test all possible
         # inputs, so we only test the fastest one (AABBQuery).
@@ -134,7 +136,7 @@ class TestRDF:
         box_size = r_max * 3.1
 
         for r_min in (0, 0.1):
-            box, points = freud.data.make_random_system(box_size, num_points)
+            box, points = freud.data.make_random_system(box_size, num_points, seed=1)
             # This test is slow, and since it's a validation of the underlying
             # algorithm and not the API we don't need to test all possible
             # inputs, so we only test the fastest one (AABBQuery).
@@ -171,7 +173,7 @@ class TestRDF:
         bins = 10
         num_points = 10
         box_size = r_max * 3.1
-        box, points = freud.data.make_random_system(box_size, num_points)
+        box, points = freud.data.make_random_system(box_size, num_points, seed=1)
         rdf = freud.density.RDF(bins, r_max)
 
         with pytest.raises(AttributeError):

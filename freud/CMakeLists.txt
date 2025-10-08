@@ -134,13 +134,14 @@ target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 
 # cluster
 nanobind_add_module(
-  _cluster cluster/module-Cluster.cc cluster/export-Cluster.cc
+  _cluster STABLE_ABI cluster/module-Cluster.cc cluster/export-Cluster.cc
   cluster/export-ClusterProperties.cc)
 target_link_libraries(_cluster PUBLIC freud TBB::tbb)
 target_set_install_rpath(_cluster)
 
 nanobind_add_module(
   _diffraction
+  STABLE_ABI
   diffraction/module-diffraction.cc
   diffraction/export-StaticStructureFactor.cc
   diffraction/export-StaticStructureFactorDebye.cc
@@ -149,13 +150,15 @@ target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
 target_set_install_rpath(_diffraction)
 
 # box
-nanobind_add_module(_box box/module-box.cc box/export-Box.cc box/export-Box.h)
+nanobind_add_module(_box STABLE_ABI box/module-box.cc box/export-Box.cc
+                    box/export-Box.h)
 target_link_libraries(_box PUBLIC TBB::tbb)
 target_set_install_rpath(_box)
 
 # environment
 nanobind_add_module(
   _environment
+  STABLE_ABI
   environment/module-environment.cc
   environment/export-AngularSeparationNeighbor.cc
   environment/export-AngularSeparationGlobal.cc
@@ -169,6 +172,7 @@ target_set_install_rpath(_environment)
 # locality
 nanobind_add_module(
   _locality
+  STABLE_ABI
   locality/module-locality.cc
   locality/export-BondHistogramCompute.cc
   locality/export-NeighborQuery.cc
@@ -182,6 +186,7 @@ target_set_install_rpath(_locality)
 # order
 nanobind_add_module(
   _order
+  STABLE_ABI
   order/module-order.cc
   order/export-Nematic.cc
   order/export-RotationalAutocorrelation.cc
@@ -194,20 +199,26 @@ target_link_libraries(_order PUBLIC freud)
 target_set_install_rpath(_order)
 
 # parallel
-nanobind_add_module(_parallel parallel/module-parallel.cc)
+nanobind_add_module(_parallel STABLE_ABI parallel/module-parallel.cc)
 target_link_libraries(_parallel PUBLIC freud TBB::tbb)
 target_set_install_rpath(_parallel)
 
 # pmft
 nanobind_add_module(
-  _pmft pmft/module-pmft.cc pmft/export-PMFTXY.cc pmft/export-PMFTXYZ.cc
-  pmft/export-PMFTR12.cc pmft/export-PMFTXYT.cc)
+  _pmft
+  STABLE_ABI
+  pmft/module-pmft.cc
+  pmft/export-PMFTXY.cc
+  pmft/export-PMFTXYZ.cc
+  pmft/export-PMFTR12.cc
+  pmft/export-PMFTXYT.cc)
 target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
 # density
 nanobind_add_module(
   _density
+  STABLE_ABI
   density/module-density.cc
   density/export-CorrelationFunction.cc
   density/export-GaussianDensity.cc
@@ -218,8 +229,9 @@ target_link_libraries(_density PUBLIC freud)
 target_set_install_rpath(_density)
 
 # util
-nanobind_add_module(_util util/module-util.cc util/export-ManagedArray.cc
-                    util/export-Vector.cc util/export-Vector.h)
+nanobind_add_module(
+  _util STABLE_ABI util/module-util.cc util/export-ManagedArray.cc
+  util/export-Vector.cc util/export-Vector.h)
 target_link_libraries(_util PUBLIC freud)
 target_set_install_rpath(_util)
 

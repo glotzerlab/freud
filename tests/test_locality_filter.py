@@ -54,7 +54,7 @@ class FilterTest:
         # define system
         L = 10
         N = 100
-        sys = freud.data.make_random_system(L, N)
+        sys = freud.data.make_random_system(L, N, seed=1)
         filter_ = self.get_filter_object(
             allow_incomplete_shell, terminate_after_blocked
         )
@@ -66,7 +66,7 @@ class FilterTest:
         """Make sure error is raised when neighbor shells are incomplete."""
         L = 10
         N = 5
-        sys = freud.data.make_random_system(L, N)
+        sys = freud.data.make_random_system(L, N, seed=1)
         filt = self.get_filter_object(allow_incomplete_shell=False)
         with pytest.raises(RuntimeError):
             filt.compute(sys, dict(r_max=1.2, exclude_ii=True))
@@ -76,7 +76,7 @@ class FilterTest:
         N = 100
         L = 10
 
-        sys = freud.data.make_random_system(L, N)
+        sys = freud.data.make_random_system(L, N, seed=1)
         filt = self.get_filter_object()
         filt.compute(sys)
         nlist = filt.unfiltered_nlist
@@ -112,7 +112,7 @@ class FilterTest:
         L = 10
         r_max = 4.9
 
-        sys = freud.data.make_random_system(L, N)
+        sys = freud.data.make_random_system(L, N, seed=1)
         nlist_1 = self.compute_python_neighborlist(*sys, r_max, terminate_after_blocked)
         filt = self.get_filter_object(terminate_after_blocked=terminate_after_blocked)
         filt.compute(sys, dict(r_max=r_max, exclude_ii=True))
