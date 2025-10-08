@@ -1,0 +1,39 @@
+[tool.bumpversion]
+current_version = "3.4.0"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "freud/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "doc/source/conf.py"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "doc/source/conf.py"
+search = 'release = "{current_version}"'
+replace = 'release = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = ".github/ISSUE_TEMPLATE/bug_report.yml"
+search = """
+      description: What version of freud are you using?
+      placeholder: {current_version}"""
+
+replace = """
+      description: What version of freud are you using?
+      placeholder: {new_version}"""
+
+
+[[tool.bumpversion.files]]
+filename = "ChangeLog.md"
+regex = true
+search = '{new_version} -- [^\n]*$'
+replace = '{new_version} -- ({now:%Y-%m-%d})'
