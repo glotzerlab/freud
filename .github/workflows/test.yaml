@@ -22,15 +22,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04]
-        python: ['312', '313']
+        python: ['312', '313', '314']
         include:
           # Test macOS, windows, and ARM Linux on oldest and latest versions.
           - os: 'ubuntu-24.04-arm'
-            python: '313'
+            python: '314'
           - os: 'macos-15'
-            python: '313'
+            python: '314'
           - os: 'windows-2025'
-            python: '313'
+            python: '314'
           - os: 'windows-2025'
             python: '312'
           - os: 'macos-14'
