@@ -91,16 +91,20 @@ To build **freud** from source:
 
 To run the tests:
 
-1. `Run tests`_::
+1. `Run tests`_:
 
-    cd tests
-    PYTHONPATH=../build python3 -m pytest
+   .. code-block:: bash
+
+      cd tests
+      PYTHONPATH=../build python3 -m pytest
 
 To build the documentation from source:
 
-1. `Install prerequisites`_::
+1. `Install prerequisites`_:
 
-    eval "$(pixi shell-hook --environment py313)"
+   .. code-block:: bash
+
+      eval "$(pixi shell-hook --environment py313)"
 
 2. `Build the documentation`_:
 
