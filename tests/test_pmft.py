@@ -171,7 +171,7 @@ class PMFTTestBase:
         nbins = 100
         r_max = 3
 
-        system = freud.data.make_random_system(L, N, self.ndim == 2, seed=3, seed=1)
+        system = freud.data.make_random_system(L, N, self.ndim == 2, seed=3)
         orientations = (
             rowan.random.rand(N) if self.ndim == 3 else np.random.rand(N) * 2 * np.pi
         )

@@ -78,7 +78,7 @@ class TestHexatic:
     def test_weighted_random(self, k):
         boxlen = 10
         N = 5000
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100, seed=1)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100)
         voro = freud.locality.Voronoi()
         voro.compute(system=(box, points))
 
@@ -113,7 +113,7 @@ class TestHexatic:
     def test_weighted_zero_one(self):
         boxlen = 10
         N = 5000
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100, seed=1)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100)
         voro = freud.locality.Voronoi()
         voro.compute(system=(box, points))
 

@@ -324,7 +324,7 @@ class NeighborQueryTest:
         N = 400  # number of particles
 
         box, ref_points = freud.data.make_random_system(L, N, seed=0)
-        _, points = freud.data.make_random_system(L, N, seed=1, seed=1)
+        _, points = freud.data.make_random_system(L, N, seed=1)
 
         nq = self.build_query_object(box, ref_points, L / 10)
 
@@ -357,7 +357,7 @@ class NeighborQueryTest:
         L, r_max, N = (10, 2.01, 1024)
 
         box, points = freud.data.make_random_system(L, N, seed=0)
-        _, points2 = freud.data.make_random_system(L, N // 6, seed=1, seed=1)
+        _, points2 = freud.data.make_random_system(L, N // 6, seed=1)
         nq = self.build_query_object(box, points, r_max)
         nq2 = self.build_query_object(box, points2, r_max)
 
@@ -397,7 +397,7 @@ class NeighborQueryTest:
 
         box = freud.box.Box.cube(L)
 
-        _, points = freud.data.make_random_system(L, N, seed=seed, seed=1)
+        _, points = freud.data.make_random_system(L, N, seed=seed)
         all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
         all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
         all_rsqs = np.sum(all_vectors**2, axis=-1)

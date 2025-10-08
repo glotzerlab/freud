@@ -35,7 +35,7 @@ class TestVoronoi:
         # number of points and polytopes
         L = 10  # Box length
         N = 5000  # Number of particles
-        box, points = freud.data.make_random_system(L, N, is2D=True, seed=100, seed=1)
+        box, points = freud.data.make_random_system(L, N, is2D=True, seed=100)
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 
@@ -65,7 +65,7 @@ class TestVoronoi:
         # number of points and polytopes
         L = 10  # Box length
         N = 5000  # Number of particles
-        box, points = freud.data.make_random_system(L, N, is2D=False, seed=100, seed=1)
+        box, points = freud.data.make_random_system(L, N, is2D=False, seed=100)
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 

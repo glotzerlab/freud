@@ -80,7 +80,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*sf_params)
-        box, points = freud.data.make_random_system(L, N, seed=123, seed=1)
+        box, points = freud.data.make_random_system(L, N, seed=123)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
@@ -96,7 +96,7 @@ class StaticStructureFactorTest:
         L = 10
         N = 1000
         sf = self.build_structure_factor_object(*sf_params)
-        box, points = freud.data.make_random_system(L, N, seed=123, seed=1)
+        box, points = freud.data.make_random_system(L, N, seed=123)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
