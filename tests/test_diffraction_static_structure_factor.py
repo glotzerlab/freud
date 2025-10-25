@@ -421,11 +421,17 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         """Ensure parameters are initialized properly."""
         super().test_attribute_access(sf_params)
 
+        L = 10
+        N = 100
         _bins, _k_max, _k_min, num_sampled_k_points = sf_params
         sf = self.build_structure_factor_object(*sf_params)
         assert sf.num_sampled_k_points == num_sampled_k_points
         with pytest.raises(AttributeError):
             sf.k_points
+        box, points = freud.data.make_random_system(L, N, seed=1)
+        system = freud.AABBQuery.from_system((box, points))
+        sf.compute(system)
+        assert sf.k_points.shape[1] == 3
 
     @pytest.mark.skipif(
         NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0."

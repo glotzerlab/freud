@@ -484,7 +484,7 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
         calculation."""
         k_points = self._cpp_obj.getKPoints()
-        return np.asarray([[k.x, k.y, k.z] for k in k_points])
+        return k_points.toNumpyArray()
 
     def __repr__(self):
         return (

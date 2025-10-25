@@ -14,7 +14,8 @@ void export_StaticStructureFactorDirect(nanobind::module_& m)
 {
     nanobind::class_<StaticStructureFactorDirect, StaticStructureFactor>(m, "StaticStructureFactorDirect")
         .def(nanobind::init<unsigned int, float, float, unsigned int>())
-        .def("getNumSampledKPoints", &StaticStructureFactorDirect::getNumSampledKPoints);
+        .def("getNumSampledKPoints", &StaticStructureFactorDirect::getNumSampledKPoints)
+        .def("getKPoints", &StaticStructureFactorDirect::getKPoints);
 }
 
 } // namespace freud::diffraction::detail
