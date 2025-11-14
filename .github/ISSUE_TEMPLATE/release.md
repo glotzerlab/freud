@@ -46,7 +46,7 @@ On that branch, take the following steps (committing after each step when needed
   ### Deprecated
 
   ### Removed
-  
+
   ### Fixed
   ```
 
