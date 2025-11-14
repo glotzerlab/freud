@@ -16,13 +16,13 @@ On that branch, take the following steps (committing after each step when needed
 - [ ] Check for new or duplicate contributors since the last release:
   `comm -13 (git log $(git describe --tags --abbrev=0) --format="%aN <%aE>" | sort | uniq | psub) (git log --format="%aN <%aE>" | sort | uniq | psub)`.
   Add entries to `.mailmap` to remove duplicates.
-- [ ] Review the change log and revise if needed.
+- [ ] Review `ChangeLog.md` and revise if needed.
 - [ ] Run `bump-my-version bump {type}`. Replace `{type}` with:
   - `patch` when this release *only* includes bug fixes.
   - `minor` when this release includes new features and possibly bug fixes.
   - `major` when this release includes API breaking changes.
 - [ ] Push the branch and open a pull request.
-- [ ] Check that readthedocs built the docs correctly in the pull request checks.
+- [ ] Check that readthedocs builds the docs correctly in the pull request checks.
 - [ ] Merge the pull request after all tests pass.
 - [ ] Make a new tag on the main branch:
   ```
@@ -31,7 +31,8 @@ On that branch, take the following steps (committing after each step when needed
   git tag -a v{X.Y.Z}
   git push origin --tags
   ```
-  Make sure to include the `v` in the tag name!
+  > [!IMPORTANT]
+  > Make sure to include the `v` in the tag name!
 - [ ] Add a blank changelog entry for the next release:
   ```
   ## Next release
@@ -46,6 +47,9 @@ On that branch, take the following steps (committing after each step when needed
   
   ### Fixed
   ```
+  > [!NOTE]
+  > Paste `Next release` exactly as shown. `bump-my-version` will replace that
+  > string with the version number and date.
 
 GitHub Actions will trigger on the tag and upload new wheels to PyPI and create a
 GitHub release. After a few hours, the conda-forge autotick bot will submit a PR
