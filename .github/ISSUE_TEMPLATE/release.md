@@ -31,8 +31,10 @@ On that branch, take the following steps (committing after each step when needed
   git tag -a v{X.Y.Z}
   git push origin --tags
   ```
-  > [!IMPORTANT]
-  > Make sure to include the `v` in the tag name!
+
+> [!IMPORTANT]
+> Make sure to include the `v` in the tag name!
+
 - [ ] Add a blank changelog entry for the next release:
   ```
   ## Next release
@@ -47,9 +49,10 @@ On that branch, take the following steps (committing after each step when needed
   
   ### Fixed
   ```
-  > [!NOTE]
-  > Paste `Next release` exactly as shown. `bump-my-version` will replace that
-  > string with the version number and date.
+
+> [!NOTE]
+> Paste `Next release` exactly as shown. `bump-my-version` will replace that
+> string with the version number and date.
 
 GitHub Actions will trigger on the tag and upload new wheels to PyPI and create a
 GitHub release. After a few hours, the conda-forge autotick bot will submit a PR
