@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.26...4.1)
-cmake_policy(SET CMP0190 OLD)
 
 project(freud)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
