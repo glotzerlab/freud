@@ -31,9 +31,13 @@ replace = """
       description: What version of freud are you using?
       placeholder: {new_version}"""
 
+[[tool.bumpversion.files]]
+filename = ".github/ISSUE_TEMPLATE/release.md"
+search = 'freud {current_version}'
+replace = 'freud {new_version}'
 
 [[tool.bumpversion.files]]
 filename = "ChangeLog.md"
 regex = true
-search = '{new_version} -- [^\n]*$'
-replace = '{new_version} -- ({now:%Y-%m-%d})'
+search = 'Next release$'
+replace = '{new_version} -- {now:%Y-%m-%d}'

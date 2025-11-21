@@ -5,12 +5,12 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## 3.5.1 -- (2025-10-22)
+## Next release
 
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
 
-## 3.5.0 -- (2025-10-08)
+## 3.5.0 -- 2025-10-08
 
 ### Changed
 * Build with `abi3` for Python >=3.12.
