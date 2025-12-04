@@ -13,9 +13,15 @@ To make a new freud release:
 On that branch, take the following steps (committing after each step when needed):
 
 - [ ] Run `prek autoupdate`.
-- [ ] Check for new or duplicate contributors since the last release:
-  `comm -13 (git log $(git describe --tags --abbrev=0) --format="%aN <%aE>" | sort | uniq | psub) (git log --format="%aN <%aE>" | sort | uniq | psub)`.
-  Add entries to `.mailmap` to remove duplicates.
+- [ ] Check for new or duplicate contributors since the last release and add entries to `.mailmap` to remove duplicates.
+  * bash/zsh:
+    ```
+    comm -13 <(git log $(git describe --tags --abbrev=0) --format="%aN <%aE>" | sort | uniq) <(git log --format="%aN <%aE>" | sort | uniq)
+    ```
+  * fish:
+    ```
+    comm -13 (git log $(git describe --tags --abbrev=0) --format="%aN <%aE>" | sort | uniq | psub) (git log --format="%aN <%aE>" | sort | uniq | psub)
+    ```
 - [ ] Review `ChangeLog.md` and revise if needed.
 - [ ] Run `bump-my-version bump {type}`. Replace `{type}` with:
   - `patch` when this release *only* includes bug fixes.
