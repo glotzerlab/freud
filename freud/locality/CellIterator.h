@@ -38,12 +38,9 @@ class CellQueryBallIterator : public CellIterator
 public:
     //! Constructor
     CellQueryBallIterator(const CellQuery* neighbor_query, const vec3<float>& query_point,
-                          unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii,
-                          bool _check_r_max = true)
+                          unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
-    {
-        updateImageVectors(m_r_max, _check_r_max);
-    }
+    {}
 
     //! Empty Destructor
     ~CellQueryBallIterator() override = default;
@@ -52,9 +49,5 @@ public:
     NeighborBond next() override;
 
 private:
-    unsigned int cur_image {0};    //!< The current node in the tree.
-    unsigned int cur_node_idx {0}; //!< The current node in the tree.
-    unsigned int cur_ref_p {
-        0}; //!< The current index into the reference particles in the current node of the tree.
 };
 } // namespace freud::locality
