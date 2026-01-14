@@ -32,11 +32,11 @@ inline void CellQuery::setupGrid(const float r_cut)
  */
 inline void CellQuery::buildGrid(const float r_cut)
 {
-    const unsigned int total_cells = m_nx * m_ny * m_nz;
+    const unsigned int total_n_cells = m_nx * m_ny * m_nz;
     // Allocate buffers
-    m_counts.assign(total_cells, 0);      // Total occupancy of cell
-    m_counts_real.assign(total_cells, 0); // Offsets for ghosts
-    m_cell_starts.reserve(total_cells);   // Jumplist
+    m_counts.assign(total_n_cells, 0);      // Total occupancy of cell
+    m_counts_real.assign(total_n_cells, 0); // Offsets for ghosts
+    m_cell_starts.reserve(total_n_cells);   // Jumplist
     // NOTE: we do not know how many ghosts there are, so these are underestimates
     m_linear_buffer.reserve(m_n_points);
     // Cell index and TaggedPosition, which itself contains a particle/ghost index
@@ -74,6 +74,13 @@ inline void CellQuery::buildGrid(const float r_cut)
         TaggedPosition p = {local_point, static_cast<int>(i)};
         particle_cell_mapping.push_back({idx, p});
         m_n_total++;
+    }
+    // Calculate starts array (prefix sum)
+    int off = 0;
+    for (int c = 0; c < total_n_cells; ++c)
+    {
+        m_starts[c] = off;
+        off += m_counts[c];
     }
 }
 } // namespace freud::locality
