@@ -32,11 +32,11 @@ inline void CellQuery::setupGrid(const float r_cut)
  */
 inline void CellQuery::buildGrid(const float r_cut)
 {
-    const unsigned int total_n_cells = m_nx * m_ny * m_nz;
+    const unsigned int n_cells_total = m_nx * m_ny * m_nz;
     // Allocate buffers
-    m_counts.assign(total_n_cells, 0);      // Total occupancy of cell
-    m_counts_real.assign(total_n_cells, 0); // Offsets for ghosts
-    m_cell_starts.reserve(total_n_cells);   // Jumplist
+    m_counts.assign(n_cells_total, 0);      // Total occupancy of cell
+    m_counts_real.assign(n_cells_total, 0); // Offsets for ghosts
+    m_cell_starts.reserve(n_cells_total);   // Jumplist
     // NOTE: we do not know how many ghosts there are, so these are underestimates
     m_linear_buffer.reserve(m_n_points);
     // Cell index and TaggedPosition, which itself contains a particle/ghost index
@@ -74,15 +74,41 @@ inline void CellQuery::buildGrid(const float r_cut)
         TaggedPosition p = {local_point, static_cast<int>(i)};
         particle_cell_mapping.push_back({idx, p});
         m_n_total++;
+        m_counts_real[idx]++;
     }
 
     // Calculate starts array (prefix sum) of indices that begin each cell.
     // TODO: std::inclusive_scan
     unsigned int offset = 0;
-    for (int c = 0; c < total_n_cells; c++)
+    for (int c = 0; c < n_cells_total; c++)
     {
         m_cell_starts[c] = offset;
         offset += m_counts[c];
     }
+
+    // Reserve data for the full neighbor list, discarding the cell indices as that data
+    // is encoded into the sorting of the array
+    std::vector<TaggedPosition> sorted(m_n_total);
+
+    // Track insertion positions
+    std::vector<int> real_insert(n_cells_total, 0);
+    std::vector<int> ghost_insert(n_cells_total, 0);
+
+    // Place particles directly in sorted order
+    for (auto& [cell_idx, particle] : particle_cell_mapping)
+    {
+        const bool is_ghost = particle.particle_index < 0;
+        int pos;
+        if (is_ghost)
+        {
+            pos = m_cell_starts[cell_idx] + m_counts_real[cell_idx] + ghost_insert[cell_idx]++;
+        }
+        else
+        {
+            pos = m_cell_starts[cell_idx] + real_insert[cell_idx]++;
+        }
+        sorted[pos] = std::move(particle);
+    }
+    m_linear_buffer = std::move(sorted);
 }
 } // namespace freud::locality
