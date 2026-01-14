@@ -17,13 +17,14 @@ class CellQuery : public NeighborQuery
 {
 public:
     //! Constructs the compute
-    CellQuery();
+    using NeighborQuery::NeighborQuery;
+    CellQuery() = default;
 
     //! New-style constructor. It's safe to inherit and use the parent class.
     CellQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points);
 
     //! Destructor
-    ~CellQuery() override;
+    ~CellQuery() override = default;
 
     //! Implementation of per-particle query for CellQuery (see NeighborQuery.h for documentation).
     /*! \param query_point The point to find neighbors for.
