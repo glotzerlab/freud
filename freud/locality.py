@@ -897,10 +897,10 @@ class LinkCell(NeighborQuery):
         return self._cpp_obj.getCellWidth()
 
 
-class LinearCell(NeighborQuery):
-    r"""Use the LinearCell algorithm to find neighbors.
+class CellQuery(NeighborQuery):
+    r"""Use the CellQuery algorithm to find neighbors.
 
-    Also available as ``freud.LinearCell``.
+    Also available as ``freud.CellQuery``.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -913,7 +913,7 @@ class LinearCell(NeighborQuery):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
         self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
-        self._cpp_obj = freud._locality.LinearCell(b._cpp_obj, self._points)
+        self._cpp_obj = freud._locality.CellQuery(b._cpp_obj, self._points)
 
 
 class _PairCompute(_Compute):
