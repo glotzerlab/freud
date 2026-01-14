@@ -3,8 +3,7 @@
 /*! \file LinearCell.h
  *  \brief Build an cell list from points and query it for neighbors.
  */
-
-namespace freud { namespace locality {
+namespace freud::locality {
 
 class CellQuery : public NeighborQuery
 {
@@ -26,9 +25,8 @@ public:
     // std::shared_ptr<NeighborQueryPerPointIterator>
     // querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
     // override;
-    std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point,
-                                                                          unsigned int query_point_idx,
-                                                                          QueryArgs args) const final
+    std::shared_ptr<NeighborQueryPerPointIterator>
+    querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const final
     {
         this->validateQueryArgs(args);
         if (args.mode == QueryType::ball)
@@ -109,4 +107,5 @@ private:
 
     // std::vector<Cell> m_aabbs; //!< Flat array of Cells of all types
 };
-}} // namespace freud::locality
+
+} // namespace freud::locality
