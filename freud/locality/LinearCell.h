@@ -1,3 +1,6 @@
+#ifndef FREUD_LINEAR_CELL_H
+#define FREUD_LINEAR_CELL_H
+
 #include "NeighborQuery.h"
 #include <vector>
 /*! \file LinearCell.h
@@ -5,8 +8,14 @@
  */
 namespace freud::locality {
 
-// forward declaration of iterator types we return from the query
-class CellQueryBallIterator;
+// forward declaration of CellQuery
+class CellQuery;
+
+} // namespace freud::locality
+
+#include "CellIterator.h"
+
+namespace freud::locality {
 
 class CellQuery : public NeighborQuery
 {
@@ -112,3 +121,5 @@ private:
 };
 
 } // namespace freud::locality
+
+#endif // FREUD_LINEAR_CELL_H

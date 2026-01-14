@@ -1,5 +1,5 @@
-#include "NeighborQuery.h"
 #include "LinearCell.h"
+#include "NeighborQuery.h"
 // Iterator structure
 namespace freud::locality {
 
