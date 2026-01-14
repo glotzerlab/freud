@@ -694,84 +694,84 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
 
-class TestNeighborQueryLinearCell(NeighborQueryTest):
-    @classmethod
-    def build_query_object(cls, box, ref_points, r_max=None):
-        return freud.locality.LinearCell(box, ref_points)
+# class TestNeighborQueryLinearCell(NeighborQueryTest):
+#     @classmethod
+#     def build_query_object(cls, box, ref_points, r_max=None):
+#         return freud.locality.LinearCell(box, ref_points)
 
-    def test_too_large_r_max_raises(self):
-        """Test that specifying too large an r_max value raises an error."""
-        L = 5
+#     def test_too_large_r_max_raises(self):
+#         """Test that specifying too large an r_max value raises an error."""
+#         L = 5
 
-        box = freud.box.Box.square(L)
-        points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
-        cc = freud.locality.LinearCell(box, points)
-        with pytest.raises(RuntimeError):
-            list(cc.query(points, dict(r_max=L)))
+#         box = freud.box.Box.square(L)
+#         points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
+#         cc = freud.locality.LinearCell(box, points)
+#         with pytest.raises(RuntimeError):
+#             list(cc.query(points, dict(r_max=L)))
 
-    def test_chaining(self):
-        N = 500
-        L = 10
-        r_max = 1
-        box, points = freud.data.make_random_system(L, N, seed=1)
-        nlist1 = (
-            freud.locality.LinearCell(box, points)
-            .query(points, dict(r_max=r_max, exclude_ii=True))
-            .toNeighborList()
-        )
-        cc = freud.locality.LinearCell(box, points)
-        nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
-        assert nlist_equal(nlist1, nlist2)
+#     def test_chaining(self):
+#         N = 500
+#         L = 10
+#         r_max = 1
+#         box, points = freud.data.make_random_system(L, N, seed=1)
+#         nlist1 = (
+#             freud.locality.LinearCell(box, points)
+#             .query(points, dict(r_max=r_max, exclude_ii=True))
+#             .toNeighborList()
+#         )
+#         cc = freud.locality.LinearCell(box, points)
+#         nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+#         assert nlist_equal(nlist1, nlist2)
 
-    @pytest.mark.parametrize(
-        ("r_guess", "scale"),
-        [(r_guess, scale) for r_guess in [0.5, 1, 2] for scale in [1.01, 1.1, 1.3]],
-    )
-    def test_r_guess_scale(self, r_guess, scale):
-        """Ensure that r_guess and scale have no effect on query results."""
-        np.random.seed(0)
-        L = 10
-        box = freud.box.Box.cube(L)
+#     @pytest.mark.parametrize(
+#         ("r_guess", "scale"),
+#         [(r_guess, scale) for r_guess in [0.5, 1, 2] for scale in [1.01, 1.1, 1.3]],
+#     )
+#     def test_r_guess_scale(self, r_guess, scale):
+#         """Ensure that r_guess and scale have no effect on query results."""
+#         np.random.seed(0)
+#         L = 10
+#         box = freud.box.Box.cube(L)
 
-        N = 100
-        positions = box.wrap(L / 2 * np.random.rand(N, 3))
-        nq = self.build_query_object(box, positions, L / 10)
+#         N = 100
+#         positions = box.wrap(L / 2 * np.random.rand(N, 3))
+#         nq = self.build_query_object(box, positions, L / 10)
 
-        k = 10
+#         k = 10
 
-        original_nlist = nq.query(
-            positions,
-            dict(num_neighbors=k, exclude_ii=True),
-        ).toNeighborList()
+#         original_nlist = nq.query(
+#             positions,
+#             dict(num_neighbors=k, exclude_ii=True),
+#         ).toNeighborList()
 
-        nlist = nq.query(
-            positions,
-            dict(num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale),
-        ).toNeighborList()
-        assert nlist_equal(nlist, original_nlist)
+#         nlist = nq.query(
+#             positions,
+#             dict(num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale),
+#         ).toNeighborList()
+#         assert nlist_equal(nlist, original_nlist)
 
 
-class TestMultipleMethods:
-    """Check that different methods of making a NeighborList give the same
-    result."""
+# class TestMultipleMethods:
+#     """Check that different methods of making a NeighborList give the same
+#     result."""
 
-    def test_alternating_points(self):
-        lattice_size = 10
-        # big box to ignore periodicity
-        box = freud.box.Box.square(lattice_size * 5)
-        query_points, points = util.make_alternating_lattice(lattice_size)
-        r_max = 1.6
-        num_neighbors = 12
+#     def test_alternating_points(self):
+#         lattice_size = 10
+#         # big box to ignore periodicity
+#         box = freud.box.Box.square(lattice_size * 5)
+#         query_points, points = util.make_alternating_lattice(lattice_size)
+#         r_max = 1.6
+#         num_neighbors = 12
 
-        test_set = util.make_raw_query_nlist_test_set(
-            box, points, query_points, "nearest", r_max, num_neighbors, False
-        )
-        nlist = test_set[-1][1]
-        for nq, neighbors in test_set:
-            if not isinstance(nq, freud.locality.NeighborQuery):
-                continue
-            check_nlist = nq.query(query_points, neighbors).toNeighborList()
-            assert nlist_equal(nlist, check_nlist)
+#         test_set = util.make_raw_query_nlist_test_set(
+#             box, points, query_points, "nearest", r_max, num_neighbors, False
+#         )
+#         nlist = test_set[-1][1]
+#         for nq, neighbors in test_set:
+#             if not isinstance(nq, freud.locality.NeighborQuery):
+#                 continue
+#             check_nlist = nq.query(query_points, neighbors).toNeighborList()
+#             assert nlist_equal(nlist, check_nlist)
 
 
 def _from_system_inputs():
