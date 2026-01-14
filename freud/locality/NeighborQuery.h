@@ -489,10 +489,10 @@ protected:
     unsigned int m_cur_p {0}; //!< The current particle under consideration.
 };
 
+//! Compute the vectors mapping a point in the box to a point in (up to) 27 images.
 inline std::vector<vec3<float>> updateImageVectors(const box::Box& box, float r_max, bool _check_r_max,
                                                    unsigned int& m_n_images)
 {
-    // box::Box const box = m_neighbor_query->getBox();
     std::vector<vec3<float>> image_list;
     vec3<float> const nearest_plane_distance = box.getNearestPlaneDistance();
     vec3<bool> const periodic = box.getPeriodic();
