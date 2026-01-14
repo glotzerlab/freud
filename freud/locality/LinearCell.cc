@@ -75,12 +75,14 @@ inline void CellQuery::buildGrid(const float r_cut)
         particle_cell_mapping.push_back({idx, p});
         m_n_total++;
     }
-    // Calculate starts array (prefix sum)
-    int off = 0;
-    for (int c = 0; c < total_n_cells; ++c)
+
+    // Calculate starts array (prefix sum) of indices that begin each cell.
+    // TODO: std::inclusive_scan
+    unsigned int offset = 0;
+    for (int c = 0; c < total_n_cells; c++)
     {
-        m_starts[c] = off;
-        off += m_counts[c];
+        m_cell_starts[c] = offset;
+        offset += m_counts[c];
     }
 }
 } // namespace freud::locality
