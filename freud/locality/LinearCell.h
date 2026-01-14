@@ -192,7 +192,6 @@ private:
     unsigned int m_nx;                           //!< Number of cells in the x dimension
     unsigned int m_ny;                           //!< Number of cells in the y dimension
     unsigned int m_nz;                           //!< Number of cells in the z dimension
-    unsigned int m_n_total;                      //!< Total number of particles, including ghosts
     unsigned int m_n_images;                     //!< Total number of periodic images
     std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
     std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell

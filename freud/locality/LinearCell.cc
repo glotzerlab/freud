@@ -38,12 +38,12 @@ inline void CellQuery::buildGrid(const float r_cut)
     m_counts_real.assign(total_cells, 0); // Offsets for ghosts
     m_cell_starts.reserve(total_cells);   // Jumplist
     // NOTE: we do not know how many ghosts there are, so these are underestimates
-    m_linear_buffer.reserve(m_n_total);
+    m_linear_buffer.reserve(m_n_points);
     // Cell index and TaggedPosition, which itself contains a particle/ghost index
-    std::vector<std::pair<int, TaggedPosition>> particle_cell_mapping(m_n_total);
+    std::vector<std::pair<int, TaggedPosition>> particle_cell_mapping(m_n_points);
 
     // Iterate over particles and images, adding ghosts where necessary
-    for (size_t i = 0; i < m_n_total; i++)
+    for (size_t i = 0; i < m_n_points; i++)
     {
         const vec3<float> local_point = m_points[i];
 
