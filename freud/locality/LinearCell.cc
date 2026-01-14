@@ -8,7 +8,7 @@
 namespace freud::locality {
 
 //! Compute the number of cells along each cartesian direction, saving relevant data.
-inline void CellQuery::setupGrid(const float r_cut)
+inline void CellQuery::setupGrid(const float r_cut) const
 {
     m_cell_inverse_length = 1.0f / r_cut;
 
@@ -31,18 +31,21 @@ inline void CellQuery::setupGrid(const float r_cut)
  * and assign them to cells: this should make it possible for next() to literally just
  * increment a pointer which is optimal.
  */
-inline void CellQuery::buildGrid(const float r_cut)
+inline void CellQuery::buildGrid(const float r_cut) const
 {
     setupGrid(r_cut);
     const unsigned int n_cells_total = m_nx * m_ny * m_nz;
     // Allocate buffers
     m_counts.assign(n_cells_total, 0);      // Total occupancy of cell
     m_counts_real.assign(n_cells_total, 0); // Offsets for ghosts
-    m_cell_starts.reserve(n_cells_total);   // Jumplist
+    m_cell_starts.assign(n_cells_total, 0); // Jumplist
     // NOTE: we do not know how many ghosts there are, so these are underestimates
     m_linear_buffer.reserve(m_n_points);
     // Cell index and TaggedPosition, which itself contains a particle/ghost index
-    std::vector<std::pair<int, TaggedPosition>> particle_cell_mapping(m_n_points);
+    std::vector<std::pair<int, TaggedPosition>> particle_cell_mapping;
+    particle_cell_mapping.reserve(m_n_points);
+
+    m_n_total = 0;
 
     // Iterate over particles and images, adding ghosts where necessary
     for (size_t i = 0; i < m_n_points; i++)
@@ -68,6 +71,7 @@ inline void CellQuery::buildGrid(const float r_cut)
                 TaggedPosition p = {ghost, ghost_tag};
                 particle_cell_mapping.push_back({idx, p});
                 m_n_total++;
+                m_counts[idx]++;
             }
         }
         // TODO: is query point always within cell?
@@ -76,13 +80,14 @@ inline void CellQuery::buildGrid(const float r_cut)
         TaggedPosition p = {local_point, static_cast<int>(i)};
         particle_cell_mapping.push_back({idx, p});
         m_n_total++;
+        m_counts[idx]++;
         m_counts_real[idx]++;
     }
 
     // Calculate starts array (prefix sum) of indices that begin each cell.
     // TODO: std::inclusive_scan
     unsigned int offset = 0;
-    for (int c = 0; c < n_cells_total; c++)
+    for (unsigned int c = 0; c < n_cells_total; c++)
     {
         m_cell_starts[c] = offset;
         offset += m_counts[c];
@@ -114,9 +119,20 @@ inline void CellQuery::buildGrid(const float r_cut)
     m_linear_buffer = std::move(sorted);
 }
 
+std::shared_ptr<NeighborQueryIterator> CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points,
+                                             QueryArgs query_args) const
+{
+    this->validateQueryArgs(query_args);
+    if (query_args.mode == QueryType::ball)
+    {
+        buildGrid(query_args.r_max);
+    }
+    return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
+}
+
 NeighborBond CellQueryBallIterator::next()
 {
-    m_cell_query->get_cell_idx_safe();
+    // m_cell_query->get_cell_idx_safe();
     // TODO: Implement neighbor search
     return ITERATOR_TERMINATOR;
 }

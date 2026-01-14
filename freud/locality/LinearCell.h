@@ -32,6 +32,11 @@ public:
      */
     std::shared_ptr<NeighborQueryPerPointIterator>
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const final;
+    
+    //! Perform a query based on a set of query parameters.
+    std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
+                                                 QueryArgs query_args) const override;
+
     //! Compute the cell index of a point p, returning False for those outside the grid.
     bool get_cell_idx_safe(const vec3<float>& p, unsigned int& idx) const
     {
@@ -63,8 +68,8 @@ protected:
         }
     }
 
-    float m_cell_inverse_length; //!< Reciprocal of r_cut, the width of each cell
-    vec3<float> m_min_pos;       //!< Lower leftmost corner of the grid: box.m_lo - rcut
+    mutable float m_cell_inverse_length; //!< Reciprocal of r_cut, the width of each cell
+    mutable vec3<float> m_min_pos;       //!< Lower leftmost corner of the grid: box.m_lo - rcut
 
 private:
     //! Cell list data unit.
@@ -82,7 +87,7 @@ private:
     //! Compute the vectors mapping a point in the box to a point in (up to) 27 images.
     // This is adapted from updateImageVectors, and aims to save memory bandwidth by
     // calculating lattice vectors extra times.
-    GhostPacket generateGhosts(const vec3<float>& point, const vec3<float>& fractional_r_cut)
+    GhostPacket generateGhosts(const vec3<float>& point, const vec3<float>& fractional_r_cut) const
     {
         GhostPacket result;
         const vec3<float> f = m_box.makeFractional(point);
@@ -188,17 +193,17 @@ private:
     }
 
     //! Compute the grid cell parameters.
-    inline void setupGrid(const float r_cut);
-    inline void buildGrid(const float r_cut);
-    unsigned int m_nx;                           //!< Number of cells in the x dimension
-    unsigned int m_ny;                           //!< Number of cells in the y dimension
-    unsigned int m_nz;                           //!< Number of cells in the z dimension
-    unsigned int m_n_total;                      //!< Total number of particles, including ghosts
-    unsigned int m_n_images;                     //!< Total number of periodic images
-    std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
-    std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
-    std::vector<unsigned int> m_cell_starts;     //!< Position of each cell in the buffer
-    std::vector<TaggedPosition> m_linear_buffer; //!< Linear array of particles & ghosts
+    inline void setupGrid(const float r_cut) const;
+    inline void buildGrid(const float r_cut) const;
+    mutable unsigned int m_nx;                           //!< Number of cells in the x dimension
+    mutable unsigned int m_ny;                           //!< Number of cells in the y dimension
+    mutable unsigned int m_nz;                           //!< Number of cells in the z dimension
+    mutable unsigned int m_n_total;                      //!< Total number of particles, including ghosts
+    mutable unsigned int m_n_images;                     //!< Total number of periodic images
+    mutable std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
+    mutable std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
+    mutable std::vector<unsigned int> m_cell_starts;     //!< Position of each cell in the buffer
+    mutable std::vector<TaggedPosition> m_linear_buffer; //!< Linear array of particles & ghosts
 
     //! Maps particles by local id to their id within their type trees
     // void mapParticlesByType();
