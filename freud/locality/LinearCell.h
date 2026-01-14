@@ -5,6 +5,9 @@
  */
 namespace freud::locality {
 
+// forward declaration of iterator types we return from the query
+class CellQueryBallIterator;
+
 class CellQuery : public NeighborQuery
 {
 public:
