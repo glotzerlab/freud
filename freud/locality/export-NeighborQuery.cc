@@ -56,6 +56,14 @@ void RawPointsConstructor(RawPoints* nq, const box::Box& box,
     new (nq) RawPoints(box, points_data, n_points);
 }
 
+void CellQueryConstructor(CellQuery* nq, const box::Box& box,
+                          const nb_array<const float, nb::shape<-1, 3>>& points)
+{
+    unsigned int const n_points = points.shape(0);
+    const auto* points_data = (const vec3<float>*) points.data();
+    new (nq) CellQuery(box, points_data, n_points);
+}
+
 }; // namespace wrap
 
 namespace detail {
@@ -82,6 +90,11 @@ void export_LinkCell(nb::module_& module)
 void export_RawPoints(nb::module_& module)
 {
     nb::class_<RawPoints, NeighborQuery>(module, "RawPoints").def("__init__", &wrap::RawPointsConstructor);
+}
+
+void export_CellQuery(nb::module_& module)
+{
+    nb::class_<CellQuery, NeighborQuery>(module, "CellQuery").def("__init__", &wrap::CellQueryConstructor);
 }
 
 void export_QueryArgs(nb::module_& module)

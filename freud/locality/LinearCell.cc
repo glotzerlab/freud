@@ -32,6 +32,7 @@ inline void CellQuery::setupGrid(const float r_cut)
  */
 inline void CellQuery::buildGrid(const float r_cut)
 {
+    setupGrid(r_cut);
     const unsigned int n_cells_total = m_nx * m_ny * m_nz;
     // Allocate buffers
     m_counts.assign(n_cells_total, 0);      // Total occupancy of cell
