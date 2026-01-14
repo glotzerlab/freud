@@ -58,6 +58,7 @@ add_library(
   locality/AABBQuery.cc
   locality/AABBQuery.h
   locality/AABBTree.h
+  locality/LinearCell.h
   locality/BondHistogramCompute.h
   locality/Filter.h
   locality/FilterRAD.h
