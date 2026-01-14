@@ -73,6 +73,7 @@ private:
         vec3<float> p;      //!< Position of the particle
         int particle_index; //!< Index of the particle (out of m_n_points, negative=ghost)
     };
+    //! Buffer of ghost particles for a single real particle.
     struct GhostPacket
     {
         std::array<vec3<float>, 7> displacements;
