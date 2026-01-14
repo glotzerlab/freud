@@ -584,10 +584,12 @@ public:
         }
     }
 
-    vec3<float> getMinCoord() const {
+    vec3<float> getMinCoord() const
+    {
         return m_lo;
     }
-    vec3<float> getMaxCoord() const {
+    vec3<float> getMaxCoord() const
+    {
         return m_hi;
     }
 
