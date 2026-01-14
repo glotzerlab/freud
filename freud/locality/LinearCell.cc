@@ -2,6 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "LinearCell.h"
+#include "CellIterator.h"
 #include <cmath>
 
 namespace freud::locality {
@@ -112,4 +113,11 @@ inline void CellQuery::buildGrid(const float r_cut)
     }
     m_linear_buffer = std::move(sorted);
 }
+
+NeighborBond CellQueryBallIterator::next()
+{
+    // TODO: Implement neighbor search
+    return ITERATOR_TERMINATOR;
+}
+
 } // namespace freud::locality
