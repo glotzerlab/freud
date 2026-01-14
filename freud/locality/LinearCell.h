@@ -50,9 +50,32 @@ protected:
         }
     }
 
+    //! Compute the cell index of a point p, returning False for those outside the grid.
+    bool get_cell_idx_safe(const vec3<float>& p, unsigned int& idx) const
+    {
+        int cx = static_cast<int>((p.x - m_min_pos.x) * m_cell_inverse_length);
+        int cy = static_cast<int>((p.y - m_min_pos.y) * m_cell_inverse_length);
+        int cz = static_cast<int>((p.z - m_min_pos.z) * m_cell_inverse_length);
+
+        if (cx < 0 || cy < 0 || cz < 0 || cx >= m_nx || cy >= m_ny || cz >= m_nz)
+        {
+            return false;
+        }
+
+        idx = (cz * m_ny + cy) * m_nx + cx;
+        return true;
+    }
+
+    float m_cell_inverse_length; //!< Reciprocal of r_cut, the width of each cell
+    vec3<float> m_min_pos;       //!< Lower leftmost corner of the grid: box.m_lo - rcut
+
 private:
-    //! Driver for tree configuration
+    //! Compute the grid cell parameters.
     void makeGrid(const float r_cut);
+    unsigned int m_nx;     //!< Number of cells in the x dimension
+    unsigned int m_ny;     //!< Number of cells in the y dimension
+    unsigned int m_nz;     //!< Number of cells in the z dimension
+    unsigned int m_n_total //!< Total number of particles, including ghosts.
 
     //! Maps particles by local id to their id within their type trees
     // void mapParticlesByType();
