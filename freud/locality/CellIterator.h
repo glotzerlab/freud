@@ -20,7 +20,6 @@ public:
     //! Empty Destructor
     ~CellIterator() override = default;
 
-    //! Computes the image vectors to query for
     void updateImageVectors(float r_max, bool _check_r_max = true)
     {
         box::Box const box = m_neighbor_query->getBox();

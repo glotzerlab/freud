@@ -19,7 +19,7 @@ public:
     //! Constructs the compute
     CellQuery();
 
-    //! New-style constructor.
+    //! New-style constructor. It's safe to inherit and use the parent class.
     CellQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points);
 
     //! Destructor
@@ -51,8 +51,8 @@ protected:
     }
 
 private:
-    // ! Driver for tree configuration
-    // void setupTree(unsigned int N);
+    //! Driver for tree configuration
+    void makeGrid(const float r_cut);
 
     //! Maps particles by local id to their id within their type trees
     // void mapParticlesByType();
