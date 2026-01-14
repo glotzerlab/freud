@@ -7,7 +7,7 @@
 namespace freud::locality {
 
 //! Compute the number of cells along each cartesian direction, saving relevant data.
-void CellQuery::makeGrid(const float r_cut)
+void CellQuery::setupGrid(const float r_cut)
 {
     m_cell_inverse_length = 1.0f / r_cut;
 

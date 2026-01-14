@@ -71,11 +71,12 @@ protected:
 
 private:
     //! Compute the grid cell parameters.
-    void makeGrid(const float r_cut);
-    unsigned int m_nx;     //!< Number of cells in the x dimension
-    unsigned int m_ny;     //!< Number of cells in the y dimension
-    unsigned int m_nz;     //!< Number of cells in the z dimension
-    unsigned int m_n_total //!< Total number of particles, including ghosts.
+    inline void setupGrid(const float r_cut);
+    inline void buildGrid(const float r_cut);
+    unsigned int m_nx;      //!< Number of cells in the x dimension
+    unsigned int m_ny;      //!< Number of cells in the y dimension
+    unsigned int m_nz;      //!< Number of cells in the z dimension
+    unsigned int m_n_total; //!< Total number of particles, including ghosts.
 
     //! Maps particles by local id to their id within their type trees
     // void mapParticlesByType();
