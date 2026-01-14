@@ -62,10 +62,6 @@ protected:
         idx = (cz * m_ny + cy) * m_nx + cx;
         return true;
     }
-    void updateImageVectors(float r_max, bool _check_r_max)
-    {
-        m_image_list = freud::locality::updateImageVectors(m_box, r_max, _check_r_max, m_n_images);
-    }
 
     float m_cell_inverse_length; //!< Reciprocal of r_cut, the width of each cell
     vec3<float> m_min_pos;       //!< Lower leftmost corner of the grid: box.m_lo - rcut
@@ -79,100 +75,112 @@ private:
     };
     struct GhostPacket
     {
-        std::array<vec3<int>, 7> images;
-        unsigned int n_images = 0;
+        std::array<vec3<float>, 7> displacements;
+        unsigned int n_displacements = 0;
     };
-    // std::array<TaggedPosition, 8> is_in_ghost_layer(const vec3<float>& point,
-    //                                                 const vec3<float>& fractional_r_cut)
-    // {
-    //     vec3<float> f = m_box.makeFractional(point);
-
-    //     // Check whether our point is within [-f_r_cut, 1+f_r_cut]
-    //     bool in_x = (f.x >= -fractional_r_cut.x) && (f.x <= 1.0f + fractional_r_cut.x);
-    //     bool in_y = (f.y >= -fractional_r_cut.y) && (f.y <= 1.0f + fractional_r_cut.y);
-    //     bool in_z = (f.z >= -fractional_r_cut.z) && (f.z <= 1.0f + fractional_r_cut.z);
-
-    //     // return in_x && in_y && in_z;
-    // }
+    //! Compute the vectors mapping a point in the box to a point in (up to) 27 images.
+    // This is adapted from updateImageVectors, and aims to save memory bandwidth by
+    // calculating lattice vectors extra times.
     GhostPacket generateGhosts(const vec3<float>& point, const vec3<float>& fractional_r_cut)
     {
         GhostPacket result;
-        vec3<float> f = m_box.makeFractional(point);
-        // Determine the single shift direction for each dimension (-1, 0, or 1)
-        // We use integer arithmetic to avoid branching where possible, or simple ternaries.
-        int dx = 0;
+        const vec3<float> f = m_box.makeFractional(point);
+        int dx, dy, dz;
+        // Determine which images ∈ {-1, 0, 1} we are close enough to generate a ghost for
         if (f.x < fractional_r_cut.x)
         {
             dx = 1;
         }
-        else if (f.x > 1.0f - fractional_r_cut.x)
+        else
         {
-            dx = -1;
+            dx = (f.x > 1.0f - fractional_r_cut.x) ? -1 : 0;
         }
 
-        int dy = 0;
         if (f.y < fractional_r_cut.y)
         {
             dy = 1;
         }
-        else if (f.y > 1.0f - fractional_r_cut.y)
+        else
         {
-            dy = -1;
+            dy = (f.y > 1.0f - fractional_r_cut.y) ? -1 : 0;
         }
 
-        int dz = 0;
         if (f.z < fractional_r_cut.z)
         {
             dz = 1;
         }
-        else if (f.z > 1.0f - fractional_r_cut.z)
+        else
         {
-            dz = -1;
+            dz = (f.z > 1.0f - fractional_r_cut.z) ? -1 : 0;
+        }
+        // Cannot have ghosts in a non-existent dimension
+        if (!m_box.is2D())
+        {
+            dz = 0;
         }
 
-        // Early exit if we are fully inside the bulk
+        // For particle in the bulk, we don't need to try and generate ghosts.
         if (dx == 0 && dy == 0 && dz == 0)
         {
             return result;
         }
 
-        // Explicitly check the 7 combinations.
-        // For 3D cuboids, we place ghosts near the 6 faces, 12 edges, and 8 vertices.
-        // However, because r_cut < L/2, we can be near a maximum of 3 faces, 3 edges,
-        // and one vertex at a time for a max of 7 new ghosts per particle
+        // Compute lattice vectors that displace our input to generate a ghost.
+        const vec3<float> Lx = m_box.getLatticeVector(0);
+        const vec3<float> Ly = m_box.getLatticeVector(1);
+        // Get zeros if we are in 2d
+        const vec3<float> Lz = (!m_box.is2D()) ? m_box.getLatticeVector(2) : vec3<float>(0, 0, 0);
 
-        // Face Neighbors (one displacement)
+        auto new_site = [&](int i, int j, int k) {
+            vec3<float> shift(0, 0, 0);
+            // If {i,j,k}=={1} we have a positive displacement, otherwise negative.
+            if (i != 0)
+            {
+                shift += (i == 1) ? Lx : -Lx;
+            }
+            if (j != 0)
+            {
+                shift += (j == 1) ? Ly : -Ly;
+            }
+            if (k != 0)
+            {
+                shift += (k == 1) ? Lz : -Lz;
+            }
+            result.displacements[result.n_displacements++] = shift;
+        };
+
+        // Face Neighbors
         if (dx != 0)
         {
-            result.images[result.n_images++] = {dx, 0, 0};
+            new_site(dx, 0, 0);
         }
         if (dy != 0)
         {
-            result.images[result.n_images++] = {0, dy, 0};
+            new_site(0, dy, 0);
         }
         if (dz != 0)
         {
-            result.images[result.n_images++] = {0, 0, dz};
+            new_site(0, 0, dz);
         }
 
-        // Edge Neighbors (two displacements)
+        // Edge Neighbors
         if (dx != 0 && dy != 0)
         {
-            result.images[result.n_images++] = {dx, dy, 0};
+            new_site(dx, dy, 0);
         }
         if (dx != 0 && dz != 0)
         {
-            result.images[result.n_images++] = {dx, 0, dz};
+            new_site(dx, 0, dz);
         }
         if (dy != 0 && dz != 0)
         {
-            result.images[result.n_images++] = {0, dy, dz};
+            new_site(0, dy, dz);
         }
 
-        // Corner Neighbor (all displacements populated)
+        // Corner Neighbor
         if (dx != 0 && dy != 0 && dz != 0)
         {
-            result.images[result.n_images++] = {dx, dy, dz};
+            new_site(dx, dy, dz);
         }
 
         return result;
@@ -189,7 +197,6 @@ private:
     std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
     std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
     std::vector<unsigned int> m_cell_starts;     //!< Position of each cell in the buffer
-    std::vector<vec3<float>> m_image_list;       //!< Displacement vector to each image
     std::vector<TaggedPosition> m_linear_buffer; //!< Linear array of particles & ghosts
 
     //! Maps particles by local id to their id within their type trees

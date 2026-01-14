@@ -9,7 +9,6 @@ namespace freud::locality {
 //! Compute the number of cells along each cartesian direction, saving relevant data.
 inline void CellQuery::setupGrid(const float r_cut)
 {
-    updateImageVectors(r_cut, true);
     m_cell_inverse_length = 1.0f / r_cut;
 
     // Compute the boundary of our cell list
@@ -40,24 +39,39 @@ inline void CellQuery::buildGrid(const float r_cut)
     m_cell_starts.reserve(total_cells);   // Jumplist
     // NOTE: we do not know how many ghosts there are, so these are underestimates
     m_linear_buffer.reserve(m_n_total);
+    // Cell index and TaggedPosition, which itself contains a particle/ghost index
     std::vector<std::pair<int, TaggedPosition>> particle_cell_mapping(m_n_total);
 
     // Iterate over particles and images, adding ghosts where necessary
     for (size_t i = 0; i < m_n_total; i++)
     {
         const vec3<float> local_point = m_points[i];
-        const vec3<float>* local_images = m_image_list.data();
 
         // Compute the axis-aligned (?) ellipse that represents our r_cut in fractional
         // coordinates.
         const vec3<float> plane_distances = m_box.getNearestPlaneDistance();
         const vec3<float> fractional_rcut = vec3<float>(r_cut, r_cut, r_cut) / plane_distances;
 
-        for (size_t image_index = 0; image_index < m_n_images; image_index++)
+        // TODO: SoA?
+        const GhostPacket ghosts = generateGhosts(local_point, fractional_rcut);
+
+        // NOTE: this will fail if i is > INT_MAX ( 4 billion )
+        const int ghost_tag = -static_cast<int>(i);
+        for (size_t ghost_index = 0; ghost_index < ghosts.n_displacements; ghost_index++)
         {
-            const vec3<float> trial = local_point + local_images[image_index];
-            const GhostPacket new_ghosts = generateGhosts(trial, fractional_rcut);
+            const vec3<float> ghost = local_point + ghosts.displacements[ghost_index];
+            unsigned int idx;
+            if (get_cell_idx_safe(ghost, idx))
+            {
+                TaggedPosition p = {ghost, ghost_tag};
+                particle_cell_mapping.push_back({idx, p});
+            }
         }
+        // TODO: is query point always within cell?
+        unsigned int idx;
+        get_cell_idx_safe(local_point, idx);
+        TaggedPosition p = {local_point, static_cast<int>(i)};
+        particle_cell_mapping.push_back({idx, p});
     }
 }
 } // namespace freud::locality
