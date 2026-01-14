@@ -6,13 +6,6 @@
 
 namespace freud::locality {
 
-//! Cell list data unit.
-struct TaggedParticle
-{
-    vec3<float> p;      //!< Position of the particle
-    int particle_index; //!< Index of the particle (out of m_n_points, negative=ghost)
-};
-
 //! Compute the number of cells along each cartesian direction, saving relevant data.
 inline void CellQuery::setupGrid(const float r_cut)
 {
@@ -30,12 +23,14 @@ inline void CellQuery::setupGrid(const float r_cut)
     m_ny = static_cast<unsigned int>(std::ceil(diagonal.y * m_cell_inverse_length));
     m_nz = static_cast<unsigned int>(std::ceil(diagonal.z * m_cell_inverse_length));
 }
+//! Build and populate the cell list grid
 inline void CellQuery::buildGrid(const float r_cut)
 {
     const unsigned int total_cells = m_nx * m_ny * m_nz;
     // Allocate buffers
     m_counts.assign(total_cells, 0);      // Total occupancy of cell
     m_counts_real.assign(total_cells, 0); // Offsets for ghosts
-    m_cell_starts.reserve(total_cells);      // Jumplist
+    m_cell_starts.reserve(total_cells);   // Jumplist
+    m_
 }
 } // namespace freud::locality

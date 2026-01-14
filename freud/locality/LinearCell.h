@@ -10,8 +10,15 @@
  */
 namespace freud::locality {
 
-// forward declaration of iterator types we return from the query
+// Forward declaration of iterator types we return from the query
 class CellQueryBallIterator;
+
+//! Cell list data unit.
+struct TaggedPosition
+{
+    vec3<float> p;      //!< Position of the particle
+    int particle_index; //!< Index of the particle (out of m_n_points, negative=ghost)
+};
 
 class CellQuery : public NeighborQuery
 {
@@ -80,6 +87,7 @@ private:
     std::vector<unsigned int> m_counts;      //!< Number of particles in each cell
     std::vector<unsigned int> m_counts_real; //!< Number of real particles in each cell
     std::vector<unsigned int> m_cell_starts; //!< Position of each cell in the buffer
+    std::vector<TaggedPosition>
 
     //! Maps particles by local id to their id within their type trees
     // void mapParticlesByType();
