@@ -116,6 +116,7 @@ inline void CellQuery::buildGrid(const float r_cut)
 
 NeighborBond CellQueryBallIterator::next()
 {
+    m_cell_query->get_cell_idx_safe();
     // TODO: Implement neighbor search
     return ITERATOR_TERMINATOR;
 }

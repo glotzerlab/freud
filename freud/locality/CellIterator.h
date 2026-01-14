@@ -20,16 +20,8 @@ public:
     //! Empty Destructor
     ~CellIterator() override = default;
 
-    void updateImageVectors(float r_max, bool _check_r_max = true)
-    {
-        box::Box const box = m_neighbor_query->getBox();
-        m_image_list = freud::locality::updateImageVectors(box, r_max, _check_r_max, m_n_images);
-    }
-
 protected:
-    const CellQuery* m_cell_query;         //!< Link to the CellQuery object
-    std::vector<vec3<float>> m_image_list; //!< List of translation vectors
-    unsigned int m_n_images {0};           //!< The number of image vectors to check
+    const CellQuery* m_cell_query; //!< Link to the CellQuery object
 };
 
 //! Iterator that gets neighbors in a ball of size r_max using Cell tree structures.

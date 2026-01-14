@@ -32,21 +32,6 @@ public:
      */
     std::shared_ptr<NeighborQueryPerPointIterator>
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const final;
-
-protected:
-    //! Validate the combination of specified arguments.
-    /*! Add to parent function to account for the various arguments
-     *  specifically required for CellQuery nearest neighbor queries.
-     */
-    void validateQueryArgs(QueryArgs& args) const override
-    {
-        NeighborQuery::validateQueryArgs(args);
-        if (args.mode == QueryType::nearest)
-        {
-            validateNearestNeighborArgs(args);
-        }
-    }
-
     //! Compute the cell index of a point p, returning False for those outside the grid.
     bool get_cell_idx_safe(const vec3<float>& p, unsigned int& idx) const
     {
@@ -61,6 +46,21 @@ protected:
 
         idx = (cz * m_ny + cy) * m_nx + cx;
         return true;
+    }
+
+
+protected:
+    //! Validate the combination of specified arguments.
+    /*! Add to parent function to account for the various arguments
+     *  specifically required for CellQuery nearest neighbor queries.
+     */
+    void validateQueryArgs(QueryArgs& args) const override
+    {
+        NeighborQuery::validateQueryArgs(args);
+        if (args.mode == QueryType::nearest)
+        {
+            validateNearestNeighborArgs(args);
+        }
     }
 
     float m_cell_inverse_length; //!< Reciprocal of r_cut, the width of each cell
