@@ -224,6 +224,48 @@ protected:
         }
     }
 
+    //! Helper function to validate nearest neighbor query arguments.
+    /*! This function is used by subclasses that perform nearest neighbor queries
+     *  to set default values for scale and r_guess, and validate the scale argument.
+     *  It should be called after calling NeighborQuery::validateQueryArgs.
+     */
+    void validateNearestNeighborArgs(QueryArgs& args) const
+    {
+        if (args.scale == DEFAULT_SCALE)
+        {
+            args.scale = float(1.1);
+        }
+        else if (args.scale <= float(1.0))
+        {
+            throw std::runtime_error("The scale query argument must be greater than 1.");
+        }
+
+        if (args.r_guess == DEFAULT_R_GUESS)
+        {
+            // By default, we assume a homogeneous system density and use
+            // that to estimate the distance we need to query. This
+            // calculation assumes a constant density of N/V, where N is
+            // the number of particles and V is the box volume, and it
+            // calculates the radius of a sphere that will contain the
+            // desired number of neighbors.
+
+            float const r_guess
+                = std::cbrtf((float(3.0) * static_cast<float>(args.num_neighbors) * m_box.getVolume())
+                             / (float(4.0) * static_cast<float>(M_PI) * static_cast<float>(m_n_points)));
+
+            // The upper bound is set by the minimum nearest plane distances.
+            vec3<float> const nearest_plane_distance = m_box.getNearestPlaneDistance();
+            float min_plane_distance = std::min(nearest_plane_distance.x, nearest_plane_distance.y);
+            if (!m_box.is2D())
+            {
+                min_plane_distance = std::min(min_plane_distance, nearest_plane_distance.z);
+            }
+
+            args.r_guess = std::min(r_guess, min_plane_distance / float(2.0));
+        }
+        args.r_guess = std::min(args.r_guess, args.r_max);
+    }
+
     //! Try to determine the query mode if one is not specified.
     /*! If no mode is specified and a number of neighbors is specified, the
      *  query mode must be a nearest neighbors query (all other arguments can
