@@ -65,6 +65,7 @@ inline void CellQuery::buildGrid(const float r_cut)
             {
                 TaggedPosition p = {ghost, ghost_tag};
                 particle_cell_mapping.push_back({idx, p});
+                m_n_total++;
             }
         }
         // TODO: is query point always within cell?
@@ -72,6 +73,7 @@ inline void CellQuery::buildGrid(const float r_cut)
         get_cell_idx_safe(local_point, idx);
         TaggedPosition p = {local_point, static_cast<int>(i)};
         particle_cell_mapping.push_back({idx, p});
+        m_n_total++;
     }
 }
 } // namespace freud::locality
