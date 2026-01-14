@@ -16,12 +16,11 @@ class CellQueryBallIterator;
 class CellQuery : public NeighborQuery
 {
 public:
-    //! Constructs the compute
+    //! Inherit constructors from NeighborQuery
     using NeighborQuery::NeighborQuery;
-    CellQuery() = default;
 
-    //! New-style constructor. It's safe to inherit and use the parent class.
-    CellQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points);
+    //! Default constructor
+    CellQuery() = default;
 
     //! Destructor
     ~CellQuery() override = default;
