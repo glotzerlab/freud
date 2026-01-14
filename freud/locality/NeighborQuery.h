@@ -489,6 +489,77 @@ protected:
     unsigned int m_cur_p {0}; //!< The current particle under consideration.
 };
 
+inline std::vector<vec3<float>> updateImageVectors(const box::Box& box, float r_max, bool _check_r_max,
+                                                   unsigned int& m_n_images)
+{
+    // box::Box const box = m_neighbor_query->getBox();
+    std::vector<vec3<float>> image_list;
+    vec3<float> const nearest_plane_distance = box.getNearestPlaneDistance();
+    vec3<bool> const periodic = box.getPeriodic();
+    if (_check_r_max)
+    {
+        if ((periodic.x && nearest_plane_distance.x <= r_max * 2.0)
+            || (periodic.y && nearest_plane_distance.y <= r_max * 2.0)
+            || (!box.is2D() && periodic.z && nearest_plane_distance.z <= r_max * 2.0))
+        {
+            throw std::runtime_error("The AABBQuery r_max is too large for this box.");
+        }
+    }
+
+    // Now compute the image vectors
+    // Each dimension increases by one power of 3
+    unsigned int const n_dim_periodic = static_cast<unsigned int>(periodic.x)
+        + static_cast<unsigned int>(periodic.y)
+        + static_cast<unsigned int>(!box.is2D()) * static_cast<unsigned int>(periodic.z);
+    m_n_images = 1;
+    for (unsigned int dim = 0; dim < n_dim_periodic; ++dim)
+    {
+        m_n_images *= 3;
+    }
+
+    // Reallocate memory if necessary
+    if (m_n_images > image_list.size())
+    {
+        image_list.resize(m_n_images);
+    }
+
+    auto latt_a = vec3<float>(box.getLatticeVector(0));
+    auto latt_b = vec3<float>(box.getLatticeVector(1));
+    vec3<float> latt_c = vec3<float>(0.0, 0.0, 0.0);
+    if (!box.is2D())
+    {
+        latt_c = vec3<float>(box.getLatticeVector(2));
+    }
+
+    // There is always at least 1 image, which we put as our first thing to look at
+    image_list[0] = vec3<float>(0.0, 0.0, 0.0);
+
+    // Iterate over all other combinations of images
+    unsigned int n_images = 1;
+    for (int i = -1; i <= 1 && n_images < m_n_images; ++i)
+    {
+        for (int j = -1; j <= 1 && n_images < m_n_images; ++j)
+        {
+            for (int k = -1; k <= 1 && n_images < m_n_images; ++k)
+            {
+                if (i != 0 || j != 0 || k != 0)
+                {
+                    // Skip any periodic images if we don't have periodicity
+                    if ((i != 0 && !periodic.x) || (j != 0 && !periodic.y)
+                        || (k != 0 && (box.is2D() || !periodic.z)))
+                    {
+                        continue;
+                    }
+
+                    image_list[n_images] = float(i) * latt_a + float(j) * latt_b + float(k) * latt_c;
+                    ++n_images;
+                }
+            }
+        }
+    }
+    return image_list;
+}
+
 }; }; // end namespace freud::locality
 
 #endif // NEIGHBOR_QUERY_H

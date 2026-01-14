@@ -14,17 +14,21 @@ public:
                  unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
                                         exclude_ii),
-          m_aabb_query(neighbor_query)
+          m_cell_query(neighbor_query)
     {}
 
     //! Empty Destructor
     ~CellIterator() override = default;
 
     //! Computes the image vectors to query for
-    void updateImageVectors(float r_max, bool _check_r_max = true);
+    void updateImageVectors(float r_max, bool _check_r_max = true)
+    {
+        box::Box const box = m_neighbor_query->getBox();
+        m_image_list = freud::locality::updateImageVectors(box, r_max, _check_r_max, m_n_images);
+    }
 
 protected:
-    const CellQuery* m_aabb_query;         //!< Link to the CellQuery object
+    const CellQuery* m_cell_query;         //!< Link to the CellQuery object
     std::vector<vec3<float>> m_image_list; //!< List of translation vectors
     unsigned int m_n_images {0};           //!< The number of image vectors to check
 };
