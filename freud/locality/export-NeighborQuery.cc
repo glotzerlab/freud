@@ -4,6 +4,7 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/bind_vector.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include "AABBQuery.h"
@@ -103,7 +104,8 @@ void export_CellQuery(nb::module_& module)
         .def("getNx", &CellQuery::getNx)
         .def("getNy", &CellQuery::getNy)
         .def("getNz", &CellQuery::getNz)
-        .def("setupGrid", &CellQuery::setupGrid);
+        .def("setupGrid", &CellQuery::setupGrid)
+        .def("buildGrid", &CellQuery::buildGrid);
 }
 
 void export_QueryArgs(nb::module_& module)

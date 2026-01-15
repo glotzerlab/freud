@@ -768,6 +768,14 @@ class TestNeighborQueryCellQuery:
         np.testing.assert_allclose(cc._cpp_obj.getCellWidth(), r_max)
         np.testing.assert_allclose(cc._cpp_obj.getCellInverseWidth(), 1.0 / r_max)
 
+    @pytest.mark.parametrize("n", [1, 63, 100_000])
+    def test_cell_occupancies(self, n):
+        cc = freud.locality.CellQuery(freud.Box.cube(10), [[0, 0, 0]])
+        cc.query(np.zeros((n, 3)), query_args={"r_max": 4.5})
+        cc._cpp_obj.buildGrid(4.5)
+        print(cc._cpp_obj.getRealCounts().toNumpyArray())
+        assert False
+
     def test_too_large_r_max_raises(self):
         """Test that specifying too large an r_max value raises an error."""
         L = 5
