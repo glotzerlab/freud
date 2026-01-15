@@ -44,9 +44,9 @@ public:
         m_cell_start_index = m_cell_query->m_cell_starts[idx];
         m_cell_end_offset = m_cell_query->m_counts[idx];
         m_cell_data = m_cell_query->m_linear_buffer.data() + m_cell_start_index;
-        std::cout << "start index: " << m_cell_start_index << "\n";
-        std::cout << "end offset:  " << m_cell_end_offset << "\n";
-        std::cout << "m_cell_data:  " << m_cell_data << "\n";
+    //     std::cout << "start index: " << m_cell_start_index << "\n";
+    //     std::cout << "end offset:  " << m_cell_end_offset << "\n";
+    //     std::cout << "m_cell_data:  " << m_cell_data << "\n";
     }
 
     //! Empty Destructor
@@ -71,7 +71,7 @@ inline NeighborBond CellQueryBallIterator::next()
     }
     TaggedPosition possible_neighbor = m_cell_data[m_idx++];
     float r_squared = dot(m_query_point, possible_neighbor.p);
-    std::cout << "regular loop\n";
+    // std::cout << "regular loop\n";
 
     // NeighborBond nb(m_query_point_idx, possible_neighbor.particle_index);
     // return m_cell_data[m_idx++].p;
