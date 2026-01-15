@@ -7,6 +7,14 @@
 #include <iostream>
 
 namespace freud::locality {
+//! Perform a query based on a set of query parameters.
+std::shared_ptr<NeighborQueryIterator>
+CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
+{
+    this->validateQueryArgs(query_args);
+    this->buildGrid(query_args.r_max); // TODO: n nearest
+    return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
+};
 
 //! Compute the number of cells along each cartesian direction, saving relevant data.
 inline void CellQuery::setupGrid(const float r_cut) const
