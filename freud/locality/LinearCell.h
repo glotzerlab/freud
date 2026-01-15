@@ -119,9 +119,9 @@ public:
     {
         m_cell_inverse_length = 1.0f / r_cut;
         // Compute the widths of the box along each cartesian direction.
-        float w_x = m_box.getLx() + (m_box.getLy() * m_box.getTiltFactorXY())
-            + (m_box.getLz() * m_box.getTiltFactorXZ());
-        float w_y = m_box.getLy() + (m_box.getLz() * m_box.getTiltFactorYZ());
+        float w_x = m_box.getLx() + (m_box.getLy() * std::abs(m_box.getTiltFactorXY()))
+            + (m_box.getLz() * std::abs(m_box.getTiltFactorXZ()));
+        float w_y = m_box.getLy() + (m_box.getLz() * std::abs(m_box.getTiltFactorYZ()));
         float w_z = m_box.getLz();
 
         m_nx = static_cast<int>((w_x * m_cell_inverse_length)) + 3;
