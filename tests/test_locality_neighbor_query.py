@@ -694,10 +694,72 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
 
-# class TestNeighborQueryCellQuery(NeighborQueryTest):
-#     @classmethod
-#     def build_query_object(cls, box, ref_points, r_max=None):
-#         return freud.locality.CellQuery(box, ref_points)
+# class TestNeighborQueryCellQuery(NeighborQueryTest): #/ TODO: restore subclass!
+class TestNeighborQueryCellQuery:
+    @classmethod
+    def build_query_object(cls, box, ref_points, r_max=None):
+        return freud.locality.CellQuery(box, ref_points)
+
+    @pytest.mark.parametrize(
+        "box",
+        [
+            freud.box.Box.square(5),
+            freud.box.Box(10.0, 5.0, 9.0),
+            freud.box.Box.from_box_lengths_and_angles(
+                3.307, 7.412, 2.793, 1.55433, 1.48673, 1.49588
+            ),
+            freud.box.Box(6.0, 6.0, 5.0, 0.1, -20.3, 0.0),
+        ],
+    )
+    @pytest.mark.parametrize("r_max", [0.25, 1, 2.49])
+    def test_cell_counts_are_correct(self, box, r_max):
+        cc = freud.locality.CellQuery(box, [[0, 0, 0]])
+        # nq = cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        # # Freud queries are lazy, so no work is done until we advance the iterator
+        # next(nq.__iter__())
+        cc._cpp_obj.setupGrid(r_max)
+
+        nx_ny_nz = np.array(
+            [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        )
+
+        def extents_of_triclinic(box):
+            extent = np.abs(box.to_matrix()).sum(axis=1) * 0.5
+            return (-extent, extent)
+
+        m_lo, m_hi = extents_of_triclinic(box)
+        correct_n_cells = (((m_hi + r_max) - (m_lo - r_max)) / r_max).astype(
+            np.int32
+        ) + 1
+        cell_box = freud.box.Box(*(nx_ny_nz * r_max)[: 2 if box.is2D else 3])
+        assert cell_box.is2D == box.is2D, "Cell grid should be constructable as 2D."
+
+        # Vertices of the original system's box
+        original_box_vertices = box.make_absolute(
+            [(i, j, k) for i in (0, 1) for j in (0, 1) for k in (0, 1)]
+        )
+        # Cell grid should contain the vertices of the original box
+        np.testing.assert_array_equal(
+            cell_box.contains(original_box_vertices),
+            True,
+        )
+        # Cell grid should also contain the original box rounded by r_max
+        np.testing.assert_array_equal(
+            cell_box.contains(
+                [*(original_box_vertices + r_max), *(original_box_vertices - r_max)]
+            ),
+            True,
+        )
+        # All support points of the original box, offset by ±r_max along x, y, and z
+        # This ensures that our cell list contains all possible points offset by rcut
+        signs = [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)]
+        signs = np.array(signs) * r_max
+
+        all_offset_points = np.sum(
+            [*itertools.product(original_box_vertices, signs)], axis=1
+        )
+        np.testing.assert_array_equal(cell_box.contains(all_offset_points), True)
+
 
 #     def test_too_large_r_max_raises(self):
 #         """Test that specifying too large an r_max value raises an error."""
