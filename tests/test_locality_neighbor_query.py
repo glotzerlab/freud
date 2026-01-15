@@ -694,10 +694,10 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
 
-# class TestNeighborQueryLinearCell(NeighborQueryTest):
+# class TestNeighborQueryCellQuery(NeighborQueryTest):
 #     @classmethod
 #     def build_query_object(cls, box, ref_points, r_max=None):
-#         return freud.locality.LinearCell(box, ref_points)
+#         return freud.locality.CellQuery(box, ref_points)
 
 #     def test_too_large_r_max_raises(self):
 #         """Test that specifying too large an r_max value raises an error."""
@@ -705,7 +705,7 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
 
 #         box = freud.box.Box.square(L)
 #         points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
-#         cc = freud.locality.LinearCell(box, points)
+#         cc = freud.locality.CellQuery(box, points)
 #         with pytest.raises(RuntimeError):
 #             list(cc.query(points, dict(r_max=L)))
 
@@ -715,11 +715,11 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
 #         r_max = 1
 #         box, points = freud.data.make_random_system(L, N, seed=1)
 #         nlist1 = (
-#             freud.locality.LinearCell(box, points)
+#             freud.locality.CellQuery(box, points)
 #             .query(points, dict(r_max=r_max, exclude_ii=True))
 #             .toNeighborList()
 #         )
-#         cc = freud.locality.LinearCell(box, points)
+#         cc = freud.locality.CellQuery(box, points)
 #         nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
 #         assert nlist_equal(nlist1, nlist2)
 
@@ -751,27 +751,27 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
 #         assert nlist_equal(nlist, original_nlist)
 
 
-# class TestMultipleMethods:
-#     """Check that different methods of making a NeighborList give the same
-#     result."""
+class TestMultipleMethods:
+    """Check that different methods of making a NeighborList give the same
+    result."""
 
-#     def test_alternating_points(self):
-#         lattice_size = 10
-#         # big box to ignore periodicity
-#         box = freud.box.Box.square(lattice_size * 5)
-#         query_points, points = util.make_alternating_lattice(lattice_size)
-#         r_max = 1.6
-#         num_neighbors = 12
+    def test_alternating_points(self):
+        lattice_size = 10
+        # big box to ignore periodicity
+        box = freud.box.Box.square(lattice_size * 5)
+        query_points, points = util.make_alternating_lattice(lattice_size)
+        r_max = 1.6
+        num_neighbors = 12
 
-#         test_set = util.make_raw_query_nlist_test_set(
-#             box, points, query_points, "nearest", r_max, num_neighbors, False
-#         )
-#         nlist = test_set[-1][1]
-#         for nq, neighbors in test_set:
-#             if not isinstance(nq, freud.locality.NeighborQuery):
-#                 continue
-#             check_nlist = nq.query(query_points, neighbors).toNeighborList()
-#             assert nlist_equal(nlist, check_nlist)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, query_points, "nearest", r_max, num_neighbors, False
+        )
+        nlist = test_set[-1][1]
+        for nq, neighbors in test_set:
+            if not isinstance(nq, freud.locality.NeighborQuery):
+                continue
+            check_nlist = nq.query(query_points, neighbors).toNeighborList()
+            assert nlist_equal(nlist, check_nlist)
 
 
 def _from_system_inputs():
