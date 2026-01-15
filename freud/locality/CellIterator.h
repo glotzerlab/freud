@@ -2,7 +2,11 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 #pragma once
 #include "LinearCell.h"
+#include "NeighborBond.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
+#include <iostream>
+#include <stdexcept>
 // Iterator structure
 namespace freud::locality {
 
@@ -14,7 +18,7 @@ public:
                  unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
                                         exclude_ii),
-          m_cell_query(neighbor_query)
+          m_cell_query(neighbor_query), m_query_point_idx(query_point_idx)
     {}
 
     //! Empty Destructor
@@ -22,6 +26,7 @@ public:
 
 protected:
     const CellQuery* m_cell_query; //!< Link to the CellQuery object
+    unsigned int m_query_point_idx;
 };
 
 //! Iterator that gets neighbors in a ball of size r_max using Cell tree structures.
@@ -32,12 +37,49 @@ public:
     CellQueryBallIterator(const CellQuery* neighbor_query, const vec3<float>& query_point,
                           unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
-    {}
+    {
+        unsigned int idx;
+        if (!m_cell_query->get_cell_idx_safe(query_point, idx))
+        {
+            throw std::runtime_error("query_point lies outside the cell list!");
+        }
+        // TODO: this is only the current cell!
+        m_cell_start_index = m_cell_query->m_cell_starts[idx];
+        m_cell_end_offset = m_cell_query->m_counts[idx];
+        m_cell_data = m_cell_query->m_linear_buffer.data() + m_cell_start_index;
+        std::cout << "start index: " << m_cell_start_index << "\n";
+        std::cout << "end offset:  " << m_cell_end_offset << "\n";
+        std::cout << "m_cell_data:  " << m_cell_data << "\n";
+    }
 
     //! Empty Destructor
     ~CellQueryBallIterator() override = default;
 
     //! Get the next element.
-    NeighborBond next() override;
+    NeighborBond next() override final;
+
+protected:
+    unsigned int m_query_point_idx;
+    unsigned int m_idx = 0;
+    unsigned int m_cell_start_index;
+    unsigned int m_cell_end_offset;
+    TaggedPosition* m_cell_data;
 };
+inline NeighborBond CellQueryBallIterator::next()
+{
+    if (m_idx >= m_cell_end_offset)
+    {
+        return ITERATOR_TERMINATOR;
+    }
+    TaggedPosition possible_neighbor = m_cell_data[m_idx++];
+    float r_squared = dot(m_query_point, possible_neighbor.p);
+    std::cout << "regular loop\n";
+
+    // NeighborBond nb(m_query_point_idx, possible_neighbor.particle_index);
+    // return m_cell_data[m_idx++].p;
+    // m_cell_query->get_cell_idx_safe();
+    // TODO: Implement neighbor search
+    // return nb;
+}
+
 } // namespace freud::locality

@@ -9,6 +9,12 @@
  *  \brief Build an cell list from points and query it for neighbors.
  */
 namespace freud::locality {
+//! Cell list data unit.
+struct TaggedPosition
+{
+    vec3<float> p;      //!< Position of the particle
+    int particle_index; //!< Index of the particle (out of m_n_points, negative=ghost)
+};
 
 // Forward declaration of iterator types we return from the query
 class CellQueryBallIterator;
@@ -32,7 +38,7 @@ public:
      */
     std::shared_ptr<NeighborQueryPerPointIterator>
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const final;
-    
+
     //! Perform a query based on a set of query parameters.
     std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
                                                  QueryArgs query_args) const override;
@@ -52,7 +58,10 @@ public:
         idx = (cz * m_ny + cy) * m_nx + cx;
         return true;
     }
-
+    mutable std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
+    mutable std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
+    mutable std::vector<unsigned int> m_cell_starts;     //!< Position of each cell in the buffer
+    mutable std::vector<TaggedPosition> m_linear_buffer; //!< Linear array of particles & ghosts
 
 protected:
     //! Validate the combination of specified arguments.
@@ -72,12 +81,6 @@ protected:
     mutable vec3<float> m_min_pos;       //!< Lower leftmost corner of the grid: box.m_lo - rcut
 
 private:
-    //! Cell list data unit.
-    struct TaggedPosition
-    {
-        vec3<float> p;      //!< Position of the particle
-        int particle_index; //!< Index of the particle (out of m_n_points, negative=ghost)
-    };
     //! Buffer of ghost particles for a single real particle.
     struct GhostPacket
     {
@@ -195,15 +198,11 @@ private:
     //! Compute the grid cell parameters.
     inline void setupGrid(const float r_cut) const;
     inline void buildGrid(const float r_cut) const;
-    mutable unsigned int m_nx;                           //!< Number of cells in the x dimension
-    mutable unsigned int m_ny;                           //!< Number of cells in the y dimension
-    mutable unsigned int m_nz;                           //!< Number of cells in the z dimension
-    mutable unsigned int m_n_total;                      //!< Total number of particles, including ghosts
-    mutable unsigned int m_n_images;                     //!< Total number of periodic images
-    mutable std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
-    mutable std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
-    mutable std::vector<unsigned int> m_cell_starts;     //!< Position of each cell in the buffer
-    mutable std::vector<TaggedPosition> m_linear_buffer; //!< Linear array of particles & ghosts
+    mutable unsigned int m_nx;       //!< Number of cells in the x dimension
+    mutable unsigned int m_ny;       //!< Number of cells in the y dimension
+    mutable unsigned int m_nz;       //!< Number of cells in the z dimension
+    mutable unsigned int m_n_total;  //!< Total number of particles, including ghosts
+    mutable unsigned int m_n_images; //!< Total number of periodic images
 
     //! Maps particles by local id to their id within their type trees
     // void mapParticlesByType();
@@ -230,7 +229,6 @@ CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_i
     this->validateQueryArgs(args);
     if (args.mode == QueryType::ball)
     {
-        // TODO
         return std::make_shared<CellQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
                                                        args.r_min, args.exclude_ii);
     }
