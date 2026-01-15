@@ -38,11 +38,8 @@ public:
                           unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
     {
-        unsigned int idx;
-        if (!m_cell_query->get_cell_idx_safe(query_point, idx))
-        {
-            throw std::runtime_error("query_point lies outside the cell list!");
-        }
+        vec3<int> xyz = m_cell_query->cell_idx_xyz(query_point);
+        unsigned int idx = m_cell_query->get_cell_idx(query_point);
         // TODO: this is only the current cell!
         m_cell_start_index = m_cell_query->m_cell_starts[idx];
         m_cell_end_offset = m_cell_query->m_counts[idx];
@@ -69,6 +66,7 @@ inline NeighborBond CellQueryBallIterator::next()
 {
     if (m_idx >= m_cell_end_offset)
     {
+        m_finished = true;
         return ITERATOR_TERMINATOR;
     }
     TaggedPosition possible_neighbor = m_cell_data[m_idx++];

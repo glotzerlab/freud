@@ -43,13 +43,19 @@ public:
     std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
                                                  QueryArgs query_args) const override;
 
+    vec3<int> cell_idx_xyz(const vec3<float>& p) const
+    {
+        return {static_cast<int>((p.x - m_min_pos.x) * m_cell_inverse_length),
+                static_cast<int>((p.y - m_min_pos.y) * m_cell_inverse_length),
+                static_cast<int>((p.z - m_min_pos.z) * m_cell_inverse_length)};
+    }
     //! Compute the cell index of a point p, returning False for those outside the grid.
     bool get_cell_idx_safe(const vec3<float>& p, unsigned int& idx) const
     {
-        int cx = static_cast<int>((p.x - m_min_pos.x) * m_cell_inverse_length);
-        int cy = static_cast<int>((p.y - m_min_pos.y) * m_cell_inverse_length);
-        int cz = static_cast<int>((p.z - m_min_pos.z) * m_cell_inverse_length);
-
+        vec3<int> xyz = cell_idx_xyz(p);
+        int cx = xyz.x;
+        int cy = xyz.y;
+        int cz = xyz.z;
         if (cx < 0 || cy < 0 || cz < 0 || cx >= m_nx || cy >= m_ny || cz >= m_nz)
         {
             return false;
@@ -57,6 +63,12 @@ public:
 
         idx = (cz * m_ny + cy) * m_nx + cx;
         return true;
+    }
+    //! Compute the cell index of a point p, returning False for those outside the grid.
+    unsigned int get_cell_idx(const vec3<float>& p) const
+    {
+        vec3<int> xyz = cell_idx_xyz(p);
+        return ((xyz.z * m_ny + xyz.y) * m_nx) + xyz.x;
     }
     mutable std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
     mutable std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
@@ -211,6 +223,8 @@ private:
     // void buildTree(const vec3<float>* points, unsigned int N);
 
     // std::vector<Cell> m_aabbs; //!< Flat array of Cells of all types
+
+    friend class CellQueryBallIterator;
 };
 
 } // namespace freud::locality

@@ -120,16 +120,4 @@ inline void CellQuery::buildGrid(const float r_cut) const
     m_linear_buffer = std::move(sorted);
 }
 
-std::shared_ptr<NeighborQueryIterator>
-CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
-{
-    this->validateQueryArgs(query_args);
-    if (query_args.mode == QueryType::ball)
-    {
-        buildGrid(query_args.r_max);
-    }
-    std::cout << "built\n";
-    return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
-}
-
 } // namespace freud::locality
