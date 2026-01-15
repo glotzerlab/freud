@@ -86,9 +86,9 @@ public:
     }
 
     //! Get the lower leftmost corner of the grid
-    vec3<float> getMinPos() const
+    std::vector<float> getMinPos() const
     {
-        return m_min_pos;
+        return {m_min_pos.x, m_min_pos.y, m_min_pos.z};
     }
 
     //! Get the inverse cell width
@@ -118,34 +118,15 @@ public:
     void setupGrid(const float r_cut) const
     {
         m_cell_inverse_length = 1.0f / r_cut;
-        vec3<float> corners[8]
-            = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}};
-
-        float inf = std::numeric_limits<float>::infinity();
-        vec3<float> box_min(inf, inf, inf);
-        vec3<float> box_max(-inf, -inf, -inf);
-
-        for (const vec3<float>& c : corners)
-        {
-            vec3<float> abs_pos = m_box.makeAbsolute(c);
-            box_min.x = std::min(box_min.x, abs_pos.x);
-            box_min.y = std::min(box_min.y, abs_pos.y);
-            box_min.z = std::min(box_min.z, abs_pos.z);
-
-            box_max.x = std::max(box_max.x, abs_pos.x);
-            box_max.y = std::max(box_max.y, abs_pos.y);
-            box_max.z = std::max(box_max.z, abs_pos.z);
-        }
-        m_min_pos = box_min - vec3<float>(r_cut, r_cut, r_cut);
-        vec3<float> max_pos = box_max + vec3<float>(r_cut, r_cut, r_cut);
-
-        // static_cast truncates floating point values, and max-min is always positive.
-        // As a result, this is equivalent to ceil *except* when the (max-min)/rcut is
-        // exactly an integer value. In these cases, we would be missing a layer of
-        // cells if we did not do floor + 1
-        m_nx = static_cast<int>((max_pos.x - m_min_pos.x) * m_cell_inverse_length) + 1;
-        m_ny = static_cast<int>((max_pos.y - m_min_pos.y) * m_cell_inverse_length) + 1;
-        m_nz = static_cast<int>((max_pos.z - m_min_pos.z) * m_cell_inverse_length) + 1;
+        // Compute the widths of the box along each cartesian direction.
+        float w_x = m_box.getLx() + (m_box.getLy() * m_box.getTiltFactorXY())
+            + (m_box.getLz() * m_box.getTiltFactorXZ());
+        float w_y = m_box.getLy() + (m_box.getLz() * m_box.getTiltFactorYZ());
+        float w_z = m_box.getLz();
+        m_nx = static_cast<int>((w_x * m_cell_inverse_length)) + 3;
+        m_ny = static_cast<int>((w_y * m_cell_inverse_length)) + 3;
+        m_nz = static_cast<int>((w_z * m_cell_inverse_length)) + 3;
+        // std::cout << m_nx <<" "<< m_ny <<" "<< m_nz <<" " << "\n\n";
     }
     inline void buildGrid(const float r_cut) const;
 
@@ -286,7 +267,6 @@ private:
         return result;
     }
 
-    
     mutable unsigned int m_nx = 0;       //!< Number of cells in the x dimension
     mutable unsigned int m_ny = 0;       //!< Number of cells in the y dimension
     mutable unsigned int m_nz = 0;       //!< Number of cells in the z dimension
