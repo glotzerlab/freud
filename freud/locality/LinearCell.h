@@ -123,10 +123,15 @@ public:
             + (m_box.getLz() * m_box.getTiltFactorXZ());
         float w_y = m_box.getLy() + (m_box.getLz() * m_box.getTiltFactorYZ());
         float w_z = m_box.getLz();
+
         m_nx = static_cast<int>((w_x * m_cell_inverse_length)) + 3;
         m_ny = static_cast<int>((w_y * m_cell_inverse_length)) + 3;
         m_nz = static_cast<int>((w_z * m_cell_inverse_length)) + 3;
-        // std::cout << m_nx <<" "<< m_ny <<" "<< m_nz <<" " << "\n\n";
+
+        // Lowest, leftmost point on the grid
+        m_min_pos.x = -0.5f * static_cast<float>(m_nx) * r_cut;
+        m_min_pos.y = -0.5f * static_cast<float>(m_ny) * r_cut;
+        m_min_pos.z = -0.5f * static_cast<float>(m_nz) * r_cut;
     }
     inline void buildGrid(const float r_cut) const;
 
