@@ -24,8 +24,7 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
  * and assign them to cells: this should make it possible for next() to literally just
  * increment a pointer which is optimal.
  */
-inline void CellQuery::buildGrid(const float r_cut, const vec3<float>* query_points,
-                                 unsigned int n_query_points) const
+inline void CellQuery::buildGrid(const float r_cut) const
 {
     setupGrid(r_cut);
     const unsigned int n_cells_total = m_nx * m_ny * m_nz;
