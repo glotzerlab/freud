@@ -761,29 +761,29 @@ class TestNeighborQueryCellQuery:
         np.testing.assert_array_equal(cell_box.contains(all_offset_points), True)
 
 
-#     def test_too_large_r_max_raises(self):
-#         """Test that specifying too large an r_max value raises an error."""
-#         L = 5
+    def test_too_large_r_max_raises(self):
+        """Test that specifying too large an r_max value raises an error."""
+        L = 5
 
-#         box = freud.box.Box.square(L)
-#         points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
-#         cc = freud.locality.CellQuery(box, points)
-#         with pytest.raises(RuntimeError):
-#             list(cc.query(points, dict(r_max=L)))
+        box = freud.box.Box.square(L)
+        points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
+        cc = freud.locality.CellQuery(box, points)
+        with pytest.raises(RuntimeError):
+            list(cc.query(points, dict(r_max=L)))
 
-#     def test_chaining(self):
-#         N = 500
-#         L = 10
-#         r_max = 1
-#         box, points = freud.data.make_random_system(L, N, seed=1)
-#         nlist1 = (
-#             freud.locality.CellQuery(box, points)
-#             .query(points, dict(r_max=r_max, exclude_ii=True))
-#             .toNeighborList()
-#         )
-#         cc = freud.locality.CellQuery(box, points)
-#         nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
-#         assert nlist_equal(nlist1, nlist2)
+    # def test_chaining(self):
+    #     N = 500
+    #     L = 10
+    #     r_max = 1
+    #     box, points = freud.data.make_random_system(L, N, seed=1)
+    #     nlist1 = (
+    #         freud.locality.CellQuery(box, points)
+    #         .query(points, dict(r_max=r_max, exclude_ii=True))
+    #         .toNeighborList()
+    #     )
+    #     cc = freud.locality.CellQuery(box, points)
+    #     nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+    #     assert nlist_equal(nlist1, nlist2)
 
 #     @pytest.mark.parametrize(
 #         ("r_guess", "scale"),
