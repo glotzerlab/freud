@@ -147,7 +147,8 @@ public:
         m_ny = static_cast<int>((max_pos.y - m_min_pos.y) * m_cell_inverse_length) + 1;
         m_nz = static_cast<int>((max_pos.z - m_min_pos.z) * m_cell_inverse_length) + 1;
     }
-    inline void buildGrid(const float r_cut) const;
+    inline void buildGrid(const float r_cut, const vec3<float>* query_points,
+                          unsigned int n_query_points) const;
 
     mutable std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
     mutable std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
@@ -286,7 +287,6 @@ private:
         return result;
     }
 
-    
     mutable unsigned int m_nx = 0;       //!< Number of cells in the x dimension
     mutable unsigned int m_ny = 0;       //!< Number of cells in the y dimension
     mutable unsigned int m_nz = 0;       //!< Number of cells in the z dimension

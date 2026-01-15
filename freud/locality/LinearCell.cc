@@ -13,7 +13,7 @@ std::shared_ptr<NeighborQueryIterator>
 CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
 {
     this->validateQueryArgs(query_args);
-    this->buildGrid(query_args.r_max); // TODO: n nearest
+    this->buildGrid(query_args.r_max, query_points, n_query_points); // TODO: n nearest
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
 };
 
@@ -24,7 +24,8 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
  * and assign them to cells: this should make it possible for next() to literally just
  * increment a pointer which is optimal.
  */
-inline void CellQuery::buildGrid(const float r_cut) const
+inline void CellQuery::buildGrid(const float r_cut, const vec3<float>* query_points,
+                                 unsigned int n_query_points) const
 {
     setupGrid(r_cut);
     const unsigned int n_cells_total = m_nx * m_ny * m_nz;
