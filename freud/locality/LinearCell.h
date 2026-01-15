@@ -4,6 +4,8 @@
 #pragma once
 
 #include "NeighborQuery.h"
+#include <iostream>
+#include <stdexcept>
 #include <vector>
 /*! \file LinearCell.h
  *  \brief Build an cell list from points and query it for neighbors.
@@ -70,6 +72,83 @@ public:
         vec3<int> xyz = cell_idx_xyz(p);
         return ((xyz.z * m_ny + xyz.y) * m_nx) + xyz.x;
     }
+
+    //! Get the cell width (1/m_cell_inverse_length)
+    float getCellWidth() const
+    {
+        return 1.0f / m_cell_inverse_length;
+    }
+
+    //! Get the number of real particles in each cell
+    const std::vector<unsigned int>& getRealCounts() const
+    {
+        return m_counts_real;
+    }
+
+    //! Get the lower leftmost corner of the grid
+    vec3<float> getMinPos() const
+    {
+        return m_min_pos;
+    }
+
+    //! Get the inverse cell width
+    float getCellInverseWidth() const
+    {
+        return m_cell_inverse_length;
+    }
+
+    //! Get the number of cells in the x dimension
+    unsigned int getNx() const
+    {
+        return m_nx;
+    }
+
+    //! Get the number of cells in the y dimension
+    unsigned int getNy() const
+    {
+        return m_ny;
+    }
+
+    //! Get the number of cells in the z dimension
+    unsigned int getNz() const
+    {
+        return m_nz;
+    }
+    //! Compute the number of cells along each cartesian direction, saving relevant data.
+    void setupGrid(const float r_cut) const
+    {
+        m_cell_inverse_length = 1.0f / r_cut;
+        vec3<float> corners[8]
+            = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}};
+
+        float inf = std::numeric_limits<float>::infinity();
+        vec3<float> box_min(inf, inf, inf);
+        vec3<float> box_max(-inf, -inf, -inf);
+
+        for (const vec3<float>& c : corners)
+        {
+            vec3<float> abs_pos = m_box.makeAbsolute(c);
+            box_min.x = std::min(box_min.x, abs_pos.x);
+            box_min.y = std::min(box_min.y, abs_pos.y);
+            box_min.z = std::min(box_min.z, abs_pos.z);
+
+            box_max.x = std::max(box_max.x, abs_pos.x);
+            box_max.y = std::max(box_max.y, abs_pos.y);
+            box_max.z = std::max(box_max.z, abs_pos.z);
+        }
+
+        m_min_pos = box_min - vec3<float>(r_cut, r_cut, r_cut);
+        vec3<float> max_pos = box_max + vec3<float>(r_cut, r_cut, r_cut);
+
+        // static_cast truncates floating point values, and max-min is always positive.
+        // As a result, this is equivalent to ceil *except* when the (max-min)/rcut is
+        // exactly an integer value. In these cases, we would be missing a layer of
+        // cells if we did not do floor + 1
+        m_nx = static_cast<int>((max_pos.x - m_min_pos.x) * m_cell_inverse_length) + 1;
+        m_ny = static_cast<int>((max_pos.y - m_min_pos.y) * m_cell_inverse_length) + 1;
+        m_nz = static_cast<int>((max_pos.z - m_min_pos.z) * m_cell_inverse_length) + 1;
+    }
+
     mutable std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
     mutable std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
     mutable std::vector<unsigned int> m_cell_starts;     //!< Position of each cell in the buffer
@@ -207,14 +286,12 @@ private:
         return result;
     }
 
-    //! Compute the grid cell parameters.
-    inline void setupGrid(const float r_cut) const;
     inline void buildGrid(const float r_cut) const;
-    mutable unsigned int m_nx;       //!< Number of cells in the x dimension
-    mutable unsigned int m_ny;       //!< Number of cells in the y dimension
-    mutable unsigned int m_nz;       //!< Number of cells in the z dimension
-    mutable unsigned int m_n_total;  //!< Total number of particles, including ghosts
-    mutable unsigned int m_n_images; //!< Total number of periodic images
+    mutable unsigned int m_nx = 0;       //!< Number of cells in the x dimension
+    mutable unsigned int m_ny = 0;       //!< Number of cells in the y dimension
+    mutable unsigned int m_nz = 0;       //!< Number of cells in the z dimension
+    mutable unsigned int m_n_total = 0;  //!< Total number of particles, including ghosts
+    mutable unsigned int m_n_images = 0; //!< Total number of periodic images
 
     //! Maps particles by local id to their id within their type trees
     // void mapParticlesByType();
@@ -240,6 +317,7 @@ namespace freud::locality {
 inline std::shared_ptr<NeighborQueryPerPointIterator>
 CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
 {
+    throw std::runtime_error("in querySIngle");
     this->validateQueryArgs(args);
     if (args.mode == QueryType::ball)
     {

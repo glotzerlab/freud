@@ -94,7 +94,16 @@ void export_RawPoints(nb::module_& module)
 
 void export_CellQuery(nb::module_& module)
 {
-    nb::class_<CellQuery, NeighborQuery>(module, "CellQuery").def("__init__", &wrap::CellQueryConstructor);
+    nb::class_<CellQuery, NeighborQuery>(module, "CellQuery")
+        .def("__init__", &wrap::CellQueryConstructor)
+        .def("getCellWidth", &CellQuery::getCellWidth)
+        .def("getRealCounts", &CellQuery::getRealCounts, nb::rv_policy::reference)
+        .def("getMinPos", &CellQuery::getMinPos)
+        .def("getCellInverseWidth", &CellQuery::getCellInverseWidth)
+        .def("getNx", &CellQuery::getNx)
+        .def("getNy", &CellQuery::getNy)
+        .def("getNz", &CellQuery::getNz)
+        .def("setupGrid", &CellQuery::setupGrid);
 }
 
 void export_QueryArgs(nb::module_& module)

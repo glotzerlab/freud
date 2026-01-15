@@ -5,6 +5,7 @@
 #include "CellIterator.h"
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 
 namespace freud::locality {
 //! Perform a query based on a set of query parameters.
@@ -16,23 +17,6 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
 };
 
-//! Compute the number of cells along each cartesian direction, saving relevant data.
-inline void CellQuery::setupGrid(const float r_cut) const
-{
-    m_cell_inverse_length = 1.0f / r_cut;
-
-    // Compute the boundary of our cell list
-    // TODO: handle points outside box?
-    vec3<float> pad = {r_cut, r_cut, r_cut};
-    vec3<float> max_pos = m_box.getMaxCoord() + pad;
-    m_min_pos = m_box.getMinCoord() - pad;
-
-    // Number of cells in each dimension is ⌈(max-min) / r_cut⌉
-    vec3<float> diagonal = (max_pos - m_min_pos);
-    m_nx = static_cast<unsigned int>(std::ceil(diagonal.x * m_cell_inverse_length));
-    m_ny = static_cast<unsigned int>(std::ceil(diagonal.y * m_cell_inverse_length));
-    m_nz = static_cast<unsigned int>(std::ceil(diagonal.z * m_cell_inverse_length));
-}
 /*! Build and populate the cell list grid.
  *
  * AABBQuery implements its image logic in AABBIterator::next, which loops through
