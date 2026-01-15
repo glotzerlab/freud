@@ -6,10 +6,18 @@
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
+#include <array>
 #include <iostream>
 #include <stdexcept>
 // Iterator structure
 namespace freud::locality {
+
+struct NeighborCellPacket
+{
+    std::array<TaggedPosition*, 27> cell_ptrs;
+    std::array<unsigned int, 27> cell_counts;
+    unsigned int num_cells = 0;
+};
 
 class CellIterator : public NeighborQueryPerPointIterator
 {
