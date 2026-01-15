@@ -65,6 +65,7 @@ inline void CellQuery::buildGrid(const float r_cut) const
                 particle_cell_mapping.push_back({idx, p});
                 m_n_total++;
                 m_counts[idx]++;
+                m_counts_real[idx]++;
             }
         }
         // TODO: is query point always within cell?
