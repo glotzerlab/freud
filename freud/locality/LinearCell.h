@@ -47,9 +47,10 @@ public:
 
     vec3<int> cell_idx_xyz(const vec3<float>& p) const
     {
-        return {static_cast<int>((p.x - m_min_pos.x) * m_cell_inverse_length),
-                static_cast<int>((p.y - m_min_pos.y) * m_cell_inverse_length),
-                static_cast<int>((p.z - m_min_pos.z) * m_cell_inverse_length)};
+        // Note we must floor the values so that small negatives correctly map to 0
+        return {static_cast<int>(std::floor((p.x - m_min_pos.x) * m_cell_inverse_length)),
+                static_cast<int>(std::floor((p.y - m_min_pos.y) * m_cell_inverse_length)),
+                static_cast<int>(std::floor((p.z - m_min_pos.z) * m_cell_inverse_length))};
     }
     //! Compute the cell index of a point p, returning False for those outside the grid.
     bool getCellIdxSafe(const vec3<float>& p, unsigned int& idx) const
