@@ -6,18 +6,10 @@
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include <array>
 #include <iostream>
 #include <stdexcept>
 // Iterator structure
 namespace freud::locality {
-
-struct NeighborCellPacket
-{
-    std::array<TaggedPosition*, 27> cell_ptrs;
-    std::array<unsigned int, 27> cell_counts;
-    unsigned int num_cells = 0;
-};
 
 class CellIterator : public NeighborQueryPerPointIterator
 {
@@ -49,11 +41,15 @@ public:
     {
         float m_r_max_squared = r_max * r_max;
         float m_r_min_squared = r_min * r_min;
-        vec3<int> xyz = m_cell_query->cell_idx_xyz(query_point);
+        vec3<int> cell_xyz = m_cell_query->cell_idx_xyz(query_point);
         unsigned int idx = m_cell_query->get_cell_idx(query_point);
         // TODO: this is only the current cell!
         m_cell_start_index = m_cell_query->m_cell_starts[idx];
         m_cell_end_offset = m_cell_query->m_counts[idx];
+        if (m_cell_query->m_linear_buffer.data() == nullptr)
+        {
+            throw std::runtime_error("Cell data is uninitialized.");
+        }
         m_cell_data = m_cell_query->m_linear_buffer.data() + m_cell_start_index;
         //     std::cout << "start index: " << m_cell_start_index << "\n";
         //     std::cout << "end offset:  " << m_cell_end_offset << "\n";
@@ -79,6 +75,7 @@ inline NeighborBond CellQueryBallIterator::next()
 {
     if (m_idx >= m_cell_end_offset)
     {
+        std::cout << "all done\n";
         m_finished = true;
         return ITERATOR_TERMINATOR;
     }
@@ -88,9 +85,14 @@ inline NeighborBond CellQueryBallIterator::next()
     float r_sq = dot(r_ij, r_ij);
     if (r_sq < m_r_max_sq && r_sq >= m_r_min_sq)
     {
+        std::cout << "found neighbor\n";
         return NeighborBond(m_query_point_idx, possible_neighbor.particle_index, std::sqrt(r_sq), 1, r_ij);
     }
-    // TODO: Implement neighbor search
+
+    std::cout << "no neighbor\n";
+    // TODO: Implement proper neighbor search. THe following is to prevent segfault
+    m_finished = true;
+    return ITERATOR_TERMINATOR;
 }
 
 } // namespace freud::locality

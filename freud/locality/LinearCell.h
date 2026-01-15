@@ -136,7 +136,6 @@ public:
             box_max.y = std::max(box_max.y, abs_pos.y);
             box_max.z = std::max(box_max.z, abs_pos.z);
         }
-
         m_min_pos = box_min - vec3<float>(r_cut, r_cut, r_cut);
         vec3<float> max_pos = box_max + vec3<float>(r_cut, r_cut, r_cut);
 
