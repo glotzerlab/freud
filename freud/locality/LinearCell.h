@@ -81,9 +81,15 @@ public:
     }
 
     //! Get the number of real particles in each cell
-    const std::vector<unsigned int>& getRealCounts() const
+    const std::vector<unsigned int>& getCountsReal() const
     {
         return m_counts_real;
+    }
+
+    //! Get the number of real+ghost particles in each cell
+    const std::vector<unsigned int>& getCounts() const
+    {
+        return m_counts;
     }
 
     //! Get the lower leftmost corner of the grid
@@ -205,7 +211,7 @@ private:
         {
             dz = 0;
         }
-
+        std::cout << dx << " "<< dy << " "<< dz << "\n";
         // For particle in the bulk, we don't need to try and generate ghosts.
         if (dx == 0 && dy == 0 && dz == 0)
         {

@@ -793,15 +793,15 @@ class TestNeighborQueryCellQuery:
     @pytest.mark.parametrize("n", [1, 63, 100_000])
     def test_cell_occupancies_constructed(self, n):
         box = freud.Box.cube(10)
+        p = [4.999, 4.999, 4.999]
         cc = freud.locality.CellQuery(
             box,
-            # [*np.zeros((n, 3)), box.make_absolute([1, 1, 1])],
-            np.zeros((n, 3))
+            [*np.zeros((n, 3)), p],
+            # np.zeros((n, 3))
         )
         cc.query(np.zeros((n, 3)) + 5, query_args={"r_max": 5})
         cc._cpp_obj.buildGrid(5)
-        
-        print(box.make_absolute([1, 1, 1]))
+
         def map_point_to_cell(p, L=10):
             """Map a point in real space to a cell in the grid."""
             min_pos = cc._cpp_obj.getMinPos().toNumpyArray()
@@ -810,18 +810,17 @@ class TestNeighborQueryCellQuery:
         nx_ny_nz = np.array(
             [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
         )
-        print(nx_ny_nz)
-        grid = cc._cpp_obj.getRealCounts().toNumpyArray().reshape(*nx_ny_nz[::-1])
-        print(grid)
+        real_grid = cc._cpp_obj.getCountsReal().toNumpyArray().reshape(*nx_ny_nz[::-1])
         # Center of 5x5x5 grid should have occupancy n
-        assert grid[2, 2, 2] == n
-        # np.testing.assert_array_equal(grid, np.pad([[[n]]], 2))
+        assert real_grid[2, 2, 2] == n
 
-        p = map_point_to_cell([5, 5, 5], 10)
-        assert grid[tuple(p)] == 1
+        p_idx = map_point_to_cell(p, box.L) # (3, 3, 3)
+        assert real_grid[tuple(p_idx)] == 1
 
-        print(grid)
-        assert grid[tuple([4, 4, 4])] == 1
+        print(real_grid)
+        assert real_grid[(4, 4, 4)] == 1
+        assert real_grid[(4, 4, 3)] == 1
+        assert real_grid[(4, 3, 4)] == 1
 
     def test_too_large_r_max_raises(self):
         """Test that specifying too large an r_max value raises an error."""
