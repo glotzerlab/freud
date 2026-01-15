@@ -773,7 +773,8 @@ class TestNeighborQueryCellQuery:
         cc = freud.locality.CellQuery(freud.Box.cube(10), [[0, 0, 0]])
         cc.query(np.zeros((n, 3)), query_args={"r_max": 4.5})
         cc._cpp_obj.buildGrid(4.5)
-        print(cc._cpp_obj.getRealCounts().toNumpyArray())
+        nx_ny_nz = [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        print(cc._cpp_obj.getRealCounts().toNumpyArray().reshape(*nx_ny_nz[::-1]))
         assert False
 
     def test_too_large_r_max_raises(self):
