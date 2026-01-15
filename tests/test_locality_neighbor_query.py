@@ -760,6 +760,13 @@ class TestNeighborQueryCellQuery:
         )
         np.testing.assert_array_equal(cell_box.contains(all_offset_points), True)
 
+    @pytest.mark.parametrize("r_max", [0.25, 1, 2.49])
+    def test_cell_width_set_correctly(self, r_max):
+        cc = freud.locality.CellQuery(freud.Box.cube(10), [[0, 0, 0]])
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.setupGrid(r_max)
+        np.testing.assert_allclose(cc._cpp_obj.getCellWidth(), r_max)
+        np.testing.assert_allclose(cc._cpp_obj.getCellInverseWidth(), 1.0 / r_max)
 
     def test_too_large_r_max_raises(self):
         """Test that specifying too large an r_max value raises an error."""
@@ -784,6 +791,7 @@ class TestNeighborQueryCellQuery:
     #     cc = freud.locality.CellQuery(box, points)
     #     nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
     #     assert nlist_equal(nlist1, nlist2)
+
 
 #     @pytest.mark.parametrize(
 #         ("r_guess", "scale"),
