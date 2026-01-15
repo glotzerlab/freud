@@ -42,7 +42,7 @@ public:
         float m_r_max_squared = r_max * r_max;
         float m_r_min_squared = r_min * r_min;
         vec3<int> cell_xyz = m_cell_query->cell_idx_xyz(query_point);
-        unsigned int idx = m_cell_query->get_cell_idx(query_point);
+        unsigned int idx = m_cell_query->getCellIdx(query_point);
         // TODO: this is only the current cell!
         m_cell_start_index = m_cell_query->m_cell_starts[idx];
         m_cell_end_offset = m_cell_query->m_counts[idx];

@@ -103,6 +103,7 @@ void export_CellQuery(nb::module_& module)
         .def("getNx", &CellQuery::getNx)
         .def("getNy", &CellQuery::getNy)
         .def("getNz", &CellQuery::getNz)
+        .def("getCellIdx", &CellQuery::getCellIdx)
         .def("setupGrid", &CellQuery::setupGrid);
 }
 

@@ -59,7 +59,7 @@ inline void CellQuery::buildGrid(const float r_cut) const
         {
             const vec3<float> ghost = local_point + ghosts.displacements[ghost_index];
             unsigned int idx;
-            if (get_cell_idx_safe(ghost, idx))
+            if (getCellIdxSafe(ghost, idx))
             {
                 TaggedPosition p = {ghost, ghost_tag};
                 particle_cell_mapping.push_back({idx, p});
@@ -69,7 +69,7 @@ inline void CellQuery::buildGrid(const float r_cut) const
         }
         // TODO: is query point always within cell?
         unsigned int idx;
-        get_cell_idx_safe(local_point, idx);
+        getCellIdxSafe(local_point, idx);
         TaggedPosition p = {local_point, static_cast<int>(i)};
         particle_cell_mapping.push_back({idx, p});
         m_n_total++;

@@ -52,7 +52,7 @@ public:
                 static_cast<int>((p.z - m_min_pos.z) * m_cell_inverse_length)};
     }
     //! Compute the cell index of a point p, returning False for those outside the grid.
-    bool get_cell_idx_safe(const vec3<float>& p, unsigned int& idx) const
+    bool getCellIdxSafe(const vec3<float>& p, unsigned int& idx) const
     {
         vec3<int> xyz = cell_idx_xyz(p);
         int cx = xyz.x;
@@ -67,7 +67,7 @@ public:
         return true;
     }
     //! Compute the cell index of a point p, returning False for those outside the grid.
-    unsigned int get_cell_idx(const vec3<float>& p) const
+    unsigned int getCellIdx(const vec3<float>& p) const
     {
         vec3<int> xyz = cell_idx_xyz(p);
         return ((xyz.z * m_ny + xyz.y) * m_nx) + xyz.x;
