@@ -700,6 +700,35 @@ class TestNeighborQueryCellQuery:
     def build_query_object(cls, box, ref_points, r_max=None):
         return freud.locality.CellQuery(box, ref_points)
 
+    @staticmethod
+    def assert_box_contains_grid_points(original_box, grid_box, r_max):
+        """Assert that the bounding box of a CellQuery is sufficiently large."""
+        # Vertices of the original system's box
+        original_box_vertices = original_box.make_absolute(
+            [(i, j, k) for i in (0, 1) for j in (0, 1) for k in (0, 1)]
+        )
+        # Cell grid should contain the vertices of the original box
+        np.testing.assert_array_equal(
+            grid_box.contains(original_box_vertices),
+            True,
+        )
+        # Cell grid should also contain the original box rounded by r_max
+        np.testing.assert_array_equal(
+            grid_box.contains(
+                [*(original_box_vertices + r_max), *(original_box_vertices - r_max)]
+            ),
+            True,
+        )
+        # All support points of the original box, offset by ±r_max along x, y, and z
+        # This ensures that our cell list contains all possible points offset by rcut
+        signs = [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)]
+        signs = np.array(signs) * r_max
+
+        all_offset_points = np.sum(
+            [*itertools.product(original_box_vertices, signs)], axis=1
+        )
+        np.testing.assert_array_equal(grid_box.contains(all_offset_points), True)
+
     @pytest.mark.parametrize(
         "box",
         [
@@ -723,31 +752,7 @@ class TestNeighborQueryCellQuery:
         cell_box = freud.box.Box(*(nx_ny_nz * r_max)[: 2 if box.is2D else 3])
         assert cell_box.is2D == box.is2D, "Cell grid should be constructable as 2D."
 
-        # Vertices of the original system's box
-        original_box_vertices = box.make_absolute(
-            [(i, j, k) for i in (0, 1) for j in (0, 1) for k in (0, 1)]
-        )
-        # Cell grid should contain the vertices of the original box
-        np.testing.assert_array_equal(
-            cell_box.contains(original_box_vertices),
-            True,
-        )
-        # Cell grid should also contain the original box rounded by r_max
-        np.testing.assert_array_equal(
-            cell_box.contains(
-                [*(original_box_vertices + r_max), *(original_box_vertices - r_max)]
-            ),
-            True,
-        )
-        # All support points of the original box, offset by ±r_max along x, y, and z
-        # This ensures that our cell list contains all possible points offset by rcut
-        signs = [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)]
-        signs = np.array(signs) * r_max
-
-        all_offset_points = np.sum(
-            [*itertools.product(original_box_vertices, signs)], axis=1
-        )
-        np.testing.assert_array_equal(cell_box.contains(all_offset_points), True)
+        self.assert_box_contains_grid_points(box, cell_box, r_max)
 
     @pytest.mark.parametrize(
         ("box", "r_cut", "cells"),
@@ -773,6 +778,9 @@ class TestNeighborQueryCellQuery:
             [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
         )
         np.testing.assert_array_equal(nx_ny_nz, cells)
+        cell_box = freud.box.Box(*(nx_ny_nz * r_cut))
+
+        self.assert_box_contains_grid_points(box, cell_box, r_cut)
 
     @pytest.mark.parametrize("r_max", [0.25, 1, 2.49])
     def test_cell_width_set_correctly(self, r_max):
