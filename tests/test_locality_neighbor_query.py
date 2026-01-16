@@ -795,8 +795,8 @@ class TestNeighborQueryCellQuery:
         box = freud.Box.cube(10)
         p = [5, 5, 5]
         cc = freud.locality.CellQuery(box, [*np.zeros((n, 3)), p])
-        cc.query([[0, 0, 0]], query_args={"r_max": 5})
-        cc._cpp_obj.buildGrid(5)
+        cc.query([[0, 0, 0]], query_args={"r_max": 4.999})
+        cc._cpp_obj.buildGrid(4.999)
 
         def map_point_to_cell(p, L=10):
             """Map a point in real space to a cell in the grid."""
@@ -825,6 +825,47 @@ class TestNeighborQueryCellQuery:
         assert full_grid[(3, 1, 3)] == 1
         assert full_grid[(3, 3, 3)] == 1  # This one is the original particle.
 
+    @pytest.mark.parametrize("n", [1, 63, 100])
+    def test_n_total_cube(self, n):
+        box = freud.Box.cube(10)
+        p = [5, 5, 5]
+        cc = freud.locality.CellQuery(box, [*np.zeros((n, 3)), p])
+        r_max = 5
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.buildGrid(r_max)
+
+        # n points at (0,0,0) + 1 point at (5,5,5) with 7 ghosts
+        # Total = n + 1 + 7 = n + 8
+        assert cc._cpp_obj.getNTotal() == n + 8
+
+    @pytest.mark.parametrize(
+        "box",
+        [
+            freud.box.Box.square(5),
+            freud.box.Box(10.0, 5.0, 9.0),
+            freud.box.Box.from_box_lengths_and_angles(
+                3.307, 7.412, 2.793, 1.55433, 1.48673, 1.49588
+            ),
+            freud.box.Box(6.0, 6.0, 5.0, 0.1, -20.3, 0.0),
+            freud.box.Box(1000.0, 6.0, 5.0, 99.1, 140.3, 888.0),
+        ],
+    )
+    def test_cell_starts(self, box):
+        n = 10
+        cc = freud.locality.CellQuery(
+            box, box.make_absolute(np.random.uniform(0.0, 1.0, (n, 3)))
+        )
+        r_max = 2.5
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.buildGrid(r_max)
+
+        counts = cc._cpp_obj.getCounts().toNumpyArray()
+        starts = cc._cpp_obj.getCellStarts().toNumpyArray()
+
+        npt.assert_array_equal(starts[1:], np.cumsum(counts)[:-1])
+        assert starts[0] == 0
+        assert starts[-1] + counts[-1] == cc._cpp_obj.getNTotal()
+
     def test_too_large_r_max_raises(self):
         """Test that specifying too large an r_max value raises an error."""
         L = 5
@@ -835,19 +876,19 @@ class TestNeighborQueryCellQuery:
         with pytest.raises(RuntimeError):
             list(cc.query(points, dict(r_max=L)))
 
-    # def test_chaining(self):
-    #     N = 500
-    #     L = 10
-    #     r_max = 1
-    #     box, points = freud.data.make_random_system(L, N, seed=1)
-    #     nlist1 = (
-    #         freud.locality.CellQuery(box, points)
-    #         .query(points, dict(r_max=r_max, exclude_ii=True))
-    #         .toNeighborList()
-    #     )
-    #     cc = freud.locality.CellQuery(box, points)
-    #     nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
-    #     assert nlist_equal(nlist1, nlist2)
+    def test_chaining(self):
+        N = 500
+        L = 10
+        r_max = 1
+        box, points = freud.data.make_random_system(L, N, seed=1)
+        nlist1 = (
+            freud.locality.CellQuery(box, points)
+            .query(points, dict(r_max=r_max, exclude_ii=True))
+            .toNeighborList()
+        )
+        cc = freud.locality.CellQuery(box, points)
+        nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+        assert nlist_equal(nlist1, nlist2)
 
 
 #     @pytest.mark.parametrize(
