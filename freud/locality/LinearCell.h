@@ -340,13 +340,9 @@ private:
     mutable unsigned int m_n_total = 0;  //!< Total number of particles, including ghosts
     mutable unsigned int m_n_images = 0; //!< Total number of periodic images
 
-    //! Maps particles by local id to their id within their type trees
-    // void mapParticlesByType();
+    mutable bool m_built = false;
+    mutable float m_grid_r_cut = 0.0;
 
-    //! Driver to build Cell trees
-    // void buildTree(const vec3<float>* points, unsigned int N);
-
-    // std::vector<Cell> m_aabbs; //!< Flat array of Cells of all types
 
     friend class CellQueryBallIterator;
 };
