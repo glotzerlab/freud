@@ -162,25 +162,32 @@ public:
 
 protected:
     //! Validate the combination of specified arguments.
-    /*! Add to parent function to account for the various arguments
-     *  specifically required for CellQuery nearest neighbor queries.
-     */
     void validateQueryArgs(QueryArgs& args) const override
     {
-        const vec3<bool> periodic = m_box.getPeriodic();
-        const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
-        const float r_cut = args.r_max;
-        if ((periodic.x && nearest_plane_distance.x < r_cut * 2.0f)
-            || (periodic.y && nearest_plane_distance.y < r_cut * 2.0f)
-            || (!m_box.is2D() && periodic.z && nearest_plane_distance.z < r_cut * 2.0f))
-        {
-            throw std::runtime_error("The r_cut is too large for this box.");
-        }
-
         NeighborQuery::validateQueryArgs(args);
         if (args.mode == QueryType::nearest)
         {
             validateNearestNeighborArgs(args);
+        }
+
+        // Validate r_max vs box size
+        const vec3<bool> periodic = m_box.getPeriodic();
+        const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
+        // May not handle r_guess/nearest mode yet
+        if ((periodic.x && nearest_plane_distance.x <= args.r_max * 2.0f)
+            || (periodic.y && nearest_plane_distance.y <= args.r_max * 2.0f)
+            || (!m_box.is2D() && periodic.z && nearest_plane_distance.z <= args.r_max * 2.0f))
+        {
+            throw std::runtime_error("The CellQuery r_max is too large for this box.");
+        }
+
+        if (args.r_max <= 0)
+        {
+            throw std::invalid_argument("r_max must be positive.");
+        }
+        if (args.r_max <= args.r_min)
+        {
+            throw std::invalid_argument("r_max must be greater than r_min.");
         }
     }
 

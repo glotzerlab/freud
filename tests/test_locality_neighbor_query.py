@@ -694,8 +694,7 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
 
-# class TestNeighborQueryCellQuery(NeighborQueryTest): #/ TODO: restore subclass!
-class TestNeighborQueryCellQuery:
+class TestNeighborQueryCellQuery(NeighborQueryTest):
     @classmethod
     def build_query_object(cls, box, ref_points, r_max=None):
         return freud.locality.CellQuery(box, ref_points)
