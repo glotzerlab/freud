@@ -10,12 +10,17 @@ namespace freud::locality {
 std::shared_ptr<NeighborQueryIterator>
 CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
 {
+    // TODO: n_nearest
     this->validateQueryArgs(query_args);
-    this->buildGrid(query_args.r_max); // TODO: n nearest
-    // if (!m_built || query_args.r_max > m_grid_r_cut)
-    // {
-    //     this->buildGrid(query_args.r_max);
-    // }
+    // SAFETY: This can cause UB if `CellQuery.query` is called in a parallel loop. This
+    // never occurs as of writing this method, as it is the NeighborQueryIterator which
+    // is operated on in parallel -- although confusingly, that method is also named
+    // `query`. For stronger guarantees, we could use a mutex here.
+    if (!m_built || query_args.r_max > m_grid_r_cut)
+    {
+        this->buildGrid(query_args.r_max);
+    }
+    
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
 }
 
