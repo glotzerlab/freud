@@ -705,7 +705,7 @@ class TestNeighborQueryCellQuery:
         """Assert that the bounding box of a CellQuery is sufficiently large."""
         # Vertices of the original system's box
         original_box_vertices = original_box.make_absolute(
-            [(i, j, k) for i in (0, 1) for j in (0, 1) for k in (0, 1)]
+            [(i, j, k) for i in (0, 1.0) for j in (0, 1.0) for k in (0, 1.0)]
         )
         # Cell grid should contain the vertices of the original box
         np.testing.assert_array_equal(
@@ -791,15 +791,11 @@ class TestNeighborQueryCellQuery:
         np.testing.assert_allclose(cc._cpp_obj.getCellInverseWidth(), 1.0 / r_max)
 
     @pytest.mark.parametrize("n", [1, 63, 100_000])
-    def test_cell_occupancies_constructed(self, n):
+    def test_cell_occupancies_cube(self, n):
         box = freud.Box.cube(10)
-        p = [4.999, 4.999, 4.999]
-        cc = freud.locality.CellQuery(
-            box,
-            [*np.zeros((n, 3)), p],
-            # np.zeros((n, 3))
-        )
-        cc.query(np.zeros((n, 3)) + 5, query_args={"r_max": 5})
+        p = [5, 5, 5]
+        cc = freud.locality.CellQuery(box, [*np.zeros((n, 3)), p])
+        cc.query([[0, 0, 0]], query_args={"r_max": 5})
         cc._cpp_obj.buildGrid(5)
 
         def map_point_to_cell(p, L=10):
@@ -814,13 +810,20 @@ class TestNeighborQueryCellQuery:
         # Center of 5x5x5 grid should have occupancy n
         assert real_grid[2, 2, 2] == n
 
-        p_idx = map_point_to_cell(p, box.L) # (3, 3, 3)
+        # Bin (3,3,3) should have occupancy 1
+        p_idx = map_point_to_cell(p, box.L)
         assert real_grid[tuple(p_idx)] == 1
 
-        print(real_grid)
-        assert real_grid[(4, 4, 4)] == 1
-        assert real_grid[(4, 4, 3)] == 1
-        assert real_grid[(4, 3, 4)] == 1
+        # Full grid, including ghosts: should have (n+1 + 7 ghosts)
+        full_grid = cc._cpp_obj.getCounts().toNumpyArray().reshape(*nx_ny_nz[::-1])
+        assert full_grid.sum() == n + (1 + 7)
+        assert full_grid[(1, 1, 1)] == 1
+        assert full_grid[(1, 1, 3)] == 1
+        assert full_grid[(1, 3, 1)] == 1
+        assert full_grid[(1, 3, 3)] == 1
+        assert full_grid[(3, 1, 1)] == 1
+        assert full_grid[(3, 1, 3)] == 1
+        assert full_grid[(3, 3, 3)] == 1  # This one is the original particle.
 
     def test_too_large_r_max_raises(self):
         """Test that specifying too large an r_max value raises an error."""

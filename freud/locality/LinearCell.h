@@ -207,11 +207,10 @@ private:
             dz = (f.z > 1.0f - fractional_r_cut.z) ? -1 : 0;
         }
         // Cannot have ghosts in a non-existent dimension
-        if (!m_box.is2D())
+        if (m_box.is2D())
         {
             dz = 0;
         }
-        std::cout << dx << " "<< dy << " "<< dz << "\n";
         // For particle in the bulk, we don't need to try and generate ghosts.
         if (dx == 0 && dy == 0 && dz == 0)
         {
