@@ -6,9 +6,8 @@
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include <iostream>
 #include <stdexcept>
-// Iterator structure
+
 namespace freud::locality {
 
 class CellIterator : public NeighborQueryPerPointIterator
@@ -37,113 +36,149 @@ public:
     //! Constructor
     CellQueryBallIterator(const CellQuery* neighbor_query, const vec3<float>& query_point,
                           unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
-        : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
-          m_r_max_sq(r_max * r_max), m_r_min_sq(r_min * r_min)
+        : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
     {
         if (m_cell_query->m_linear_buffer.data() == nullptr)
         {
             throw std::runtime_error("Cell data is uninitialized.");
         }
 
-        // Get current cell XYZ coordinates
-        vec3<int> center_cell = m_cell_query->cell_idx_xyz(query_point);
+        m_r_max_sq = r_max * r_max;
+        m_r_min_sq = r_min * r_min;
 
-        // Search the 3x3x3 neighboring cells. TODO: order
-        for (int dz = -1; dz <= 1; ++dz)
+        // Check if the query point is within the grid bounds. TODO: is this allowed?
+        unsigned int cell_idx_u;
+        if (!m_cell_query->getCellIdxSafe(m_query_point, cell_idx_u))
         {
-            for (int dy = -1; dy <= 1; ++dy)
-            {
-                for (int dx = -1; dx <= 1; ++dx)
-                {
-                    vec3<int> neighbor_xyz = center_cell + vec3<int>(dx, dy, dz);
-
-                    // Check bounds
-                    if (neighbor_xyz.x >= 0 && neighbor_xyz.x < m_cell_query->getNx() && neighbor_xyz.y >= 0
-                        && neighbor_xyz.y < m_cell_query->getNy() && neighbor_xyz.z >= 0
-                        && neighbor_xyz.z < m_cell_query->getNz())
-                    {
-                        // Convert to flat index
-                        unsigned int cell_idx = (neighbor_xyz.z * m_cell_query->getNy() + neighbor_xyz.y)
-                                * m_cell_query->getNx()
-                            + neighbor_xyz.x;
-
-                        // Only add cells that have particles
-                        if (m_cell_query->m_counts[cell_idx] > 0)
-                        {
-                            CellInfo cell_info;
-                            cell_info.data = m_cell_query->m_linear_buffer.data()
-                                + m_cell_query->m_cell_starts[cell_idx];
-                            cell_info.count = m_cell_query->m_counts[cell_idx];
-                            m_cells_to_search.push_back(cell_info);
-                        }
-                    }
-                }
-            }
+            m_finished = true;
+            return;
         }
+
+        vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
+        m_cx = coords.x;
+        m_cy = coords.y;
+        m_cz = coords.z;
+
+        // Initialize state for the loop
+        m_dy = -1;
+        m_dz = -1;
+        m_particle_idx = -1;
+        m_list_end = -1;
+
+        find_next_pair();
     }
 
     //! Empty Destructor
     ~CellQueryBallIterator() override = default;
 
     //! Get the next element.
-    NeighborBond next() override final;
-
-protected:
-    struct CellInfo
+    NeighborBond next() override final
     {
-        TaggedPosition* data;
-        unsigned int count;
-    };
+        NeighborBond res = m_current_bond;
+        find_next_pair();
+        return res;
+    }
+
+private:
+    void find_next_pair()
+    {
+        int particle_idx = m_particle_idx;
+        int start_dz = m_dz;
+        int start_dy = m_dy;
+
+        // Cache grid dimensions and pointers for performance
+        const int nz_dim = static_cast<int>(m_cell_query->getNz());
+        const int ny_dim = static_cast<int>(m_cell_query->getNy());
+        const int nx_dim = static_cast<int>(m_cell_query->getNx());
+
+        const auto* starts_data = m_cell_query->m_cell_starts.data();
+        const auto* counts_data = m_cell_query->m_counts.data();
+
+        for (int dz = start_dz; dz <= 1; dz++)
+        {
+            int nz = m_cz + dz;
+            if (nz >= 0 && nz < nz_dim)
+            {
+                for (int dy = start_dy; dy <= 1; dy++)
+                {
+                    int ny = m_cy + dy;
+                    if (ny >= 0 && ny < ny_dim)
+                    {
+                        // If starting a new row, determine the contiguous particle range
+                        if (particle_idx == -1)
+                        {
+                            // Compute base index for the row (dx=0)
+                            // LinearCell idx = (cz * Ny + cy) * Nx + cx
+                            int row_cell_idx = ((nz * ny_dim) + ny) * nx_dim;
+                            // Adjust for center column
+                            row_cell_idx += m_cx;
+
+                            // Determine valid dx range [-1, 1] clipped to [0, Nx-1] relative to global
+                            // Since row_cell_idx is at 'cx', we check bounds of cx+dx
+                            int min_dx = (m_cx > 0) ? -1 : 0;
+                            int max_dx = (m_cx < nx_dim - 1) ? 1 : 0;
+
+                            // Calculate start and end indices of the contiguous block
+                            int start_cell_idx = row_cell_idx + min_dx;
+                            int end_cell_idx = row_cell_idx + max_dx;
+
+                            particle_idx = starts_data[start_cell_idx];
+                            m_list_end = starts_data[end_cell_idx] + counts_data[end_cell_idx];
+                        }
+
+                        for (; particle_idx < m_list_end; ++particle_idx)
+                        {
+                            if (test_particle(particle_idx, dy, dz))
+                            {
+                                return;
+                            }
+                        }
+                        particle_idx = -1;
+                    }
+                }
+            }
+            start_dy = -1;
+        }
+        m_finished = true;
+        m_current_bond = ITERATOR_TERMINATOR;
+    }
+
+    bool test_particle(int particle_idx, int dy, int dz)
+    {
+        const TaggedPosition& p = m_cell_query->m_linear_buffer[particle_idx];
+
+        int neighbor_idx_raw = p.particle_index;
+        unsigned int real_id = (neighbor_idx_raw >= 0) ? static_cast<unsigned int>(neighbor_idx_raw)
+                                                       : ~static_cast<unsigned int>(neighbor_idx_raw);
+
+        if (this->m_exclude_ii && real_id == this->m_query_point_idx)
+        {
+            return false;
+        }
+
+        vec3<float> delta = p.p - this->m_query_point;
+        float d2 = dot(delta, delta);
+
+        if (d2 < m_r_max_sq && d2 >= m_r_min_sq)
+        {
+            m_current_bond = NeighborBond(this->m_query_point_idx, real_id, std::sqrt(d2), 1.0f, delta);
+            m_dy = dy;
+            m_dz = dz;
+            m_particle_idx = particle_idx + 1;
+            return true;
+        }
+        return false;
+    }
 
     float m_r_max_sq;
     float m_r_min_sq;
-    unsigned int m_query_point_idx;
 
-    std::vector<CellInfo> m_cells_to_search;
-    size_t m_current_cell_idx = 0;
-    size_t m_current_particle_idx = 0;
+    // Iterator state
+    int m_cx, m_cy, m_cz; // Cell coordinates of query point
+    int m_dy, m_dz;       // Current cell offset being searched
+    int m_particle_idx;   // Current particle index in linear buffer
+    int m_list_end;       // End index of the current contiguous block
+    NeighborBond m_current_bond;
 };
-inline NeighborBond CellQueryBallIterator::next()
-{
-    while (m_current_cell_idx < m_cells_to_search.size())
-    {
-        const CellInfo& current_cell = m_cells_to_search[m_current_cell_idx];
-
-        while (m_current_particle_idx < current_cell.count)
-        {
-            TaggedPosition possible_neighbor = current_cell.data[m_current_particle_idx++];
-
-            // Handle exclude_ii - ghost particles have inverted indices
-            if (m_exclude_ii)
-            {
-                int neighbor_idx = possible_neighbor.particle_index;
-                if (neighbor_idx == static_cast<int>(m_query_point_idx)
-                    || neighbor_idx == ~static_cast<int>(m_query_point_idx))
-                {
-                    continue;
-                }
-            }
-
-            const vec3<float> r_ij = possible_neighbor.p - m_query_point;
-            float r_sq = dot(r_ij, r_ij);
-
-            if (r_sq < m_r_max_sq && r_sq >= m_r_min_sq)
-            {
-                // For ghost particles (negative indices), return the original positive index
-                unsigned int neighbor_idx = (possible_neighbor.particle_index < 0)
-                    ? ~static_cast<unsigned int>(possible_neighbor.particle_index)
-                    : static_cast<unsigned int>(possible_neighbor.particle_index);
-                return NeighborBond(m_query_point_idx, neighbor_idx, std::sqrt(r_sq), 1, r_ij);
-            }
-        }
-
-        // Move to next cell
-        m_current_cell_idx++;
-        m_current_particle_idx = 0;
-    }
-
-    m_finished = true;
-    return ITERATOR_TERMINATOR;
-}
 
 } // namespace freud::locality
