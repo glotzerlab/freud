@@ -20,7 +20,7 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
     {
         this->buildGrid(query_args.r_max);
     }
-    
+
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
 }
 
@@ -68,9 +68,13 @@ inline void CellQuery::buildGrid(const float r_cut) const
         // coordinates.
         const vec3<float> plane_distances = m_box.getNearestPlaneDistance();
         const vec3<float> fractional_rcut = vec3<float>(r_cut, r_cut, r_cut) / plane_distances;
+        // Precompute lattice vectors once for all particles.
+        const vec3<float> Lx = m_box.getLatticeVector(0);
+        const vec3<float> Ly = m_box.getLatticeVector(1);
+        const vec3<float> Lz = (!m_box.is2D()) ? m_box.getLatticeVector(2) : vec3<float>(0, 0, 0);
 
         // TODO: SoA?
-        const GhostPacket ghosts = generateGhosts(local_point, fractional_rcut);
+        const GhostPacket ghosts = generateGhosts(local_point, fractional_rcut, Lx, Ly, Lz);
 
         // NOTE: this will fail if i is > INT_MAX ( 4 billion )
         const int ghost_tag = ~static_cast<int>(i);
