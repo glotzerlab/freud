@@ -54,7 +54,7 @@ inline void CellQuery::buildGrid(const float r_cut) const
         const GhostPacket ghosts = generateGhosts(local_point, fractional_rcut);
 
         // NOTE: this will fail if i is > INT_MAX ( 4 billion )
-        const int ghost_tag = -static_cast<int>(i);
+        const int ghost_tag = ~static_cast<int>(i);
         for (size_t ghost_index = 0; ghost_index < ghosts.n_displacements; ghost_index++)
         {
             const vec3<float> ghost = local_point + ghosts.displacements[ghost_index];

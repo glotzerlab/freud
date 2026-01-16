@@ -168,6 +168,7 @@ protected:
         if (args.mode == QueryType::nearest)
         {
             validateNearestNeighborArgs(args);
+            throw std::logic_error("Not implemented!");
         }
 
         // Validate r_max vs box size

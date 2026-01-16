@@ -37,23 +37,49 @@ public:
     //! Constructor
     CellQueryBallIterator(const CellQuery* neighbor_query, const vec3<float>& query_point,
                           unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
-        : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
+        : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
+          m_r_max_sq(r_max * r_max), m_r_min_sq(r_min * r_min)
     {
-        float m_r_max_squared = r_max * r_max;
-        float m_r_min_squared = r_min * r_min;
-        vec3<int> cell_xyz = m_cell_query->cell_idx_xyz(query_point);
-        unsigned int idx = m_cell_query->getCellIdx(query_point);
-        // TODO: this is only the current cell!
-        m_cell_start_index = m_cell_query->m_cell_starts[idx];
-        m_cell_end_offset = m_cell_query->m_counts[idx];
         if (m_cell_query->m_linear_buffer.data() == nullptr)
         {
             throw std::runtime_error("Cell data is uninitialized.");
         }
-        m_cell_data = m_cell_query->m_linear_buffer.data() + m_cell_start_index;
-        //     std::cout << "start index: " << m_cell_start_index << "\n";
-        //     std::cout << "end offset:  " << m_cell_end_offset << "\n";
-        //     std::cout << "m_cell_data:  " << m_cell_data << "\n";
+
+        // Get current cell XYZ coordinates
+        vec3<int> center_cell = m_cell_query->cell_idx_xyz(query_point);
+
+        // Search the 3x3x3 neighboring cells. TODO: order
+        for (int dz = -1; dz <= 1; ++dz)
+        {
+            for (int dy = -1; dy <= 1; ++dy)
+            {
+                for (int dx = -1; dx <= 1; ++dx)
+                {
+                    vec3<int> neighbor_xyz = center_cell + vec3<int>(dx, dy, dz);
+
+                    // Check bounds
+                    if (neighbor_xyz.x >= 0 && neighbor_xyz.x < m_cell_query->getNx() && neighbor_xyz.y >= 0
+                        && neighbor_xyz.y < m_cell_query->getNy() && neighbor_xyz.z >= 0
+                        && neighbor_xyz.z < m_cell_query->getNz())
+                    {
+                        // Convert to flat index
+                        unsigned int cell_idx = (neighbor_xyz.z * m_cell_query->getNy() + neighbor_xyz.y)
+                                * m_cell_query->getNx()
+                            + neighbor_xyz.x;
+
+                        // Only add cells that have particles
+                        if (m_cell_query->m_counts[cell_idx] > 0)
+                        {
+                            CellInfo cell_info;
+                            cell_info.data = m_cell_query->m_linear_buffer.data()
+                                + m_cell_query->m_cell_starts[cell_idx];
+                            cell_info.count = m_cell_query->m_counts[cell_idx];
+                            m_cells_to_search.push_back(cell_info);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     //! Empty Destructor
@@ -63,34 +89,59 @@ public:
     NeighborBond next() override final;
 
 protected:
+    struct CellInfo
+    {
+        TaggedPosition* data;
+        unsigned int count;
+    };
+
     float m_r_max_sq;
     float m_r_min_sq;
     unsigned int m_query_point_idx;
-    unsigned int m_idx = 0;
-    unsigned int m_cell_start_index;
-    unsigned int m_cell_end_offset;
-    TaggedPosition* m_cell_data;
+
+    std::vector<CellInfo> m_cells_to_search;
+    size_t m_current_cell_idx = 0;
+    size_t m_current_particle_idx = 0;
 };
 inline NeighborBond CellQueryBallIterator::next()
 {
-    if (m_idx >= m_cell_end_offset)
+    while (m_current_cell_idx < m_cells_to_search.size())
     {
-        std::cout << "all done\n";
-        m_finished = true;
-        return ITERATOR_TERMINATOR;
-    }
-    // TODO: handle exclude_ii
-    TaggedPosition possible_neighbor = m_cell_data[m_idx++];
-    const vec3<float> r_ij = possible_neighbor.p - m_query_point;
-    float r_sq = dot(r_ij, r_ij);
-    if (r_sq < m_r_max_sq && r_sq >= m_r_min_sq)
-    {
-        std::cout << "found neighbor\n";
-        return NeighborBond(m_query_point_idx, possible_neighbor.particle_index, std::sqrt(r_sq), 1, r_ij);
+        const CellInfo& current_cell = m_cells_to_search[m_current_cell_idx];
+
+        while (m_current_particle_idx < current_cell.count)
+        {
+            TaggedPosition possible_neighbor = current_cell.data[m_current_particle_idx++];
+
+            // Handle exclude_ii - ghost particles have negative indices
+            if (m_exclude_ii)
+            {
+                int neighbor_idx = possible_neighbor.particle_index;
+                if (neighbor_idx == static_cast<int>(m_query_point_idx)
+                    || neighbor_idx == ~static_cast<int>(m_query_point_idx))
+                {
+                    continue;
+                }
+            }
+
+            const vec3<float> r_ij = possible_neighbor.p - m_query_point;
+            float r_sq = dot(r_ij, r_ij);
+
+            if (r_sq < m_r_max_sq && r_sq >= m_r_min_sq)
+            {
+                // For ghost particles (negative indices), return the original positive index
+                unsigned int neighbor_idx = (possible_neighbor.particle_index < 0)
+                    ? static_cast<unsigned int>(possible_neighbor.particle_index)
+                    : static_cast<unsigned int>(possible_neighbor.particle_index);
+                return NeighborBond(m_query_point_idx, neighbor_idx, std::sqrt(r_sq), 1, r_ij);
+            }
+        }
+
+        // Move to next cell
+        m_current_cell_idx++;
+        m_current_particle_idx = 0;
     }
 
-    std::cout << "no neighbor\n";
-    // TODO: Implement proper neighbor search. THe following is to prevent segfault
     m_finished = true;
     return ITERATOR_TERMINATOR;
 }
