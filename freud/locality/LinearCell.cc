@@ -102,12 +102,7 @@ inline void CellQuery::buildGrid(const float r_cut) const
 
     // Calculate starts array (prefix sum) of indices that begin each cell.
     // TODO: std::inclusive_scan
-    unsigned int offset = 0;
-    for (unsigned int c = 0; c < n_cells_total; c++)
-    {
-        m_cell_starts[c] = offset;
-        offset += m_counts[c];
-    }
+    util::prefixSum(n_cells_total, m_counts, m_cell_starts);
 
     // Reserve data for the full neighbor list, discarding the cell indices as that data
     // is encoded into the sorting of the array

@@ -10,6 +10,7 @@
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
+#include <vector>
 
 namespace freud { namespace util {
 
@@ -86,6 +87,16 @@ inline void forLoopWrapper2D(size_t begin_row, size_t end_row, size_t begin_col,
     else
     {
         body(begin_row, end_row, begin_col, end_col);
+    }
+}
+inline void prefixSum(const unsigned int n, const std::vector<unsigned int>& summands,
+                      std::vector<unsigned int>& output)
+{
+    unsigned int offset = 0;
+    for (unsigned int c = 0; c < n; c++)
+    {
+        output[c] = offset;
+        offset += summands[c];
     }
 }
 
