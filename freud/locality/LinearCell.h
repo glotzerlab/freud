@@ -4,6 +4,7 @@
 #pragma once
 
 #include "NeighborQuery.h"
+#include <cstring>
 #include <stdexcept>
 #include <vector>
 /*! \file LinearCell.h
@@ -229,7 +230,9 @@ private:
     //! Compute the vectors mapping a point in the box to a point in (up to) 27 images.
     // This is adapted from updateImageVectors, and aims to save memory bandwidth by
     // calculating lattice vectors extra times.
-    GhostPacket generateGhosts(const vec3<float>& point, const vec3<float>& fractional_r_cut) const
+    GhostPacket generateGhosts(const vec3<float>& point, const vec3<float>& fractional_r_cut,
+                               const vec3<float> Lx, const vec3<float> Ly,
+                               const vec3<float> Lz) const
     {
         GhostPacket result;
         const vec3<float> f = m_box.makeFractional(point);
@@ -265,12 +268,6 @@ private:
         {
             return result;
         }
-
-        // Compute lattice vectors that displace our input to generate a ghost.
-        const vec3<float> Lx = m_box.getLatticeVector(0);
-        const vec3<float> Ly = m_box.getLatticeVector(1);
-        // Get zeros if we are in 2d
-        const vec3<float> Lz = (!m_box.is2D()) ? m_box.getLatticeVector(2) : vec3<float>(0, 0, 0);
 
         auto new_site = [&](int i, int j, int k) {
             vec3<float> shift(0, 0, 0);
