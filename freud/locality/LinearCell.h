@@ -329,8 +329,8 @@ private:
     mutable unsigned int m_n_total = 0;  //!< Total number of particles, including ghosts
     mutable unsigned int m_n_images = 0; //!< Total number of periodic images
 
-    mutable bool m_built = false;
-    mutable float m_grid_r_cut = 0.0;
+    mutable bool m_built = false;     //!< Whether the grid has been built.
+    mutable float m_grid_r_cut = 0.0; //!< Current grid width to check if rebuild is necessary
 
     friend class CellQueryBallIterator;
 };
