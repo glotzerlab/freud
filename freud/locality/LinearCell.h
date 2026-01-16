@@ -231,8 +231,7 @@ private:
     // This is adapted from updateImageVectors, and aims to save memory bandwidth by
     // calculating lattice vectors extra times.
     GhostPacket generateGhosts(const vec3<float>& point, const vec3<float>& fractional_r_cut,
-                               const vec3<float> Lx, const vec3<float> Ly,
-                               const vec3<float> Lz) const
+                               const vec3<float> Lx, const vec3<float> Ly, const vec3<float> Lz) const
     {
         GhostPacket result;
         const vec3<float> f = m_box.makeFractional(point);
