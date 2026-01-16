@@ -314,6 +314,10 @@ private:
     mutable bool m_built = false;     //!< Whether the grid has been built.
     mutable float m_grid_r_cut = 0.0; //!< Current grid width to check if rebuild is necessary
 
+    //! Place particles into sorted linear buffer using cell starts and counts.
+    void placeParticlesInSortedOrder(const std::vector<std::pair<int, TaggedPosition>>& particle_cell_mapping,
+                                     std::vector<TaggedPosition>& sorted) const;
+
     friend class CellQueryBallIterator;
 };
 

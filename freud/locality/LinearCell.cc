@@ -108,26 +108,48 @@ inline void CellQuery::buildGrid(const float r_cut) const
     // is encoded into the sorting of the array
     std::vector<TaggedPosition> sorted(m_n_total);
 
-    // Track insertion positions
-    std::vector<int> real_insert(n_cells_total, 0);
-    std::vector<int> ghost_insert(n_cells_total, 0);
-
     // Place particles directly in sorted order
-    for (auto& [cell_idx, particle] : particle_cell_mapping)
+    placeParticlesInSortedOrder(particle_cell_mapping, sorted);
+    m_linear_buffer = std::move(sorted);
+}
+
+//! Place particles into sorted linear buffer using cell starts and counts.
+inline void CellQuery::placeParticlesInSortedOrder(
+    const std::vector<std::pair<int, TaggedPosition>>& particle_cell_mapping,
+    std::vector<TaggedPosition>& sorted) const
+{
+    const unsigned int n_cells = m_cell_starts.size();
+    std::vector<int> real_insert(n_cells, 0);
+    std::vector<int> ghost_insert(n_cells, 0);
+
+    // Pre-compute ghost start offsets to avoid repeated addition
+    std::vector<int> ghost_start(n_cells);
+    for (unsigned int i = 0; i < n_cells; i++)
+    {
+        ghost_start[i] = m_cell_starts[i] + m_counts_real[i];
+    }
+
+    // Use raw pointers for faster access
+    const unsigned int* cell_starts = m_cell_starts.data();
+    const int* ghost_start_ptr = ghost_start.data();
+    int* real_insert_ptr = real_insert.data();
+    int* ghost_insert_ptr = ghost_insert.data();
+    TaggedPosition* buffer = sorted.data();
+
+    for (const auto& [cell_idx, particle] : particle_cell_mapping)
     {
         const bool is_ghost = particle.particle_index < 0;
         int pos;
         if (is_ghost)
         {
-            pos = m_cell_starts[cell_idx] + m_counts_real[cell_idx] + ghost_insert[cell_idx]++;
+            pos = ghost_start_ptr[cell_idx] + ghost_insert_ptr[cell_idx]++;
         }
         else
         {
-            pos = m_cell_starts[cell_idx] + real_insert[cell_idx]++;
+            pos = cell_starts[cell_idx] + real_insert_ptr[cell_idx]++;
         }
-        sorted[pos] = std::move(particle);
+        buffer[pos] = particle;
     }
-    m_linear_buffer = std::move(sorted);
 }
 
 } // namespace freud::locality
