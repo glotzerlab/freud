@@ -121,6 +121,19 @@ public:
     {
         return m_nz;
     }
+
+    //! Get the total number of particles (real + ghosts)
+    unsigned int getNTotal() const
+    {
+        return m_n_total;
+    }
+
+    //! Get the cell starts array
+    const std::vector<unsigned int>& getCellStarts() const
+    {
+        return m_cell_starts;
+    }
+
     //! Compute the number of cells along each cartesian direction, saving relevant data.
     void setupGrid(const float r_cut) const
     {
@@ -154,6 +167,16 @@ protected:
      */
     void validateQueryArgs(QueryArgs& args) const override
     {
+        const vec3<bool> periodic = m_box.getPeriodic();
+        const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
+        const float r_cut = args.r_max;
+        if ((periodic.x && nearest_plane_distance.x < r_cut * 2.0f)
+            || (periodic.y && nearest_plane_distance.y < r_cut * 2.0f)
+            || (!m_box.is2D() && periodic.z && nearest_plane_distance.z < r_cut * 2.0f))
+        {
+            throw std::runtime_error("The r_cut is too large for this box.");
+        }
+
         NeighborQuery::validateQueryArgs(args);
         if (args.mode == QueryType::nearest)
         {
@@ -308,7 +331,6 @@ namespace freud::locality {
 inline std::shared_ptr<NeighborQueryPerPointIterator>
 CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
 {
-    throw std::runtime_error("in querySIngle");
     this->validateQueryArgs(args);
     if (args.mode == QueryType::ball)
     {
