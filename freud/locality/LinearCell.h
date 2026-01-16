@@ -226,19 +226,19 @@ private:
         // we optimize.
         // Use branchless arithmetic: result = (f < cut) - (f > 1-cut)
         // In center: 0 - 0 = 0. Near lo: 1 - 0 = 1, and when near hi: 0 - 1 = -1
-        const uint32_t fx_bits = __builtin_bit_cast(uint32_t, f.x);
-        const uint32_t fy_bits = __builtin_bit_cast(uint32_t, f.y);
-        const uint32_t fz_bits = __builtin_bit_cast(uint32_t, f.z);
-        const uint32_t cutx_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.x);
-        const uint32_t cuty_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.y);
-        const uint32_t cutz_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.z);
-        const uint32_t omcutx_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.x);
-        const uint32_t omcuty_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.y);
-        const uint32_t omcutz_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.z);
+        // const uint32_t fx_bits = __builtin_bit_cast(uint32_t, f.x);
+        // const uint32_t fy_bits = __builtin_bit_cast(uint32_t, f.y);
+        // const uint32_t fz_bits = __builtin_bit_cast(uint32_t, f.z);
+        // const uint32_t cutx_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.x);
+        // const uint32_t cuty_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.y);
+        // const uint32_t cutz_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.z);
+        // const uint32_t omcutx_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.x);
+        // const uint32_t omcuty_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.y);
+        // const uint32_t omcutz_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.z);
 
-        int dx = (fx_bits < cutx_bits) - (fx_bits > omcutx_bits);
-        int dy = (fy_bits < cuty_bits) - (fy_bits > omcuty_bits);
-        int dz = (fz_bits < cutz_bits) - (fz_bits > omcutz_bits);
+        int dx = (f.x < fractional_r_cut.x) - (f.x > 1.0 - fractional_r_cut.x);
+        int dy = (f.y < fractional_r_cut.y) - (f.y > 1.0 - fractional_r_cut.y);
+        int dz = (f.z < fractional_r_cut.z) - (f.z > 1.0 - fractional_r_cut.z);
         // Cannot have ghosts in a non-existent dimension
         if (m_box.is2D())
         {
