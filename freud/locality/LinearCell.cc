@@ -3,8 +3,6 @@
 
 #include "LinearCell.h"
 #include "CellIterator.h"
-#include <cmath>
-#include <iostream>
 #include <stdexcept>
 
 namespace freud::locality {
@@ -14,8 +12,24 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
 {
     this->validateQueryArgs(query_args);
     this->buildGrid(query_args.r_max); // TODO: n nearest
+    // if (!m_built || query_args.r_max > m_grid_r_cut)
+    // {
+    //     this->buildGrid(query_args.r_max);
+    // }
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
-};
+}
+
+std::shared_ptr<NeighborQueryPerPointIterator>
+CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
+{
+    this->validateQueryArgs(args);
+    if (args.mode == QueryType::ball)
+    {
+        return std::make_shared<CellQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
+                                                       args.r_min, args.exclude_ii);
+    }
+    throw std::runtime_error("Invalid query mode provided to query function in CellQuery.");
+}
 
 /*! Build and populate the cell list grid.
  *

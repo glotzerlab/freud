@@ -4,7 +4,6 @@
 #pragma once
 
 #include "NeighborQuery.h"
-#include <iostream>
 #include <stdexcept>
 #include <vector>
 /*! \file LinearCell.h
@@ -343,38 +342,7 @@ private:
     mutable bool m_built = false;
     mutable float m_grid_r_cut = 0.0;
 
-
     friend class CellQueryBallIterator;
 };
-
-} // namespace freud::locality
-
-// Include CellIterator.h after CellQuery is fully defined to avoid circular dependency.
-// This provides the complete definition of CellQueryBallIterator needed by querySingle.
-#include "CellIterator.h"
-
-namespace freud::locality {
-
-// Implementation of querySingle - must be after including CellIterator.h
-// so that CellQueryBallIterator is fully defined
-inline std::shared_ptr<NeighborQueryPerPointIterator>
-CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
-{
-    this->validateQueryArgs(args);
-    if (args.mode == QueryType::ball)
-    {
-        return std::make_shared<CellQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
-                                                       args.r_min, args.exclude_ii);
-    }
-    // if (args.mode == QueryType::nearest)
-    // {
-    //     // TODO
-    //     return std::make_shared<CellQueryIterator>(this, query_point, query_point_idx,
-    //     args.num_neighbors,
-    //                                                args.r_guess, args.r_max, args.r_min, args.scale,
-    //                                                args.exclude_ii);
-    // }
-    throw std::runtime_error("Invalid query mode provided to query function in CellQuery.");
-}
 
 } // namespace freud::locality
