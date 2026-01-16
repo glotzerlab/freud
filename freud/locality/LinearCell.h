@@ -5,6 +5,7 @@
 
 #include "NeighborQuery.h"
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 /*! \file LinearCell.h
@@ -138,45 +139,26 @@ public:
     void setupGrid(const float r_cut) const
     {
         m_cell_inverse_length = 1.0f / r_cut;
-        // // Compute the widths of the box along each cartesian direction.
-        // float w_x = m_box.getLx() + (m_box.getLy() * std::abs(m_box.getTiltFactorXY()))
-        //     + (m_box.getLz() * std::abs(m_box.getTiltFactorXZ()));
-        // float w_y = m_box.getLy() + (m_box.getLz() * std::abs(m_box.getTiltFactorYZ()));
-        // float w_z = m_box.getLz();
 
-        // m_nx = static_cast<int>((w_x * m_cell_inverse_length)) + 3;
-        // m_ny = static_cast<int>((w_y * m_cell_inverse_length)) + 3;
-        // m_nz = static_cast<int>((w_z * m_cell_inverse_length)) + 3;
+        // Compute the widths of the box along each cartesian direction.
+        float w_x = m_box.getLx() + (m_box.getLy() * std::abs(m_box.getTiltFactorXY()))
+            + (m_box.getLz() * std::abs(m_box.getTiltFactorXZ()));
+        float w_y = m_box.getLy() + (m_box.getLz() * std::abs(m_box.getTiltFactorYZ()));
+        float w_z = m_box.getLz();
 
-        // // Lowest, leftmost point on the grid
-        // m_min_pos.x = -0.5f * static_cast<float>(m_nx) * r_cut;
-        // m_min_pos.y = -0.5f * static_cast<float>(m_ny) * r_cut;
-        // m_min_pos.z = -0.5f * static_cast<float>(m_nz) * r_cut;
-        vec3<float> corners[8]
-            = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}};
+        m_nx = static_cast<int>((w_x * m_cell_inverse_length)) + 3;
+        m_ny = static_cast<int>((w_y * m_cell_inverse_length)) + 3;
+        m_nz = static_cast<int>((w_z * m_cell_inverse_length)) + 3;
 
-        float inf = std::numeric_limits<float>::infinity();
-        vec3<float> box_min(inf, inf, inf);
-        vec3<float> box_max(-inf, -inf, -inf);
+        // Compute the lowest, leftmost point on the grid
+        float box_min_x = (m_box.getLy() * std::min(0.0f, m_box.getTiltFactorXY()))
+            + (m_box.getLz() * std::min(0.0f, m_box.getTiltFactorXZ()));
 
-        for (const vec3<float>& c : corners)
-        {
-            vec3<float> abs_pos = m_box.makeAbsolute(c);
-            box_min.x = std::min(box_min.x, abs_pos.x);
-            box_min.y = std::min(box_min.y, abs_pos.y);
-            box_min.z = std::min(box_min.z, abs_pos.z);
+        float box_min_y = m_box.getLz() * std::min(0.0f, m_box.getTiltFactorYZ());
 
-            box_max.x = std::max(box_max.x, abs_pos.x);
-            box_max.y = std::max(box_max.y, abs_pos.y);
-            box_max.z = std::max(box_max.z, abs_pos.z);
-        }
-
-        m_min_pos = box_min - vec3<float>(r_cut, r_cut, r_cut);
-        vec3<float> max_pos = box_max + vec3<float>(r_cut, r_cut, r_cut);
-
-        m_nx = static_cast<int>((max_pos.x - m_min_pos.x) * m_cell_inverse_length) + 1;
-        m_ny = static_cast<int>((max_pos.y - m_min_pos.y) * m_cell_inverse_length) + 1;
-        m_nz = static_cast<int>((max_pos.z - m_min_pos.z) * m_cell_inverse_length) + 1;
+        // Apply the ghost layer padding and shift to center the origin
+        m_min_pos = {box_min_x - r_cut, box_min_y - r_cut, -r_cut};
+        m_min_pos += m_box.makeAbsolute({0.0, 0.0, 0.0});
     }
     inline void buildGrid(const float r_cut) const;
 
