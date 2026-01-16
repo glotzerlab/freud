@@ -113,7 +113,7 @@ inline NeighborBond CellQueryBallIterator::next()
         {
             TaggedPosition possible_neighbor = current_cell.data[m_current_particle_idx++];
 
-            // Handle exclude_ii - ghost particles have negative indices
+            // Handle exclude_ii - ghost particles have inverted indices
             if (m_exclude_ii)
             {
                 int neighbor_idx = possible_neighbor.particle_index;
@@ -131,7 +131,7 @@ inline NeighborBond CellQueryBallIterator::next()
             {
                 // For ghost particles (negative indices), return the original positive index
                 unsigned int neighbor_idx = (possible_neighbor.particle_index < 0)
-                    ? static_cast<unsigned int>(possible_neighbor.particle_index)
+                    ? ~static_cast<unsigned int>(possible_neighbor.particle_index)
                     : static_cast<unsigned int>(possible_neighbor.particle_index);
                 return NeighborBond(m_query_point_idx, neighbor_idx, std::sqrt(r_sq), 1, r_ij);
             }
