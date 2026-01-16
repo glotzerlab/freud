@@ -6,6 +6,7 @@
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
+#include <iostream>
 #include <stdexcept>
 
 namespace freud::locality {
@@ -147,9 +148,8 @@ private:
     {
         const TaggedPosition& p = m_cell_query->m_linear_buffer[particle_idx];
 
-        int neighbor_idx_raw = p.particle_index;
-        unsigned int real_id = (neighbor_idx_raw >= 0) ? static_cast<unsigned int>(neighbor_idx_raw)
-                                                       : ~static_cast<unsigned int>(neighbor_idx_raw);
+        const int neighbor_idx_raw = p.particle_index;
+        const unsigned int real_id = (neighbor_idx_raw ^ (neighbor_idx_raw >> 31));
 
         if (this->m_exclude_ii && real_id == this->m_query_point_idx)
         {
