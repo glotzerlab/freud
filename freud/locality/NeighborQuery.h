@@ -261,7 +261,7 @@ protected:
                 min_plane_distance = std::min(min_plane_distance, nearest_plane_distance.z);
             }
 
-            args.r_guess = std::min(r_guess, min_plane_distance / float(2.0));
+            args.r_guess = std::min(r_guess, min_plane_distance / 2.0f);
         }
         args.r_guess = std::min(args.r_guess, args.r_max);
     }
