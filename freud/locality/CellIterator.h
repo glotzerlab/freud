@@ -191,15 +191,12 @@ public:
                              unsigned int query_point_idx, unsigned int num_neighbors, float r_max,
                              float r_min, bool exclude_ii)
         : CellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
-          m_k(num_neighbors)
+          m_k(num_neighbors), m_r_min_sq(r_min * r_min), m_r_max_sq(r_max * r_max)
     {
         if (m_cell_query->m_linear_buffer.data() == nullptr)
         {
             throw std::runtime_error("Cell data is uninitialized.");
         }
-
-        m_r_max_sq = r_max * r_max;
-        m_r_min_sq = r_min * r_min;
 
         // Check if the query point is within the grid bounds.
         unsigned int cell_idx_u;
