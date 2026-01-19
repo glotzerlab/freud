@@ -4,8 +4,8 @@
 #pragma once
 
 #include "NeighborQuery.h"
+#include <cmath>
 #include <cstring>
-#include <iostream>
 #include <stdexcept>
 #include <vector>
 /*! \file LinearCell.h
@@ -21,6 +21,7 @@ struct TaggedPosition
 
 // Forward declaration of iterator types we return from the query
 class CellQueryBallIterator;
+class CellQueryNearestIterator;
 
 class CellQuery : public NeighborQuery
 {
@@ -175,25 +176,29 @@ protected:
         if (args.mode == QueryType::nearest)
         {
             validateNearestNeighborArgs(args);
-            throw std::logic_error("Not implemented!");
         }
 
-        // Validate r_max vs box size
-        const vec3<bool> periodic = m_box.getPeriodic();
-        const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
-        // May not handle r_guess/nearest mode yet
-        if ((periodic.x && nearest_plane_distance.x <= args.r_max * 2.0f)
-            || (periodic.y && nearest_plane_distance.y <= args.r_max * 2.0f)
-            || (!m_box.is2D() && periodic.z && nearest_plane_distance.z <= args.r_max * 2.0f))
+        // For nearest mode with infinite r_max, skip the box size validation.
+        // The grid will be built using the construction-time r_max (m_grid_r_cut).
+        if (args.mode != QueryType::nearest || !std::isinf(args.r_max))
         {
-            throw std::runtime_error("The CellQuery r_max is too large for this box.");
+            // Validate r_max vs box size
+            const vec3<bool> periodic = m_box.getPeriodic();
+            const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
+            if ((nearest_plane_distance.x <= args.r_max * 2.0f)
+                || (nearest_plane_distance.y <= args.r_max * 2.0f)
+                || (!m_box.is2D() && nearest_plane_distance.z <= args.r_max * 2.0f))
+            {
+                throw std::runtime_error("The CellQuery r_max is too large for this box.");
+            }
+
+            if (args.r_max <= 0)
+            {
+                throw std::invalid_argument("r_max must be positive.");
+            }
         }
 
-        if (args.r_max <= 0)
-        {
-            throw std::invalid_argument("r_max must be positive.");
-        }
-        if (args.r_max <= args.r_min)
+        if (!std::isinf(args.r_max) && args.r_max <= args.r_min)
         {
             throw std::invalid_argument("r_max must be greater than r_min.");
         }

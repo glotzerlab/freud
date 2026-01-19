@@ -3,6 +3,7 @@
 
 #include "LinearCell.h"
 #include "CellIterator.h"
+#include <algorithm>
 #include <stdexcept>
 
 namespace freud::locality {
@@ -10,15 +11,47 @@ namespace freud::locality {
 std::shared_ptr<NeighborQueryIterator>
 CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
 {
-    // TODO: n_nearest
     this->validateQueryArgs(query_args);
     // SAFETY: This can cause UB if `CellQuery.query` is called in a parallel loop. This
     // never occurs as of writing this method, as it is the NeighborQueryIterator which
     // is operated on in parallel -- although confusingly, that method is also named
     // `query`. For stronger guarantees, we could use a mutex here.
-    if (!m_built || query_args.r_max > m_grid_r_cut)
+    //
+    // For nearest mode with infinite r_max, we use half the smallest nearest plane
+    // distance as the grid r_max (or the existing grid r_max if it's larger).
+    float grid_r_max = query_args.r_max;
+
+    // Build the grid if needed
+    if (!m_built)
     {
-        this->buildGrid(query_args.r_max);
+        // If grid_r_max is not valid, compute a default based on box dimensions
+        if (grid_r_max <= 0 || std::isinf(grid_r_max))
+        {
+            // Use half the smallest nearest plane distance as the default r_max
+            // This is the standard cutoff for periodic boundary conditions
+            vec3<float> plane_distance = m_box.getNearestPlaneDistance();
+            float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
+            grid_r_max = std::max(1.0f, min_plane_distance / 2.0f);
+        }
+        this->buildGrid(grid_r_max);
+    }
+    else if (query_args.mode == QueryType::nearest && std::isinf(grid_r_max))
+    {
+        // For nearest mode with infinite r_max, check if we need to expand the grid
+        // Use half the smallest nearest plane distance as the maximum allowed r_max
+        vec3<float> plane_distance = m_box.getNearestPlaneDistance();
+        float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
+        float max_allowed_r_max = std::abs(min_plane_distance / 2.0f);
+
+        // Expand grid if the current grid is too small
+        if (max_allowed_r_max > m_grid_r_cut)
+        {
+            this->buildGrid(max_allowed_r_max);
+        }
+    }
+    else if (grid_r_max > m_grid_r_cut && grid_r_max > 0)
+    {
+        this->buildGrid(grid_r_max);
     }
 
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
@@ -33,6 +66,11 @@ CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_i
         return std::make_shared<CellQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
                                                        args.r_min, args.exclude_ii);
     }
+    if (args.mode == QueryType::nearest)
+    {
+        return std::make_shared<CellQueryNearestIterator>(
+            this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.r_min, args.exclude_ii);
+    }
     throw std::runtime_error("Invalid query mode provided to query function in CellQuery.");
 }
 
@@ -45,7 +83,21 @@ CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_i
  */
 inline void CellQuery::buildGrid(const float r_cut) const
 {
+    // Validate r_cut before proceeding
+    if (r_cut <= 0)
+    {
+        throw std::runtime_error("CellQuery::buildGrid called with invalid r_cut (must be positive).");
+    }
+
     setupGrid(r_cut);
+
+    // Validate grid dimensions
+    if (m_nx == 0 || m_ny == 0 || m_nz == 0)
+    {
+        throw std::runtime_error(
+            "CellQuery::buildGrid produced invalid grid dimensions (zero cells in one or more dimensions).");
+    }
+
     const unsigned int n_cells_total = m_nx * m_ny * m_nz;
     // Allocate buffers
     m_counts.assign(n_cells_total, 0);      // Total occupancy of cell
@@ -90,14 +142,16 @@ inline void CellQuery::buildGrid(const float r_cut) const
                 m_counts[idx]++;
             }
         }
-        // TODO: is query point always within cell?
+        // Real point should always be within the grid bounds, but check to be safe
         unsigned int idx;
-        getCellIdxSafe(local_point, idx);
-        TaggedPosition p = {local_point, static_cast<int>(i)};
-        particle_cell_mapping.push_back({idx, p});
-        m_n_total++;
-        m_counts[idx]++;
-        m_counts_real[idx]++;
+        if (getCellIdxSafe(local_point, idx))
+        {
+            TaggedPosition p = {local_point, static_cast<int>(i)};
+            particle_cell_mapping.push_back({idx, p});
+            m_n_total++;
+            m_counts[idx]++;
+            m_counts_real[idx]++;
+        }
     }
 
     // Calculate starts array (prefix sum) of indices that begin each cell.
