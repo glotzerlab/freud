@@ -29,22 +29,15 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
         // r_max is a placeholder or is invalid: use r_guess to build the grid
         if (query_args.r_max <= 0 || std::isinf(query_args.r_max))
         {
-            // std::cout << "trying r_guess = " << query_args.r_guess<< "\n";
-            this->buildGrid(query_args.r_guess);
+            // r_guess puts enough particles in the center cell to find k on average,
+            // but we still have to check a 3x3x3 grid anyway.
+            this->buildGrid(query_args.r_guess * 0.35f);
         }
         // Standard build mode: grid is uninitialized
         else
         {
             this->buildGrid(query_args.r_max);
         }
-    }
-    // kNN mode, where we've already built once but have not found enough neighbors:
-    // Increase the grid cell size, up to the safe limit
-    else if (m_grid_r_cut < m_grid_max_safe_r_cut && query_args.mode == QueryType::nearest)
-    {
-        std::cout << "Increasing rcut: (" << m_grid_r_cut << "->"
-                  << std::min(m_grid_max_safe_r_cut, m_grid_r_cut * query_args.scale) << ")\n";
-        this->buildGrid(std::min(m_grid_max_safe_r_cut, m_grid_r_cut * query_args.scale));
     }
     else if (m_grid_r_cut >= m_grid_max_safe_r_cut && query_args.mode == QueryType::nearest)
     {
