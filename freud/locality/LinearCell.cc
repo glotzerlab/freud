@@ -12,13 +12,13 @@ std::shared_ptr<NeighborQueryIterator>
 CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
 {
     this->validateQueryArgs(query_args);
-    // SAFETY: This can cause UB if `CellQuery.query` is called in a parallel loop. This
-    // never occurs as of writing this method, as it is the NeighborQueryIterator which
-    // is operated on in parallel -- although confusingly, that method is also named
-    // `query`. For stronger guarantees, we could use a mutex here.
-    //
-    // For nearest mode with infinite r_max, we use half the smallest nearest plane
-    // distance as the grid r_max (or the existing grid r_max if it's larger).
+    // SAFETY: This lazy initialization can cause UB if `CellQuery.query` is
+    // called in a parallel loop. This  never occurs as of writing this method,
+    // as it is the NeighborQueryIterator which  is operated on in parallel --
+    // although confusingly, that method is also named  `query`. For stronger
+    // guarantees, we could use a mutex here.   For nearest mode with infinite
+    // r_max, we use half the smallest nearest plane  distance as the grid r_max
+    // (or the existing grid r_max if it's larger).
     const vec3<float> plane_distance = m_box.getNearestPlaneDistance();
     const float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
     m_grid_max_safe_r_cut = min_plane_distance / 2.0f;
@@ -29,9 +29,10 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
         // r_max is a placeholder or is invalid: use r_guess to build the grid
         if (query_args.r_max <= 0 || std::isinf(query_args.r_max))
         {
+            // std::cout << "trying r_guess = " << query_args.r_guess<< "\n";
             this->buildGrid(query_args.r_guess);
-            // Standard build mode: grid is uninitialized
         }
+        // Standard build mode: grid is uninitialized
         else
         {
             this->buildGrid(query_args.r_max);
@@ -41,6 +42,8 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
     // Increase the grid cell size, up to the safe limit
     else if (m_grid_r_cut < m_grid_max_safe_r_cut && query_args.mode == QueryType::nearest)
     {
+        std::cout << "Increasing rcut: (" << m_grid_r_cut << "->"
+                  << std::min(m_grid_max_safe_r_cut, m_grid_r_cut * query_args.scale) << ")\n";
         this->buildGrid(std::min(m_grid_max_safe_r_cut, m_grid_r_cut * query_args.scale));
     }
     else if (m_grid_r_cut >= m_grid_max_safe_r_cut && query_args.mode == QueryType::nearest)
