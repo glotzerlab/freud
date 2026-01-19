@@ -278,8 +278,8 @@ public:
                         }
 
                         // Process a single cell at a time
-                        const int cell_idx = ((nz * ny_dim) + ny) * nx_dim + nx;
-                        processCell(min_distance_bonds, cell_idx, cell_idx);
+                        const int cell_idx = (((nz * ny_dim) + ny) * nx_dim) + nx;
+                        processCell(min_distance_bonds, cell_idx, cell_idx, true);
                     }
                 }
             }
@@ -311,7 +311,7 @@ public:
 private:
     //! Process a contiguous block of cells and add neighbors to the map.
     void processCell(std::map<unsigned int, NeighborBond>& min_distance_bonds, int start_cell_idx,
-                     const int end_cell_idx)
+                     const int end_cell_idx, const bool wrap = false)
     {
         const auto* starts_data = m_cell_query->m_cell_starts.data();
         const auto* counts_data = m_cell_query->m_counts.data();
@@ -335,7 +335,7 @@ private:
 
             // Compute delta and apply periodic wrapping for minimum image convention
             vec3<float> delta = p.p - this->m_query_point;
-            delta = m_cell_query->getBox().wrap(delta);
+            delta = wrap ? m_cell_query->getBox().wrap(delta) : delta;
             const float d2 = dot(delta, delta);
 
             if (d2 < m_r_max_sq && d2 >= m_r_min_sq)
