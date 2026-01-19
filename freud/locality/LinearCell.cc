@@ -19,39 +19,34 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
     //
     // For nearest mode with infinite r_max, we use half the smallest nearest plane
     // distance as the grid r_max (or the existing grid r_max if it's larger).
+    const vec3<float> plane_distance = m_box.getNearestPlaneDistance();
+    const float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
+    m_grid_max_safe_r_cut = std::max(1.0f, min_plane_distance / 2.0f);
     float grid_r_max = query_args.r_max;
 
     // Build the grid if needed
     if (!m_built)
     {
-        // If grid_r_max is not valid, compute a default based on box dimensions
-        if (grid_r_max <= 0 || std::isinf(grid_r_max))
+        // r_max is a placeholder or is invalid: use r_guess to build the grid
+        if (query_args.r_max <= 0 || std::isinf(query_args.r_max))
         {
-            // Use half the smallest nearest plane distance as the default r_max
-            // This is the standard cutoff for periodic boundary conditions
-            vec3<float> plane_distance = m_box.getNearestPlaneDistance();
-            float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
-            grid_r_max = std::max(1.0f, min_plane_distance / 2.0f);
+            this->buildGrid(query_args.r_guess);
+            // Standard build mode: grid is uninitialized
         }
-        this->buildGrid(grid_r_max);
-    }
-    else if (query_args.mode == QueryType::nearest && std::isinf(grid_r_max))
-    {
-        // For nearest mode with infinite r_max, check if we need to expand the grid
-        // Use half the smallest nearest plane distance as the maximum allowed r_max
-        vec3<float> plane_distance = m_box.getNearestPlaneDistance();
-        float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
-        float max_allowed_r_max = std::abs(min_plane_distance / 2.0f);
-
-        // Expand grid if the current grid is too small
-        if (max_allowed_r_max > m_grid_r_cut)
+        else
         {
-            this->buildGrid(max_allowed_r_max);
+            this->buildGrid(query_args.r_max);
         }
     }
-    else if (grid_r_max > m_grid_r_cut && grid_r_max > 0)
+    // kNN mode, where we've already built once but have not found enough neighbors:
+    // Increase the grid cell size, up to the safe limit
+    else if (m_grid_r_cut < m_grid_max_safe_r_cut && query_args.mode == QueryType::nearest)
     {
-        this->buildGrid(grid_r_max);
+        this->buildGrid(std::min(m_grid_max_safe_r_cut, m_grid_r_cut * query_args.scale));
+    }
+    else if (m_grid_r_cut >= m_grid_max_safe_r_cut && query_args.mode == QueryType::nearest)
+    {
+        throw std::runtime_error("Could not find enough neighbors within safe r_max bounds.");
     }
 
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);

@@ -316,8 +316,9 @@ private:
     mutable unsigned int m_n_total = 0;  //!< Total number of particles, including ghosts
     mutable unsigned int m_n_images = 0; //!< Total number of periodic images
 
-    mutable bool m_built = false;     //!< Whether the grid has been built.
-    mutable float m_grid_r_cut = 0.0; //!< Current grid width to check if rebuild is necessary
+    mutable bool m_built = false;              //!< Whether the grid has been built.
+    mutable float m_grid_r_cut = 0.0;          //!< Current grid width to check if rebuild is necessary
+    mutable float m_grid_max_safe_r_cut = 0.0; //!< Maximum safe r_cut for the grid
 
     //! Place particles into sorted linear buffer using cell starts and counts.
     void placeParticlesInSortedOrder(const std::vector<std::pair<int, TaggedPosition>>& particle_cell_mapping,
