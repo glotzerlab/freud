@@ -7,6 +7,7 @@
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <stdexcept>
@@ -245,12 +246,9 @@ public:
                 }
             }
         }
-        // The maximum safe search radius is n_shells * cell_width < nearest_plane / 2.0
-        // Each shell adds approximately cell_width to the search radius.
-        const int safe_n_shells
-            = static_cast<int>(std::ceil(m_cell_query->getSafeRMax() / m_cell_query->getCellWidth())) + 1;
-        // std::cout << safe_n_shells << "\n";
-        for (int shell_distance = 2; shell_distance <= safe_n_shells; shell_distance++)
+        // Beyond a certain number of shells, particles could see themselves
+        const int max_shell_distance = std::max({nx_dim - 1, ny_dim - 1, nz_dim - 1});
+        for (int shell_distance = 2; shell_distance <= max_shell_distance; shell_distance++)
         {
             if (min_distance_bonds.size() >= m_k)
             {
@@ -265,7 +263,11 @@ public:
         {
             m_neighbors.push_back(entry.second);
         }
-        std::sort(m_neighbors.begin(), m_neighbors.end());
+        // Top min(k, n_found) sort of the neighbors array.
+        std::partial_sort(m_neighbors.begin(),
+                  m_neighbors.begin() + min_distance_bonds.size(),
+                  m_neighbors.end());
+        m_neighbors.resize(min_distance_bonds.size());
     }
 
     //! Empty Destructor
