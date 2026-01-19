@@ -81,6 +81,11 @@ public:
     {
         return 1.0f / m_cell_inverse_length;
     }
+    //! Get the cell width (1/m_cell_inverse_length)
+    float getSafeRMax() const
+    {
+        return m_grid_max_safe_r_cut;
+    }
 
     //! Get the number of real particles in each cell
     const std::vector<unsigned int>& getCountsReal() const
