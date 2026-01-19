@@ -6,6 +6,7 @@
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <stdexcept>
@@ -244,12 +245,11 @@ public:
                 }
             }
         }
-        // If we don't have enough neighbors, search the second shell
-        // if (min_distance_bonds.size() < m_k)
-        // {
-        //     processShell(min_distance_bonds, cx, cy, cz, nx_dim, ny_dim, nz_dim, 2);
-        // }
-        const int safe_n_shells = 3;
+        // The maximum safe search radius is n_shells * cell_width < nearest_plane / 2.0
+        // Each shell adds approximately cell_width to the search radius.
+        const int safe_n_shells
+            = static_cast<int>(std::ceil(m_cell_query->getSafeRMax() / m_cell_query->getCellWidth())) + 1;
+        // std::cout << safe_n_shells << "\n";
         for (int shell_distance = 2; shell_distance <= safe_n_shells; shell_distance++)
         {
             if (min_distance_bonds.size() >= m_k)
