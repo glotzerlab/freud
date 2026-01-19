@@ -247,7 +247,6 @@ public:
         // If we don't have enough neighbors, search the second shell
         if (min_distance_bonds.size() < m_k)
         {
-            // std::cout << "have x, want y:" << min_distance_bonds.size() << ", " << m_k << "\n";
             for (int dz = -2; dz <= 2; dz++)
             {
                 const int nz = cz + dz;
