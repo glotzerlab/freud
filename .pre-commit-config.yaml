@@ -42,12 +42,6 @@ repos:
           - --num=1
           - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --keep-before=#!
-  - repo: https://github.com/asottile/pyupgrade
-    rev: 'v3.20.0'
-    hooks:
-      - id: pyupgrade
-        args:
-          - --py39-plus
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 'v0.14.0'
     hooks:
