@@ -178,8 +178,8 @@ protected:
             validateNearestNeighborArgs(args);
         }
 
-        // For nearest mode with infinite r_max, skip the box size validation.
-        // The grid will be built using the construction-time r_max (m_grid_r_cut).
+        // For nearest mode with infinite r_max, skip the box size validation: the grid
+        // will be built with r_guess, which is checked for correctness in this->q uery
         if (args.mode != QueryType::nearest || !std::isinf(args.r_max))
         {
             // Validate r_max vs box size
