@@ -247,9 +247,46 @@ public:
                 }
             }
         }
-        // We need extra shells -- keep looking
-        if (min_distance_bonds.size() < num_neighbors) {
-            ... // TODO
+        // If we don't have enough neighbors, search the second shell
+        if (min_distance_bonds.size() < m_k)
+        {
+            // std::cout << "have x, want y:" << min_distance_bonds.size() << ", " << m_k << "\n";
+            for (int dz = -2; dz <= 2; dz++)
+            {
+                const int nz = cz + dz;
+                if (nz < 0 || nz >= nz_dim)
+                {
+                    continue;
+                }
+
+                for (int dy = -2; dy <= 2; dy++)
+                {
+                    const int ny = cy + dy;
+                    if (ny < 0 || ny >= ny_dim)
+                    {
+                        continue;
+                    }
+
+                    for (int dx = -2; dx <= 2; dx++)
+                    {
+                        // Only process cells in the second shell (surface of 5x5x5 cube)
+                        if (std::max({std::abs(dx), std::abs(dy), std::abs(dz)}) != 2)
+                        {
+                            continue;
+                        }
+
+                        const int nx = cx + dx;
+                        if (nx < 0 || nx >= nx_dim)
+                        {
+                            continue;
+                        }
+
+                        // Process a single cell at a time
+                        const int cell_idx = ((nz * ny_dim) + ny) * nx_dim + nx;
+                        processCell(min_distance_bonds, cell_idx, cell_idx);
+                    }
+                }
+            }
         }
 
         // Extract unique bonds from the map and sort by distance
