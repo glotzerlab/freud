@@ -333,12 +333,15 @@ private:
                 continue;
             }
 
-            const vec3<float> delta = p.p - this->m_query_point;
+            // Compute delta and apply periodic wrapping for minimum image convention
+            vec3<float> delta = p.p - this->m_query_point;
+            delta = m_cell_query->getBox().wrap(delta);
             const float d2 = dot(delta, delta);
 
             if (d2 < m_r_max_sq && d2 >= m_r_min_sq)
             {
                 const float distance = std::sqrt(d2);
+
                 NeighborBond bond(this->m_query_point_idx, real_id, distance, 1.0f, delta);
 
                 // Keep only the closest image of each particle
