@@ -264,9 +264,9 @@ public:
             m_neighbors.push_back(entry.second);
         }
         // Top min(k, n_found) sort of the neighbors array.
-        std::partial_sort(m_neighbors.begin(),
-                  m_neighbors.begin() + min_distance_bonds.size(),
-                  m_neighbors.end());
+        std::partial_sort(m_neighbors.begin(), m_neighbors.begin() + min_distance_bonds.size(),
+                          m_neighbors.end());
+
         m_neighbors.resize(min_distance_bonds.size());
     }
 
