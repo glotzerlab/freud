@@ -219,10 +219,6 @@ public:
         const int ny_dim = static_cast<int>(m_cell_query->getNy());
         const int nx_dim = static_cast<int>(m_cell_query->getNx());
 
-        const auto* starts_data = m_cell_query->m_cell_starts.data();
-        const auto* counts_data = m_cell_query->m_counts.data();
-        const auto* buffer_data = m_cell_query->m_linear_buffer.data();
-
         // Map to track the minimum distance for each particle ID
         std::map<unsigned int, NeighborBond> min_distance_bonds;
 
@@ -245,40 +241,15 @@ public:
                         const int start_cell_idx = (((nz * ny_dim) + ny) * nx_dim) + cx + min_dx;
                         const int end_cell_idx = (((nz * ny_dim) + ny) * nx_dim) + cx + max_dx;
 
-                        int particle_idx = starts_data[start_cell_idx];
-                        const int list_end = starts_data[end_cell_idx] + counts_data[end_cell_idx];
-
-                        for (; particle_idx < list_end; ++particle_idx)
-                        {
-                            const TaggedPosition& p = buffer_data[particle_idx];
-
-                            const int neighbor_idx_raw = p.particle_index;
-                            const unsigned int real_id = (neighbor_idx_raw ^ (neighbor_idx_raw >> 31));
-
-                            if (this->m_exclude_ii && real_id == this->m_query_point_idx)
-                            {
-                                continue;
-                            }
-
-                            const vec3<float> delta = p.p - this->m_query_point;
-                            const float d2 = dot(delta, delta);
-
-                            if (d2 < m_r_max_sq && d2 >= m_r_min_sq)
-                            {
-                                const float distance = std::sqrt(d2);
-                                NeighborBond bond(this->m_query_point_idx, real_id, distance, 1.0f, delta);
-
-                                // Keep only the closest image of each particle
-                                auto it = min_distance_bonds.find(real_id);
-                                if (it == min_distance_bonds.end() || distance < it->second.getDistance())
-                                {
-                                    min_distance_bonds[real_id] = bond;
-                                }
-                            }
-                        }
+                        // Process the contiguous block of cells
+                        processCell(min_distance_bonds, start_cell_idx, end_cell_idx);
                     }
                 }
             }
+        }
+        // We need extra shells -- keep looking
+        if (min_distance_bonds.size() < num_neighbors) {
+            ... // TODO
         }
 
         // Extract unique bonds from the map and sort by distance
@@ -305,6 +276,48 @@ public:
     }
 
 private:
+    //! Process a contiguous block of cells and add neighbors to the map.
+    void processCell(std::map<unsigned int, NeighborBond>& min_distance_bonds, int start_cell_idx,
+                     const int end_cell_idx)
+    {
+        const auto* starts_data = m_cell_query->m_cell_starts.data();
+        const auto* counts_data = m_cell_query->m_counts.data();
+        const auto* buffer_data = m_cell_query->m_linear_buffer.data();
+
+        // x-1...x+1 cells are contiguous in memory so we can take the entire segment
+        int particle_idx = starts_data[start_cell_idx];
+        const int list_end = starts_data[end_cell_idx] + counts_data[end_cell_idx];
+
+        for (; particle_idx < list_end; ++particle_idx)
+        {
+            const TaggedPosition& p = buffer_data[particle_idx];
+
+            const int neighbor_idx_raw = p.particle_index;
+            const unsigned int real_id = (neighbor_idx_raw ^ (neighbor_idx_raw >> 31));
+
+            if (this->m_exclude_ii && real_id == this->m_query_point_idx)
+            {
+                continue;
+            }
+
+            const vec3<float> delta = p.p - this->m_query_point;
+            const float d2 = dot(delta, delta);
+
+            if (d2 < m_r_max_sq && d2 >= m_r_min_sq)
+            {
+                const float distance = std::sqrt(d2);
+                NeighborBond bond(this->m_query_point_idx, real_id, distance, 1.0f, delta);
+
+                // Keep only the closest image of each particle
+                auto it = min_distance_bonds.find(real_id);
+                if (it == min_distance_bonds.end() || distance < it->second.getDistance())
+                {
+                    min_distance_bonds[real_id] = bond;
+                }
+            }
+        }
+    }
+
     std::vector<NeighborBond> m_neighbors;
     unsigned int m_cur_idx {0};
     unsigned int m_k;
