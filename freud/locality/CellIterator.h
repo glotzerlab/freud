@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <map>
 #include <stdexcept>
+#include <unordered_map>
 
 namespace freud::locality {
 
@@ -219,7 +219,7 @@ public:
         const int nx_dim = static_cast<int>(m_cell_query->getNx());
 
         // Map to track the minimum distance for each particle ID
-        std::map<unsigned int, NeighborBond> min_distance_bonds;
+        std::unordered_map<unsigned int, NeighborBond> min_distance_bonds;
 
         // Collect all neighbors within r_max, keeping only the closest image of each particle
         for (int dz = -1; dz <= 1; dz++)
@@ -286,7 +286,7 @@ public:
 
 private:
     //! Process a contiguous block of cells and add neighbors to the map.
-    void processCell(std::map<unsigned int, NeighborBond>& min_distance_bonds, int start_cell_idx,
+    void processCell(std::unordered_map<unsigned int, NeighborBond>& min_distance_bonds, int start_cell_idx,
                      const int end_cell_idx, const bool wrap = false)
     {
         const auto* starts_data = m_cell_query->m_cell_starts.data();
@@ -332,7 +332,7 @@ private:
 
     //! Process all cells within a given chessboard distance from the query cell.
     //! This method is used to process additional shells outside the innermost 3x3x3
-    void processShell(std::map<unsigned int, NeighborBond>& min_distance_bonds, const int cx, const int cy,
+    void processShell(std::unordered_map<unsigned int, NeighborBond>& min_distance_bonds, const int cx, const int cy,
                       const int cz, const int nx_dim, const int ny_dim, const int nz_dim,
                       const int shell_distance)
     {
