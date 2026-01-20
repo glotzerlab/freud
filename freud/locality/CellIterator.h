@@ -352,23 +352,35 @@ private:
                     continue;
                 }
 
-                for (int dx = -shell_distance; dx <= shell_distance; dx++)
+                const int max_dy_dz = std::max({std::abs(dy), std::abs(dz)});
+
+                // If max(|dy|, |dz|) == shell_distance, we process a contiguous block.
+                if (max_dy_dz == shell_distance)
                 {
-                    // Only process cells at the specified shell distance (surface of cube)
-                    if (std::max({std::abs(dx), std::abs(dy), std::abs(dz)}) != shell_distance)
-                    {
-                        continue;
-                    }
+                    // Determine the valid dx range, clipped to grid bounds
+                    const int min_dx = (cx > shell_distance) ? -shell_distance : -cx;
+                    const int max_dx = (cx < nx_dim - 1 - shell_distance) ? shell_distance : (nx_dim - 1 - cx);
 
-                    const int nx = cx + dx;
-                    if (nx < 0 || nx >= nx_dim)
+                    if (min_dx <= max_dx)
                     {
-                        continue;
+                        const int start_cell_idx = (((nz * ny_dim) + ny) * nx_dim) + cx + min_dx;
+                        const int end_cell_idx = (((nz * ny_dim) + ny) * nx_dim) + cx + max_dx;
+                        processCell(min_distance_bonds, start_cell_idx, end_cell_idx, true);
                     }
-
-                    // Process a single cell at a time with wrapping
-                    const int cell_idx = (((nz * ny_dim) + ny) * nx_dim) + nx;
-                    processCell(min_distance_bonds, cell_idx, cell_idx, true);
+                }
+                else
+                {
+                    // max(|dy|, |dz|) < shell_distance, so our block is noncontiguous
+                    // Process the two endpoint cells individually
+                    for (int dx : {-shell_distance, shell_distance})
+                    {
+                        const int nx = cx + dx;
+                        if (nx >= 0 && nx < nx_dim)
+                        {
+                            const int cell_idx = (((nz * ny_dim) + ny) * nx_dim) + nx;
+                            processCell(min_distance_bonds, cell_idx, cell_idx, true);
+                        }
+                    }
                 }
             }
         }
