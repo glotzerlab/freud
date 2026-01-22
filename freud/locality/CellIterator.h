@@ -332,8 +332,8 @@ private:
 
     //! Process all cells within a given chessboard distance from the query cell.
     //! This method is used to process additional shells outside the innermost 3x3x3
-    void processShell(std::unordered_map<unsigned int, NeighborBond>& min_distance_bonds, const int cx, const int cy,
-                      const int cz, const int nx_dim, const int ny_dim, const int nz_dim,
+    void processShell(std::unordered_map<unsigned int, NeighborBond>& min_distance_bonds, const int cx,
+                      const int cy, const int cz, const int nx_dim, const int ny_dim, const int nz_dim,
                       const int shell_distance)
     {
         for (int dz = -shell_distance; dz <= shell_distance; dz++)
@@ -359,7 +359,8 @@ private:
                 {
                     // Determine the valid dx range, clipped to grid bounds
                     const int min_dx = (cx > shell_distance) ? -shell_distance : -cx;
-                    const int max_dx = (cx < nx_dim - 1 - shell_distance) ? shell_distance : (nx_dim - 1 - cx);
+                    const int max_dx
+                        = (cx < nx_dim - 1 - shell_distance) ? shell_distance : (nx_dim - 1 - cx);
 
                     if (min_dx <= max_dx)
                     {
