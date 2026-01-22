@@ -4,6 +4,7 @@
 #pragma once
 
 #include "NeighborQuery.h"
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <stdexcept>
