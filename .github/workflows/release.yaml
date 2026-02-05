@@ -48,8 +48,8 @@ jobs:
           version: 15
           arch: 'arm64'
         - base: macos
-          version: 13
-          arch: 'x86_64'
+          version: 15
+          arch: 'intel'
 
         python:
         # Pinned versions installed in CIBW_TEST_REQIURES are kept. Those defined installed in
