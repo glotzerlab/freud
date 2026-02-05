@@ -21,7 +21,7 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
     // (or the existing grid r_max if it's larger).
     const vec3<float> plane_distance = m_box.getNearestPlaneDistance();
     const float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
-    m_grid_max_safe_r_cut = min_plane_distance / 2.0f;
+    m_grid_max_safe_r_cut = min_plane_distance / 2.0F;
 
     // Build the grid if needed
     if (!m_built)

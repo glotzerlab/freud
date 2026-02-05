@@ -80,7 +80,7 @@ public:
     //! Get the cell width (1/m_cell_inverse_length)
     float getCellWidth() const
     {
-        return 1.0f / m_cell_inverse_length;
+        return 1.0F / m_cell_inverse_length;
     }
     //! Get the cell width (1/m_cell_inverse_length)
     float getSafeRMax() const
@@ -145,7 +145,7 @@ public:
     //! Compute the number of cells along each cartesian direction, saving relevant data.
     void setupGrid(const float r_cut) const
     {
-        m_cell_inverse_length = 1.0f / r_cut;
+        m_cell_inverse_length = 1.0F / r_cut;
 
         // Compute the widths of the box along each cartesian direction.
         float w_x = m_box.getLx() + (m_box.getLy() * std::abs(m_box.getTiltFactorXY()))
@@ -191,9 +191,9 @@ protected:
             // Validate r_max vs box size
             const vec3<bool> periodic = m_box.getPeriodic();
             const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
-            if ((nearest_plane_distance.x <= args.r_max * 2.0f)
-                || (nearest_plane_distance.y <= args.r_max * 2.0f)
-                || (!m_box.is2D() && nearest_plane_distance.z <= args.r_max * 2.0f))
+            if ((nearest_plane_distance.x <= args.r_max * 2.0F)
+                || (nearest_plane_distance.y <= args.r_max * 2.0F)
+                || (!m_box.is2D() && nearest_plane_distance.z <= args.r_max * 2.0F))
             {
                 throw std::runtime_error("The CellQuery r_max is too large for this box.");
             }
@@ -233,19 +233,6 @@ private:
         // What we really want is a value that is -1 if near the high boundary, 1 if
         // near the low boundary, and 0 in the center of the box. This can be written as
         // ifs or ternaries, but it gets compiled to arithmetic most of the time anyway.
-        // HOWEVER: this takes a significant portion of the time in generate_ghosts, so
-        // we optimize.
-        // Use branchless arithmetic: result = (f < cut) - (f > 1-cut)
-        // In center: 0 - 0 = 0. Near lo: 1 - 0 = 1, and when near hi: 0 - 1 = -1
-        // const uint32_t fx_bits = __builtin_bit_cast(uint32_t, f.x);
-        // const uint32_t fy_bits = __builtin_bit_cast(uint32_t, f.y);
-        // const uint32_t fz_bits = __builtin_bit_cast(uint32_t, f.z);
-        // const uint32_t cutx_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.x);
-        // const uint32_t cuty_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.y);
-        // const uint32_t cutz_bits = __builtin_bit_cast(uint32_t, fractional_r_cut.z);
-        // const uint32_t omcutx_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.x);
-        // const uint32_t omcuty_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.y);
-        // const uint32_t omcutz_bits = __builtin_bit_cast(uint32_t, 1.0f - fractional_r_cut.z);
 
         int dx = (f.x < fractional_r_cut.x) - (f.x > 1.0 - fractional_r_cut.x);
         int dy = (f.y < fractional_r_cut.y) - (f.y > 1.0 - fractional_r_cut.y);

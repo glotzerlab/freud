@@ -164,7 +164,7 @@ private:
 
         if (d2 < m_r_max_sq && d2 >= m_r_min_sq)
         {
-            m_current_bond = NeighborBond(this->m_query_point_idx, real_id, std::sqrt(d2), 1.0f, delta);
+            m_current_bond = NeighborBond(this->m_query_point_idx, real_id, std::sqrt(d2), 1.0F, delta);
             m_dy = dy;
             m_dz = dz;
             m_particle_idx = particle_idx + 1;
@@ -318,7 +318,7 @@ private:
             {
                 const float distance = std::sqrt(d2);
 
-                NeighborBond bond(this->m_query_point_idx, real_id, distance, 1.0f, delta);
+                NeighborBond bond(this->m_query_point_idx, real_id, distance, 1.0F, delta);
 
                 // Keep only the closest image of each particle
                 auto it = min_distance_bonds.find(real_id);
