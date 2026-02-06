@@ -48,8 +48,8 @@ jobs:
           version: 15
           arch: 'arm64'
         - base: macos
-          version: 13
-          arch: 'x86_64'
+          version: 15
+          arch: 'intel'
 
         python:
         # Pinned versions installed in CIBW_TEST_REQIURES are kept. Those defined installed in
@@ -89,7 +89,7 @@ jobs:
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: dist-${{ matrix.os.base }}-${{ matrix.os.version }}-${{ matrix.python.version }}
+          name: dist-${{ matrix.os.base }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-${{ matrix.python.version }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
