@@ -897,6 +897,25 @@ class LinkCell(NeighborQuery):
         return self._cpp_obj.getCellWidth()
 
 
+class CellQuery(NeighborQuery):
+    r"""Use the CellQuery algorithm to find neighbors.
+
+    Also available as ``freud.CellQuery``.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            The points to use to build the cell list.
+    """
+
+    def __init__(self, box, points):
+        # Assume valid set of arguments is passed
+        b = freud.util._convert_box(box)
+        self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
+        self._cpp_obj = freud._locality.CellQuery(b._cpp_obj, self._points)
+
+
 class _PairCompute(_Compute):
     r"""Parent class for all compute classes in freud that depend on finding
     nearest neighbors.

@@ -694,6 +694,230 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
 
+class TestNeighborQueryCellQuery(NeighborQueryTest):
+    @classmethod
+    def build_query_object(cls, box, ref_points, r_max=None):
+        return freud.locality.CellQuery(box, ref_points)
+
+    @staticmethod
+    def assert_box_contains_grid_points(original_box, grid_box, r_max):
+        """Assert that the bounding box of a CellQuery is sufficiently large."""
+        # Vertices of the original system's box
+        original_box_vertices = original_box.make_absolute(
+            [(i, j, k) for i in (0, 1.0) for j in (0, 1.0) for k in (0, 1.0)]
+        )
+        # Cell grid should contain the vertices of the original box
+        np.testing.assert_array_equal(
+            grid_box.contains(original_box_vertices),
+            True,
+        )
+        # Cell grid should also contain the original box rounded by r_max
+        np.testing.assert_array_equal(
+            grid_box.contains(
+                [*(original_box_vertices + r_max), *(original_box_vertices - r_max)]
+            ),
+            True,
+        )
+        # All support points of the original box, offset by ±r_max along x, y, and z
+        # This ensures that our cell list contains all possible points offset by rcut
+        signs = [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)]
+        signs = np.array(signs) * r_max
+
+        all_offset_points = np.sum(
+            [*itertools.product(original_box_vertices, signs)], axis=1
+        )
+        np.testing.assert_array_equal(grid_box.contains(all_offset_points), True)
+
+    @pytest.mark.parametrize(
+        "box",
+        [
+            freud.box.Box.square(5),
+            freud.box.Box(10.0, 5.0, 9.0),
+            freud.box.Box.from_box_lengths_and_angles(
+                3.307, 7.412, 2.793, 1.55433, 1.48673, 1.49588
+            ),
+            freud.box.Box(6.0, 6.0, 5.0, 0.1, -20.3, 0.0),
+            freud.box.Box(1000.0, 6.0, 5.0, 99.1, 140.3, 888.0),
+        ],
+    )
+    @pytest.mark.parametrize("r_max", [0.25, 1, 2.49])
+    def test_grid_large_enough(self, box, r_max):
+        cc = freud.locality.CellQuery(box, [[0, 0, 0]])
+        cc._cpp_obj.setupGrid(r_max)
+
+        nx_ny_nz = np.array(
+            [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        )
+        cell_box = freud.box.Box(*(nx_ny_nz * r_max)[: 2 if box.is2D else 3])
+        assert cell_box.is2D == box.is2D, "Cell grid should be constructable as 2D."
+
+        self.assert_box_contains_grid_points(box, cell_box, r_max)
+
+    @pytest.mark.parametrize(
+        ("box", "r_cut", "cells"),
+        [
+            # Technically, we could span our box with only 6 cells (4 inside + 2 ghost)
+            # Howevever, we add an additional cell because in the general triclinic case
+            # we can make no guarantees about covering the entire box
+            (freud.Box.cube(10), 2.5, [7, 7, 7]),
+            (freud.Box.cube(10), 2.4999, [7, 7, 7]),
+            # Here, we get three extra: one in the center and one on each boundary
+            (freud.Box(1000, 100, 10), 1.0, [1003, 103, 13]),
+            (freud.Box(10000, 1000, 100), 1.0, [10003, 1003, 103]),
+            # Sheared cases are worked out by hand. This one also gets an extra cell
+            (freud.Box(2.0, 2.0, 2.0, 1.5, 1.0, 1.0), 1.0, [10, 7, 5]),
+            # This one is not an exact divisor, so it does NOT get an extra cell
+            (freud.Box(1.0, 2.0, 3.0, 1.5, 0.5, 1.0), 0.4, [16, 15, 10]),
+        ],
+    )
+    def test_known_cell_counts(self, box, r_cut, cells):
+        cc = freud.locality.CellQuery(box, [[0, 0, 0]])
+        cc._cpp_obj.setupGrid(r_cut)
+        nx_ny_nz = np.array(
+            [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        )
+        np.testing.assert_array_equal(nx_ny_nz, cells)
+        cell_box = freud.box.Box(*(nx_ny_nz * r_cut))
+
+        self.assert_box_contains_grid_points(box, cell_box, r_cut)
+
+    @pytest.mark.parametrize("r_max", [0.25, 1, 2.49])
+    def test_cell_width_set_correctly(self, r_max):
+        cc = freud.locality.CellQuery(freud.Box.cube(10), [[0, 0, 0]])
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.setupGrid(r_max)
+        np.testing.assert_allclose(cc._cpp_obj.getCellWidth(), r_max)
+        np.testing.assert_allclose(cc._cpp_obj.getCellInverseWidth(), 1.0 / r_max)
+
+    @pytest.mark.parametrize("n", [1, 63, 100_000])
+    def test_cell_occupancies_cube(self, n):
+        box = freud.Box.cube(10)
+        p = [5, 5, 5]
+        cc = freud.locality.CellQuery(box, [*np.zeros((n, 3)), p])
+        cc.query([[0, 0, 0]], query_args={"r_max": 4.999})
+        cc._cpp_obj.buildGrid(4.999)
+
+        def map_point_to_cell(p, L=10):
+            """Map a point in real space to a cell in the grid."""
+            min_pos = cc._cpp_obj.getMinPos().toNumpyArray()
+            return ((p - min_pos) * cc._cpp_obj.getCellInverseWidth()).astype(np.int32)
+
+        nx_ny_nz = np.array(
+            [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        )
+        real_grid = cc._cpp_obj.getCountsReal().toNumpyArray().reshape(*nx_ny_nz[::-1])
+        # Center of 5x5x5 grid should have occupancy n
+        assert real_grid[2, 2, 2] == n
+
+        # Bin (3,3,3) should have occupancy 1
+        p_idx = map_point_to_cell(p, box.L)
+        assert real_grid[tuple(p_idx)] == 1
+
+        # Full grid, including ghosts: should have (n+1 + 7 ghosts)
+        full_grid = cc._cpp_obj.getCounts().toNumpyArray().reshape(*nx_ny_nz[::-1])
+        assert full_grid.sum() == n + (1 + 7)
+        assert full_grid[(1, 1, 1)] == 1
+        assert full_grid[(1, 1, 3)] == 1
+        assert full_grid[(1, 3, 1)] == 1
+        assert full_grid[(1, 3, 3)] == 1
+        assert full_grid[(3, 1, 1)] == 1
+        assert full_grid[(3, 1, 3)] == 1
+        assert full_grid[(3, 3, 3)] == 1  # This one is the original particle.
+
+    @pytest.mark.parametrize("n", [1, 63, 100])
+    def test_n_total_cube(self, n):
+        box = freud.Box.cube(10)
+        p = [5, 5, 5]
+        cc = freud.locality.CellQuery(box, [*np.zeros((n, 3)), p])
+        r_max = 5
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.buildGrid(r_max)
+
+        # n points at (0,0,0) + 1 point at (5,5,5) with 7 ghosts
+        # Total = n + 1 + 7 = n + 8
+        assert cc._cpp_obj.getNTotal() == n + 8
+
+    @pytest.mark.parametrize(
+        "box",
+        [
+            freud.box.Box.square(5),
+            freud.box.Box(10.0, 5.0, 9.0),
+            freud.box.Box.from_box_lengths_and_angles(
+                3.307, 7.412, 2.793, 1.55433, 1.48673, 1.49588
+            ),
+            freud.box.Box(6.0, 6.0, 5.0, 0.1, -20.3, 0.0),
+            freud.box.Box(1000.0, 6.0, 5.0, 99.1, 140.3, 888.0),
+        ],
+    )
+    def test_cell_starts(self, box):
+        n = 10
+        cc = freud.locality.CellQuery(
+            box, box.make_absolute(np.random.uniform(0.0, 1.0, (n, 3)))
+        )
+        r_max = 2.5
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.buildGrid(r_max)
+
+        counts = cc._cpp_obj.getCounts().toNumpyArray()
+        starts = cc._cpp_obj.getCellStarts().toNumpyArray()
+
+        npt.assert_array_equal(starts[1:], np.cumsum(counts)[:-1])
+        assert starts[0] == 0
+        assert starts[-1] + counts[-1] == cc._cpp_obj.getNTotal()
+
+    def test_too_large_r_max_raises(self):
+        """Test that specifying too large an r_max value raises an error."""
+        L = 5
+
+        box = freud.box.Box.square(L)
+        points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
+        cc = freud.locality.CellQuery(box, points)
+        with pytest.raises(RuntimeError):
+            list(cc.query(points, dict(r_max=L)))
+
+    def test_chaining(self):
+        N = 500
+        L = 10
+        r_max = 1
+        box, points = freud.data.make_random_system(L, N, seed=1)
+        nlist1 = (
+            freud.locality.CellQuery(box, points)
+            .query(points, dict(r_max=r_max, exclude_ii=True))
+            .toNeighborList()
+        )
+        cc = freud.locality.CellQuery(box, points)
+        nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+        assert nlist_equal(nlist1, nlist2)
+
+
+#     @pytest.mark.parametrize(
+#         ("r_guess", "scale"),
+#         [(r_guess, scale) for r_guess in [0.5, 1, 2] for scale in [1.01, 1.1, 1.3]],
+#     )
+#     def test_r_guess_scale(self, r_guess, scale):
+#         """Ensure that r_guess and scale have no effect on query results."""
+#         np.random.seed(0)
+#         L = 10
+#         box = freud.box.Box.cube(L)
+
+#         N = 100
+#         positions = box.wrap(L / 2 * np.random.rand(N, 3))
+#         nq = self.build_query_object(box, positions, L / 10)
+
+#         k = 10
+
+#         original_nlist = nq.query(
+#             positions,
+#             dict(num_neighbors=k, exclude_ii=True),
+#         ).toNeighborList()
+
+#         nlist = nq.query(
+#             positions,
+#             dict(num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale),
+#         ).toNeighborList()
+#         assert nlist_equal(nlist, original_nlist)
+
+
 class TestMultipleMethods:
     """Check that different methods of making a NeighborList give the same
     result."""

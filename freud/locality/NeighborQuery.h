@@ -4,9 +4,12 @@
 #ifndef NEIGHBOR_QUERY_H
 #define NEIGHBOR_QUERY_H
 
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <memory>
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <oneapi/tbb/parallel_sort.h>
@@ -222,6 +225,48 @@ protected:
         {
             throw std::runtime_error("Unknown mode");
         }
+    }
+
+    //! Helper function to validate nearest neighbor query arguments.
+    /*! This function is used by subclasses that perform nearest neighbor queries
+     *  to set default values for scale and r_guess, and validate the scale argument.
+     *  It should be called after calling NeighborQuery::validateQueryArgs.
+     */
+    void validateNearestNeighborArgs(QueryArgs& args) const
+    {
+        if (args.scale == DEFAULT_SCALE)
+        {
+            args.scale = float(1.1);
+        }
+        else if (args.scale <= float(1.0))
+        {
+            throw std::runtime_error("The scale query argument must be greater than 1.");
+        }
+
+        if (args.r_guess == DEFAULT_R_GUESS)
+        {
+            // By default, we assume a homogeneous system density and use
+            // that to estimate the distance we need to query. This
+            // calculation assumes a constant density of N/V, where N is
+            // the number of particles and V is the box volume, and it
+            // calculates the radius of a sphere that will contain the
+            // desired number of neighbors.
+
+            float const r_guess
+                = std::cbrtf((float(3.0) * static_cast<float>(args.num_neighbors) * m_box.getVolume())
+                             / (float(4.0) * static_cast<float>(M_PI) * static_cast<float>(m_n_points)));
+
+            // The upper bound is set by the minimum nearest plane distances.
+            vec3<float> const nearest_plane_distance = m_box.getNearestPlaneDistance();
+            float min_plane_distance = std::min(nearest_plane_distance.x, nearest_plane_distance.y);
+            if (!m_box.is2D())
+            {
+                min_plane_distance = std::min(min_plane_distance, nearest_plane_distance.z);
+            }
+
+            args.r_guess = std::min(r_guess, min_plane_distance / 2.0F);
+        }
+        args.r_guess = std::min(args.r_guess, args.r_max);
     }
 
     //! Try to determine the query mode if one is not specified.
@@ -446,6 +491,77 @@ protected:
         false}; //!< Flag to indicate that iteration is complete (must be set by next on termination).
     unsigned int m_cur_p {0}; //!< The current particle under consideration.
 };
+
+//! Compute the vectors mapping a point in the box to a point in (up to) 27 images.
+inline std::vector<vec3<float>> updateImageVectors(const box::Box& box, float r_max, bool _check_r_max,
+                                                   unsigned int& m_n_images)
+{
+    std::vector<vec3<float>> image_list;
+    vec3<float> const nearest_plane_distance = box.getNearestPlaneDistance();
+    vec3<bool> const periodic = box.getPeriodic();
+    if (_check_r_max)
+    {
+        if ((periodic.x && nearest_plane_distance.x <= r_max * 2.0)
+            || (periodic.y && nearest_plane_distance.y <= r_max * 2.0)
+            || (!box.is2D() && periodic.z && nearest_plane_distance.z <= r_max * 2.0))
+        {
+            throw std::runtime_error("The AABBQuery r_max is too large for this box.");
+        }
+    }
+
+    // Now compute the image vectors
+    // Each dimension increases by one power of 3
+    unsigned int const n_dim_periodic = static_cast<unsigned int>(periodic.x)
+        + static_cast<unsigned int>(periodic.y)
+        + static_cast<unsigned int>(!box.is2D()) * static_cast<unsigned int>(periodic.z);
+    m_n_images = 1;
+    for (unsigned int dim = 0; dim < n_dim_periodic; ++dim)
+    {
+        m_n_images *= 3;
+    }
+
+    // Reallocate memory if necessary
+    if (m_n_images > image_list.size())
+    {
+        image_list.resize(m_n_images);
+    }
+
+    auto latt_a = vec3<float>(box.getLatticeVector(0));
+    auto latt_b = vec3<float>(box.getLatticeVector(1));
+    vec3<float> latt_c = vec3<float>(0.0, 0.0, 0.0);
+    if (!box.is2D())
+    {
+        latt_c = vec3<float>(box.getLatticeVector(2));
+    }
+
+    // There is always at least 1 image, which we put as our first thing to look at
+    image_list[0] = vec3<float>(0.0, 0.0, 0.0);
+
+    // Iterate over all other combinations of images
+    unsigned int n_images = 1;
+    for (int i = -1; i <= 1 && n_images < m_n_images; ++i)
+    {
+        for (int j = -1; j <= 1 && n_images < m_n_images; ++j)
+        {
+            for (int k = -1; k <= 1 && n_images < m_n_images; ++k)
+            {
+                if (i != 0 || j != 0 || k != 0)
+                {
+                    // Skip any periodic images if we don't have periodicity
+                    if ((i != 0 && !periodic.x) || (j != 0 && !periodic.y)
+                        || (k != 0 && (box.is2D() || !periodic.z)))
+                    {
+                        continue;
+                    }
+
+                    image_list[n_images] = float(i) * latt_a + float(j) * latt_b + float(k) * latt_c;
+                    ++n_images;
+                }
+            }
+        }
+    }
+    return image_list;
+}
 
 }; }; // end namespace freud::locality
 
