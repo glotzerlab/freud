@@ -6,7 +6,6 @@
 
 #include <cmath>
 #include <map>
-#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <memory>
 #include <unordered_set>
 #include <vector>

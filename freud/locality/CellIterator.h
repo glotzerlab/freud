@@ -126,8 +126,9 @@ private:
                             int const start_cell_idx = row_cell_idx + min_dx;
                             int const end_cell_idx = row_cell_idx + max_dx;
 
-                            particle_idx = starts_data[start_cell_idx];
-                            m_list_end = starts_data[end_cell_idx] + counts_data[end_cell_idx];
+                            particle_idx = static_cast<int>(starts_data[start_cell_idx]);
+                            m_list_end
+                                = static_cast<int>(starts_data[end_cell_idx] + counts_data[end_cell_idx]);
                         }
 
                         for (; particle_idx < m_list_end; ++particle_idx)
@@ -264,8 +265,9 @@ public:
             m_neighbors.push_back(entry.second);
         }
         // Top min(k, n_found) sort of the neighbors array.
-        std::partial_sort(m_neighbors.begin(), m_neighbors.begin() + min_distance_bonds.size(),
-                          m_neighbors.end());
+        const auto n_found
+            = static_cast<std::vector<NeighborBond>::difference_type>(min_distance_bonds.size());
+        std::partial_sort(m_neighbors.begin(), m_neighbors.begin() + n_found, m_neighbors.end());
 
         m_neighbors.resize(min_distance_bonds.size());
     }
@@ -294,8 +296,8 @@ private:
         const auto* buffer_data = m_cell_query->m_linear_buffer.data();
 
         // x-1...x+1 cells are contiguous in memory so we can take the entire segment
-        int particle_idx = starts_data[start_cell_idx];
-        const int list_end = starts_data[end_cell_idx] + counts_data[end_cell_idx];
+        int particle_idx = static_cast<int>(starts_data[start_cell_idx]);
+        const int list_end = static_cast<int>(starts_data[end_cell_idx] + counts_data[end_cell_idx]);
 
         for (; particle_idx < list_end; ++particle_idx)
         {

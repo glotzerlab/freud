@@ -3,8 +3,16 @@
 
 #include "LinearCell.h"
 #include "CellIterator.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
+#include "utils.h"
 #include <algorithm>
+#include <memory>
+#include <cmath>
+#include <cstddef>
 #include <stdexcept>
+#include <vector>
+#include <utility>
 
 namespace freud::locality {
 //! Perform a query based on a set of query parameters.
@@ -31,7 +39,7 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
         {
             // r_guess puts enough particles in the center cell to find k on average,
             // but we still have to check a 3x3x3 grid anyway.
-            this->buildGrid(query_args.r_guess * 0.35f);
+            this->buildGrid(query_args.r_guess * 0.35F);
         }
         // Standard build mode: grid is uninitialized
         else
@@ -71,7 +79,7 @@ CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_i
  * and assign them to cells: this should make it possible for next() to literally just
  * increment a pointer which is optimal.
  */
-inline void CellQuery::buildGrid(const float r_cut) const
+void CellQuery::buildGrid(const float r_cut) const
 {
     // Validate r_cut before proceeding
     if (r_cut <= 0)
@@ -96,7 +104,7 @@ inline void CellQuery::buildGrid(const float r_cut) const
     // NOTE: we do not know how many ghosts there are, so these are underestimates
     m_linear_buffer.reserve(m_n_points);
     // Cell index and TaggedPosition, which itself contains a particle/ghost index
-    std::vector<std::pair<int, TaggedPosition>> particle_cell_mapping;
+    std::vector<std::pair<unsigned int, TaggedPosition>> particle_cell_mapping;
     particle_cell_mapping.reserve(m_n_points);
 
     m_n_total = 0;
@@ -126,8 +134,8 @@ inline void CellQuery::buildGrid(const float r_cut) const
             unsigned int idx;
             if (getCellIdxSafe(ghost, idx))
             {
-                TaggedPosition p = {ghost, ghost_tag};
-                particle_cell_mapping.push_back({idx, p});
+                TaggedPosition const p = {ghost, ghost_tag};
+                particle_cell_mapping.emplace_back(idx, p);
                 m_n_total++;
                 m_counts[idx]++;
             }
@@ -136,8 +144,8 @@ inline void CellQuery::buildGrid(const float r_cut) const
         unsigned int idx;
         if (getCellIdxSafe(local_point, idx))
         {
-            TaggedPosition p = {local_point, static_cast<int>(i)};
-            particle_cell_mapping.push_back({idx, p});
+            TaggedPosition const p = {local_point, static_cast<int>(i)};
+            particle_cell_mapping.emplace_back(idx, p);
             m_n_total++;
             m_counts[idx]++;
             m_counts_real[idx]++;
@@ -158,16 +166,16 @@ inline void CellQuery::buildGrid(const float r_cut) const
 }
 
 //! Place particles into sorted linear buffer using cell starts and counts.
-inline void CellQuery::placeParticlesInSortedOrder(
-    const std::vector<std::pair<int, TaggedPosition>>& particle_cell_mapping,
+void CellQuery::placeParticlesInSortedOrder(
+    const std::vector<std::pair<unsigned int, TaggedPosition>>& particle_cell_mapping,
     std::vector<TaggedPosition>& sorted) const
 {
     const unsigned int n_cells = m_cell_starts.size();
-    std::vector<int> real_insert(n_cells, 0);
-    std::vector<int> ghost_insert(n_cells, 0);
+    std::vector<unsigned int> real_insert(n_cells, 0);
+    std::vector<unsigned int> ghost_insert(n_cells, 0);
 
     // Pre-compute ghost start offsets to avoid repeated addition
-    std::vector<int> ghost_start(n_cells);
+    std::vector<unsigned int> ghost_start(n_cells);
     for (unsigned int i = 0; i < n_cells; i++)
     {
         ghost_start[i] = m_cell_starts[i] + m_counts_real[i];
@@ -175,15 +183,15 @@ inline void CellQuery::placeParticlesInSortedOrder(
 
     // Use raw pointers for faster access
     const unsigned int* cell_starts = m_cell_starts.data();
-    const int* ghost_start_ptr = ghost_start.data();
-    int* real_insert_ptr = real_insert.data();
-    int* ghost_insert_ptr = ghost_insert.data();
+    const unsigned int* ghost_start_ptr = ghost_start.data();
+    unsigned int* real_insert_ptr = real_insert.data();
+    unsigned int* ghost_insert_ptr = ghost_insert.data();
     TaggedPosition* buffer = sorted.data();
 
     for (const auto& [cell_idx, particle] : particle_cell_mapping)
     {
         const bool is_ghost = particle.particle_index < 0;
-        int pos;
+        unsigned int pos;
         if (is_ghost)
         {
             pos = ghost_start_ptr[cell_idx] + ghost_insert_ptr[cell_idx]++;

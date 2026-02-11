@@ -4,7 +4,6 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/bind_vector.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include "AABBQuery.h"

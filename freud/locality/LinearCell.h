@@ -4,10 +4,14 @@
 #pragma once
 
 #include "NeighborQuery.h"
+#include "VectorMath.h"
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstring>
+#include <memory>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 /*! \file LinearCell.h
  *  \brief Build an cell list from points and query it for neighbors.
@@ -58,10 +62,10 @@ public:
     //! Compute the cell index of a point p, returning False for those outside the grid.
     bool getCellIdxSafe(const vec3<float>& p, unsigned int& idx) const
     {
-        vec3<int> xyz = cell_idx_xyz(p);
-        int cx = xyz.x;
-        int cy = xyz.y;
-        int cz = xyz.z;
+        vec3<int> const xyz = cell_idx_xyz(p);
+        int const cx = xyz.x;
+        int const cy = xyz.y;
+        int const cz = xyz.z;
         if (cx < 0 || cy < 0 || cz < 0 || cx >= m_nx || cy >= m_ny || cz >= m_nz)
         {
             return false;
@@ -73,7 +77,7 @@ public:
     //! Compute the cell index of a point p, returning False for those outside the grid.
     unsigned int getCellIdx(const vec3<float>& p) const
     {
-        vec3<int> xyz = cell_idx_xyz(p);
+        vec3<int> const xyz = cell_idx_xyz(p);
         return ((xyz.z * m_ny + xyz.y) * m_nx) + xyz.x;
     }
 
@@ -148,26 +152,26 @@ public:
         m_cell_inverse_length = 1.0F / r_cut;
 
         // Compute the widths of the box along each cartesian direction.
-        float w_x = m_box.getLx() + (m_box.getLy() * std::abs(m_box.getTiltFactorXY()))
+        float const w_x = m_box.getLx() + (m_box.getLy() * std::abs(m_box.getTiltFactorXY()))
             + (m_box.getLz() * std::abs(m_box.getTiltFactorXZ()));
-        float w_y = m_box.getLy() + (m_box.getLz() * std::abs(m_box.getTiltFactorYZ()));
-        float w_z = m_box.getLz();
+        float const w_y = m_box.getLy() + (m_box.getLz() * std::abs(m_box.getTiltFactorYZ()));
+        float const w_z = m_box.getLz();
 
         m_nx = static_cast<int>((w_x * m_cell_inverse_length)) + 3;
         m_ny = static_cast<int>((w_y * m_cell_inverse_length)) + 3;
         m_nz = static_cast<int>((w_z * m_cell_inverse_length)) + 3;
 
         // Compute the lowest, leftmost point on the grid
-        float box_min_x = (m_box.getLy() * std::min(0.0f, m_box.getTiltFactorXY()))
-            + (m_box.getLz() * std::min(0.0f, m_box.getTiltFactorXZ()));
+        float const box_min_x = (m_box.getLy() * std::min(0.0F, m_box.getTiltFactorXY()))
+            + (m_box.getLz() * std::min(0.0F, m_box.getTiltFactorXZ()));
 
-        float box_min_y = m_box.getLz() * std::min(0.0f, m_box.getTiltFactorYZ());
+        float const box_min_y = m_box.getLz() * std::min(0.0F, m_box.getTiltFactorYZ());
 
         // Apply the ghost layer padding and shift to center the origin
         m_min_pos = {box_min_x - r_cut, box_min_y - r_cut, -r_cut};
         m_min_pos += m_box.makeAbsolute({0.0, 0.0, 0.0});
     }
-    inline void buildGrid(const float r_cut) const;
+    void buildGrid(const float r_cut) const;
 
     mutable std::vector<unsigned int> m_counts;          //!< Number of particles in each cell
     mutable std::vector<unsigned int> m_counts_real;     //!< Number of real particles in each cell
@@ -189,7 +193,6 @@ protected:
         if (args.mode != QueryType::nearest || !std::isinf(args.r_max))
         {
             // Validate r_max vs box size
-            const vec3<bool> periodic = m_box.getPeriodic();
             const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
             if ((nearest_plane_distance.x <= args.r_max * 2.0F)
                 || (nearest_plane_distance.y <= args.r_max * 2.0F)
@@ -234,9 +237,9 @@ private:
         // near the low boundary, and 0 in the center of the box. This can be written as
         // ifs or ternaries, but it gets compiled to arithmetic most of the time anyway.
 
-        int dx = (f.x < fractional_r_cut.x) - (f.x > 1.0 - fractional_r_cut.x);
-        int dy = (f.y < fractional_r_cut.y) - (f.y > 1.0 - fractional_r_cut.y);
-        int dz = (f.z < fractional_r_cut.z) - (f.z > 1.0 - fractional_r_cut.z);
+        int const dx = static_cast<int>(f.x < fractional_r_cut.x) - static_cast<int>(f.x > 1.0 - fractional_r_cut.x);
+        int const dy = static_cast<int>(f.y < fractional_r_cut.y) - static_cast<int>(f.y > 1.0 - fractional_r_cut.y);
+        int dz = static_cast<int>(f.z < fractional_r_cut.z) - static_cast<int>(f.z > 1.0 - fractional_r_cut.z);
         // Cannot have ghosts in a non-existent dimension
         if (m_box.is2D())
         {
@@ -314,7 +317,8 @@ private:
     mutable float m_grid_max_safe_r_cut = 0.0; //!< Maximum safe r_cut for the grid
 
     //! Place particles into sorted linear buffer using cell starts and counts.
-    void placeParticlesInSortedOrder(const std::vector<std::pair<int, TaggedPosition>>& particle_cell_mapping,
+    void placeParticlesInSortedOrder(
+        const std::vector<std::pair<unsigned int, TaggedPosition>>& particle_cell_mapping,
                                      std::vector<TaggedPosition>& sorted) const;
 
     friend class CellQueryBallIterator;
