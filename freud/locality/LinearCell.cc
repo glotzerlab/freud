@@ -7,12 +7,12 @@
 #include "VectorMath.h"
 #include "utils.h"
 #include <algorithm>
-#include <memory>
 #include <cmath>
 #include <cstddef>
+#include <memory>
 #include <stdexcept>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace freud::locality {
 //! Perform a query based on a set of query parameters.

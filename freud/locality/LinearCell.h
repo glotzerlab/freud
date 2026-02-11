@@ -237,9 +237,12 @@ private:
         // near the low boundary, and 0 in the center of the box. This can be written as
         // ifs or ternaries, but it gets compiled to arithmetic most of the time anyway.
 
-        int const dx = static_cast<int>(f.x < fractional_r_cut.x) - static_cast<int>(f.x > 1.0 - fractional_r_cut.x);
-        int const dy = static_cast<int>(f.y < fractional_r_cut.y) - static_cast<int>(f.y > 1.0 - fractional_r_cut.y);
-        int dz = static_cast<int>(f.z < fractional_r_cut.z) - static_cast<int>(f.z > 1.0 - fractional_r_cut.z);
+        int const dx
+            = static_cast<int>(f.x < fractional_r_cut.x) - static_cast<int>(f.x > 1.0 - fractional_r_cut.x);
+        int const dy
+            = static_cast<int>(f.y < fractional_r_cut.y) - static_cast<int>(f.y > 1.0 - fractional_r_cut.y);
+        int dz
+            = static_cast<int>(f.z < fractional_r_cut.z) - static_cast<int>(f.z > 1.0 - fractional_r_cut.z);
         // Cannot have ghosts in a non-existent dimension
         if (m_box.is2D())
         {
@@ -319,7 +322,7 @@ private:
     //! Place particles into sorted linear buffer using cell starts and counts.
     void placeParticlesInSortedOrder(
         const std::vector<std::pair<unsigned int, TaggedPosition>>& particle_cell_mapping,
-                                     std::vector<TaggedPosition>& sorted) const;
+        std::vector<TaggedPosition>& sorted) const;
 
     friend class CellQueryBallIterator;
 };

@@ -5,10 +5,10 @@
 #define NEIGHBOR_QUERY_H
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
-#include <cmath>
 #include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <memory>
 #include <oneapi/tbb/enumerable_thread_specific.h>
