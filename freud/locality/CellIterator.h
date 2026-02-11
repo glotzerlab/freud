@@ -8,9 +8,9 @@
 #include "VectorMath.h"
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 #include <unordered_map>
+#include <vector>
 
 namespace freud::locality {
 
@@ -58,7 +58,7 @@ public:
             return;
         }
 
-        vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
+        vec3<int> const coords = m_cell_query->cell_idx_xyz(m_query_point);
         m_cx = coords.x;
         m_cy = coords.y;
         m_cz = coords.z;
@@ -76,7 +76,7 @@ public:
     ~CellQueryBallIterator() override = default;
 
     //! Get the next element.
-    NeighborBond next() override final
+    NeighborBond next() final
     {
         NeighborBond res = m_current_bond;
         find_next_pair();
@@ -87,7 +87,7 @@ private:
     void find_next_pair()
     {
         int particle_idx = m_particle_idx;
-        int start_dz = m_dz;
+        int const start_dz = m_dz;
         int start_dy = m_dy;
 
         // Cache grid dimensions and pointers for performance
@@ -100,12 +100,12 @@ private:
 
         for (int dz = start_dz; dz <= 1; dz++)
         {
-            int nz = m_cz + dz;
+            int const nz = m_cz + dz;
             if (nz >= 0 && nz < nz_dim)
             {
                 for (int dy = start_dy; dy <= 1; dy++)
                 {
-                    int ny = m_cy + dy;
+                    int const ny = m_cy + dy;
                     if (ny >= 0 && ny < ny_dim)
                     {
                         // If starting a new row, determine the contiguous particle range
@@ -119,12 +119,12 @@ private:
 
                             // Determine valid dx range [-1, 1] clipped to [0, Nx-1] relative to global
                             // Since row_cell_idx is at 'cx', we check bounds of cx+dx
-                            int min_dx = (m_cx > 0) ? -1 : 0;
-                            int max_dx = (m_cx < nx_dim - 1) ? 1 : 0;
+                            int const min_dx = (m_cx > 0) ? -1 : 0;
+                            int const max_dx = (m_cx < nx_dim - 1) ? 1 : 0;
 
                             // Calculate start and end indices of the contiguous block
-                            int start_cell_idx = row_cell_idx + min_dx;
-                            int end_cell_idx = row_cell_idx + max_dx;
+                            int const start_cell_idx = row_cell_idx + min_dx;
+                            int const end_cell_idx = row_cell_idx + max_dx;
 
                             particle_idx = starts_data[start_cell_idx];
                             m_list_end = starts_data[end_cell_idx] + counts_data[end_cell_idx];
@@ -159,8 +159,8 @@ private:
             return false;
         }
 
-        vec3<float> delta = p.p - this->m_query_point;
-        float d2 = dot(delta, delta);
+        vec3<float> const delta = p.p - this->m_query_point;
+        float const d2 = dot(delta, delta);
 
         if (d2 < m_r_max_sq && d2 >= m_r_min_sq)
         {
@@ -318,7 +318,7 @@ private:
             {
                 const float distance = std::sqrt(d2);
 
-                NeighborBond bond(this->m_query_point_idx, real_id, distance, 1.0F, delta);
+                NeighborBond const bond(this->m_query_point_idx, real_id, distance, 1.0F, delta);
 
                 // Keep only the closest image of each particle
                 auto it = min_distance_bonds.find(real_id);
@@ -373,7 +373,7 @@ private:
                 {
                     // max(|dy|, |dz|) < shell_distance, so our block is noncontiguous
                     // Process the two endpoint cells individually
-                    for (int dx : {-shell_distance, shell_distance})
+                    for (int const dx : {-shell_distance, shell_distance})
                     {
                         const int nx = cx + dx;
                         if (nx >= 0 && nx < nx_dim)

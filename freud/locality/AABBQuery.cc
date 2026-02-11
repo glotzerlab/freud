@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2026 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <algorithm>
 #include <cmath>
 #include <memory>
 #include <stdexcept>
