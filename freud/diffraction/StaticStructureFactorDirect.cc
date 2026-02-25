@@ -116,8 +116,12 @@ void StaticStructureFactorDirect::reduce()
     // points. Unlike some other methods in freud, no frame counter is needed
     // because the binned mean accounts for accumulation over frames.
     m_k_histogram.reduceOverThreads(m_local_k_histograms);
-    m_structure_factor.reduceOverThreadsPerBin(
-        m_local_structure_factor, [&](size_t i) { m_structure_factor[i] /= float(m_k_histogram[i]); });
+    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor, [&](size_t i) {
+        if (m_k_histogram[i] != 0)
+        {
+            m_structure_factor[i] /= static_cast<float>(m_k_histogram[i]);
+        }
+    });
 }
 
 std::vector<std::complex<float>>
