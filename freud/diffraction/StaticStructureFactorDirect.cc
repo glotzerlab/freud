@@ -336,7 +336,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     else
     {
         // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-        const auto box_matrix = box_to_matrix3D(box);
+        const auto box_matrix = box_to_matrix(box);
         const auto B = box_matrix.transpose().inverse();
         const auto dq_x = B.row(0).norm();
         const auto dq_y = B.row(1).norm();
