@@ -532,3 +532,58 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
 
         peaks = find_structure_factor_peaks_for_square_lattice(sf.bin_centers, a=1)
         npt.assert_allclose(np.where(sf.S_k > 0), peaks)
+
+    def test_num_sampled_k_points_scales_k_point_count_2D(self):
+        box, points = freud.data.make_random_system(10, 64, is2D=True, seed=1)
+        system = freud.AABBQuery.from_system((box, points))
+        bins = 100
+        k_max = 10
+        k_min = 0
+
+        def sample_counts(num_sampled_k_points, n_trials=6):
+            counts = []
+            for _ in range(n_trials):
+                sf = self.build_structure_factor_object(
+                    bins, k_max, k_min, num_sampled_k_points
+                )
+                sf.compute(system)
+                counts.append(sf.k_points.shape[0])
+            return np.asarray(counts)
+
+        full_grid_count = sample_counts(0, n_trials=1)[0]
+        low_counts = sample_counts(20)
+        mid_counts = sample_counts(70)
+        high_counts = sample_counts(130)
+
+        assert np.mean(low_counts) < np.mean(mid_counts)
+        assert np.mean(mid_counts) < np.mean(high_counts)
+        assert np.mean(high_counts) < full_grid_count
+
+    def test_num_sampled_k_points_large_value_uses_full_grid_2D(self):
+        box, points = freud.data.make_random_system(10, 64, is2D=True, seed=1)
+        system = freud.AABBQuery.from_system((box, points))
+        bins = 100
+        k_max = 10
+        k_min = 0
+
+        sf_all = self.build_structure_factor_object(bins, k_max, k_min, 0)
+        sf_all.compute(system)
+        sf_large = self.build_structure_factor_object(bins, k_max, k_min, 10_000)
+        sf_large.compute(system)
+
+        assert sf_all.k_points.shape[0] == sf_large.k_points.shape[0]
+
+    def test_k_point_count_increases_with_k_max_2D(self):
+        box, points = freud.data.make_random_system(10, 64, is2D=True, seed=1)
+        system = freud.AABBQuery.from_system((box, points))
+        bins = 100
+        k_min = 0
+
+        k_max_values = [4, 6, 8, 10]
+        counts = []
+        for k_max in k_max_values:
+            sf = self.build_structure_factor_object(bins, k_max, k_min, 0)
+            sf.compute(system)
+            counts.append(sf.k_points.shape[0])
+
+        assert np.all(np.diff(counts) > 0)
