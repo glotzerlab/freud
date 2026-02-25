@@ -218,11 +218,15 @@ inline float get_prune_distance2D(unsigned int num_sampled_k_points, float q_max
         // Above this limit, all points are used and no pruning occurs.
         return std::numeric_limits<float>::infinity();
     }
-    return std::numeric_limits<float>::infinity();
-    // use quadratic formula to compute pruning distance
-    // TODO: need to reverify this is correct
-    return std::real(std::sqrt(
-        q_max * q_max - static_cast<float>(num_sampled_k_points) * q_area / static_cast<float>(M_PI)));
+
+    // In 2D, a uniform radial sampling density is achieved when
+    // p_keep(q) = min(1, q_prune / q). Solving the expected-point equation
+    // over the sampled quadrant gives:
+    // N = pi / (4 q_area) * (2 q_max q_prune - q_prune^2)
+    // => q_prune = q_max - sqrt(q_max^2 - 4 N q_area / pi).
+    const auto N = static_cast<float>(num_sampled_k_points);
+    const auto discriminant = std::max(0.0F, q_max * q_max - 4.0F * N * q_area / static_cast<float>(M_PI));
+    return q_max - std::sqrt(discriminant);
 }
 
 // Helper function to set up random number generator
@@ -245,10 +249,18 @@ evaluate_quadratic_equation(float coef_a, float coef_b, float coef_c_min, float 
     return {kz_min, std::min(kz_max, N_kz)};
 }
 
-// Function to evaluate if k_vector should be kept
-bool should_keep_k_vector(float q_distance_sq, float q_prune_distance_sq, bool add_all_k_points,
-                          float q_max_sq, float q_min_sq, std::uniform_real_distribution<float>& base_dist,
-                          std::mt19937& rng)
+// Function to evaluate if k_vector should be kept for 2D sampling.
+bool should_keep_k_vector2D(float q_distance_sq, float q_prune_distance, bool add_all_k_points, float q_max_sq,
+                            float q_min_sq, std::uniform_real_distribution<float>& base_dist, std::mt19937& rng)
+{
+    const auto prune_probability = q_prune_distance / std::sqrt(q_distance_sq);
+    return (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+        && (add_all_k_points || prune_probability > base_dist(rng));
+}
+
+// Function to evaluate if k_vector should be kept for 3D sampling.
+bool should_keep_k_vector3D(float q_distance_sq, float q_prune_distance_sq, bool add_all_k_points, float q_max_sq,
+                            float q_min_sq, std::uniform_real_distribution<float>& base_dist, std::mt19937& rng)
 {
     const auto prune_probability = q_prune_distance_sq / q_distance_sq;
     return (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
@@ -283,7 +295,6 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
         // Above the pruning distance, the grid of k points is sampled isotropically
         // at a lower density.
         const auto q_prune_distance = get_prune_distance2D(num_sampled_k_points, q_max, q_area);
-        const auto q_prune_distance_sq = q_prune_distance * q_prune_distance;
         const auto N_kx = static_cast<unsigned int>(std::ceil(q_max / dq_x));
         const auto N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
         const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), 0.0);
@@ -296,7 +307,6 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
             // pruning.
             std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
             std::uniform_real_distribution<float> base_dist(0, 1);
-            auto random_prune = [&]() { return base_dist(rng); };
             const auto add_all_k_points = std::isinf(q_prune_distance);
             for (unsigned int kx = begin; kx < end; ++kx)
             {
@@ -324,12 +334,12 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                     const auto q_distance_sq
                         = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
 
-                    // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
+                    // The k vector is kept with probability min(1, q_prune_distance / q_distance).
                     // This sampling scheme aims to have a constant
                     // density of k vectors with respect to
                     // radial distance.
-                    if (should_keep_k_vector(q_distance_sq, q_prune_distance_sq, add_all_k_points, q_max_sq,
-                                             q_min_sq, base_dist, rng))
+                    if (should_keep_k_vector2D(q_distance_sq, q_prune_distance, add_all_k_points, q_max_sq,
+                                               q_min_sq, base_dist, rng))
                     {
                         k_points.emplace_back(k_vec);
                     }
@@ -364,7 +374,6 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
             // pruning.
             std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
             std::uniform_real_distribution<float> base_dist(0, 1);
-            auto random_prune = [&]() { return base_dist(rng); };
             const auto add_all_k_points = std::isinf(q_prune_distance);
             for (unsigned int kx = begin; kx < end; ++kx)
             {
@@ -397,8 +406,8 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                         // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
                         // This sampling scheme aims to have a constant density of k vectors with respect to
                         // radial distance.
-                        if (should_keep_k_vector(q_distance_sq, q_prune_distance_sq, add_all_k_points,
-                                                 q_max_sq, q_min_sq, base_dist, rng))
+                        if (should_keep_k_vector3D(q_distance_sq, q_prune_distance_sq, add_all_k_points,
+                                                   q_max_sq, q_min_sq, base_dist, rng))
                         {
                             k_points.emplace_back(k_vec);
                         }
