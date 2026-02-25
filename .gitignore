@@ -22,3 +22,7 @@ freud/*.cpp
 freud/*.cxx
 freud/*.dylib
 freud/*.so
+html
+# pixi environments
+.pixi/*
+!.pixi/config.toml

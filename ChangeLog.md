@@ -1,8 +1,108 @@
 # Change Log
-The format is based on
-[Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-and this project adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog] and this project adheres to
+[Semantic Versioning].
+
+[Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
+[Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+
+## Next release
+
+### Fixed
+* Access k points from `StaticStructureFactorDirect`.
+
+## 3.5.0 -- 2025-10-08
+
+### Changed
+* Build with `abi3` for Python >=3.12.
+
+### Removed
+* Support for Python <3.12.
+
+## 3.4.0 -- 2025-08-05
+
+### Added
+* Windows wheels on PyPI.
+* SLD for computation of the Diffraction Pattern.
+
+### Fixed
+* Type hinting in `UnitCell` no longer infers incorrect type.
+* Fixed `MSD` compute to correctly preprocess the data for msd calculation.
+
+## 3.3.1 -- 2025-04-28
+
+### Fixed
+* PyPI upload.
+
+## 3.3.0 -- 2025-04-28
+
+### Fixed
+* `PMFTXY.plot` executes without errors.
+* Allow input arguments to be passed read-only NumPy arrays.
+
+### Added
+* `to_box_params` method for `freud.Box`
+* `cmap` argument to `PMFTXY.plot`.
+* Provide Linux aarch64 binaries.
+
+## 3.2.0 -- 2025-02-10
+
+### Added
+* Support Python 3.13.
+
+### Changed
+* Switch from Cython to nanobind.
+* Switch from scikit-build to scikit-build-core.
+* Lint C++ code with the clang-tidy 18.
+* Lint and format Python code with ruff.
+
+## v3.1.0 -- 2024-06-17
+
+### Added
+* New continuous coordination number compute `freud.order.ContinuousCoordination`.
+* New methods for conversion of box lengths and angles to/from `freud.box.Box`.
+* Add copy button to documentation code snippets.
+* Support Numpy 2.0.
+
+### Fixed
+* Default value for `terminate_after_blocked` in `FilterRAD`.
+
+### Removed
+* `freud.order.Translational`.
+* Support for Python 3.8.
+
+## v3.0.0 -- 2024-02-22
+
+### Added
+* Coloring plots by polytope area in `freud.locality.Voronoi`.
+* Neighbor vectors to `freud.locality.NeighborList`s.
+
+### Changed
+* The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
+* The ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class.
+* The ``neighbors`` argument to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
+* `freud.order.Nematic` uses orientation vectors instead of quaternions and a nematic director.
+* `freud.order.Nematic` raises a warning when the zero is vector passed.
+* Remove zero-padding from arrays in `freud.environment.EnvironmentCluster` and `freud.environment.EnvironmentMotifMatch` and replace with ragged lists of NumPy arrays.
+* Provide support via GitHub discussions.
+
+### Removed
+* The `global_search` flag in `freud.environment.EnvironmentCluster`.
+
+## v2.13.2 -- 2023-11-27
+
+### Added
+* Support for python 3.12
+
+### Removed
+* Support for python 3.7
+
+## v2.13.1 -- 2023-09-14
+
+### Added
+* The `gsd.hoomd.Frame` class is supported as a system-like input.
+
+### Changed
+* Require building with cython>=3.0.2
 
 ## v2.13.0 -- 2023-05-09
 

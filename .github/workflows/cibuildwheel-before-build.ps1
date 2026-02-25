@@ -1,9 +1,9 @@
-$PackageDir = $args[0]
+$PACKAGE_DIR = $args[0]
 
 # Install a modern version of CMake for compatibility with modern Visual Studio
-pip install cmake
+pip install "cmake==4.0.3"
 
-$TBB_VERSION = "2021.2.0"
+$TBB_VERSION = "2022.2.0"
 $TBB_ZIP = "v${TBB_VERSION}.zip"
 Invoke-WebRequest -Uri "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}" -OutFile "${TBB_ZIP}"
 Expand-Archive -Path "${TBB_ZIP}" -DestinationPath .
@@ -14,6 +14,5 @@ cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
 cmake ../ -DTBB_TEST=OFF -DTBB_STRICT=OFF
-cmake --build . -j
-cmake -DCOMPONENT=runtime -P cmake_install.cmake
-cmake -DCOMPONENT=devel -P cmake_install.cmake
+cmake --build . -j --config Release
+cmake --install . --config Release

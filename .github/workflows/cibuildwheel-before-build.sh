@@ -14,16 +14,21 @@ pip install cmake
 
 PACKAGE_DIR=$1
 PLATFORM=$2
-TBB_VERSION="2021.2.0"
+TBB_VERSION="2022.1.0"
 TBB_ZIP="v${TBB_VERSION}.zip"
 curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip -q "${TBB_ZIP}"
 
 #
+echo "PLATFORM=${PLATFORM}"
+echo "ARCHFLAGS=${ARCHFLAGS}"
 EXTRA_CMAKE_ARGS=""
 if [[ "${PLATFORM}" == "macos" ]]; then
+    EXTRA_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=/Users/runner/work/tbb-install"
     if [[ ${ARCHFLAGS} == *"arm64"* ]]; then
-        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
+        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64 ${EXTRA_CMAKE_ARGS}"
+    elif [[ ${ARCHFLAGS} == *"x86_64"* ]]; then
+        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=x86_64 ${EXTRA_CMAKE_ARGS}"
     fi
 fi
 echo "EXTRA_CMAKE_ARGS=${EXTRA_CMAKE_ARGS}"

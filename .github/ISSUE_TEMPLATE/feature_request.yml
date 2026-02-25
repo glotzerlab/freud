@@ -18,10 +18,10 @@ body:
     attributes:
         label: Additional Context
         description: What additional information is useful to understand this request?
-  - type: dropdown
+  - type: markdown
     attributes:
-      label: Developer
-      description: Who should implement the new feature?
-      options:
-        - I will submit a pull request that implements this feature.
-        - Would someone else please implement this?
+      value: |
+        We would welcome your contribution!
+
+        If you plan to implement this functionality, the freud developers will discuss the
+        proposed design and API with you **before** you begin work.

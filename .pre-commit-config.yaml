@@ -1,11 +1,8 @@
-ci:
-  autoupdate_schedule: quarterly
-
 exclude: (?:^extern/)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v4.4.0'
+    rev: 'v6.0.0'
     hooks:
       - id: end-of-file-fixer
         exclude: |
@@ -26,106 +23,36 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-json
       - id: check-yaml
+        exclude: "\\.clang-format"
       - id: debug-statements
-      - id: requirements-txt-fixer
   - repo: https://github.com/glotzerlab/fix-license-header
-    rev: v0.2.0
+    rev: v0.4.1
     hooks:
       - id: fix-license-header
         name: Fix License Headers (Python)
         exclude: |
           (?x)(
               ^doc/|
-              ^extern/|
-              ^requirements/
+              ^extern/
               )
-        types_or: [python, cython]
+        types_or: [c, c++, python]
         args:
           - --license-file=LICENSE
           - --start=2
           - --num=1
           - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --keep-before=#!
-      - id: fix-license-header
-        name: Fix License Headers (C++)
-        types_or: [c, c++]
-        args:
-          - --license-file=LICENSE
-          - --start=2
-          - --num=1
-          - --add=This file is from the freud project, released under the BSD 3-Clause License.
-          - --comment-prefix=//
-  - repo: https://github.com/asottile/pyupgrade
-    rev: 'v3.4.0'
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.14.0'
     hooks:
-      - id: pyupgrade
-        args:
-          - --py36-plus
-  - repo: https://github.com/PyCQA/isort
-    rev: '5.12.0'
-    hooks:
-      - id: isort
-  - repo: https://github.com/psf/black
-    rev: '23.3.0'
-    hooks:
-      - id: black
-  - repo: https://github.com/PyCQA/flake8
-    rev: '6.0.0'
-    hooks:
-      - id: flake8
-        types: ["file"]
-        types_or: ["python", "cython"]
-        additional_dependencies: ["flake8-force"]
-        args:
-        - --show-source
+    - id: ruff-format
+    - id: ruff-check
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
       - id: cmake-format
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v16.0.3'
+    rev: 'v21.1.2'
     hooks:
       - id: clang-format
         types_or: [c, c++]
-# The following pre-commit hooks should only be run manually because they have
-# dependencies that cannot be pip installed.
-  - repo: local
-    hooks:
-    - id: clang-tidy
-      stages: [manual]  # Requires clang-tidy.
-      name: clang-tidy
-      entry: clang-tidy
-      language: system
-      types: [c++]
-      # Exclude external files. Also exclude AABB.h because it uses intrinsics
-      # heavily and these are not considered portable.
-      exclude: |
-        (?x)^(
-          ^cpp/locality/AABB\.h|
-          ^extern/
-        )
-      args:
-      - --warnings-as-errors=*
-    - id: cppcheck
-      stages: [manual]  # Requires cppcheck.
-      # Ignore external files and those taken verbatim from HOOMD.
-      name: cppcheck
-      entry: cppcheck
-      language: system
-      types: [c++]
-      # Exclude external files. Also exclude AABB.h because it uses intrinsics
-      # heavily and these are not considered portable.
-      exclude: |
-        (?x)^(
-          ^cpp/locality/AABB\.h|
-          ^extern/
-        )
-      args:
-      - cpp/
-      - --enable=warning,style,performance,portability # Ignore unused (could be used by Cython).
-      - --std=c++14
-      - --language=c++ # Force C++ for .h header files.
-      - --inline-suppr # Enable inline suppresions of warnings.
-      - --suppress=*:cpp/locality/AABB.h
-      - --suppress=*:extern/*
-      - --error-exitcode=1

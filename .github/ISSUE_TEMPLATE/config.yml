@@ -1,8 +1,8 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
-  - name: freud users mailing list
-    url: https://groups.google.com/d/forum/freud-users
-    about: Ask for support from the freud user community.
+  - name: freud discussion board
+    url: https://github.com/glotzerlab/freud/discussions/
+    about: Ask the freud user community for help.
   - name: freud documentation
     url: https://freud.readthedocs.io/
     about: User documentation.

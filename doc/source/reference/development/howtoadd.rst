@@ -5,21 +5,14 @@ Contributing to **freud**
 Code Conventions
 ================
 
-Pre-commit
-----------
+prek
+----
 
-It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`__ to ensure code is compliant with all automated linters and style checks before pushing to the repository:
-
-.. code-block:: bash
-
-    pip install pre-commit
-    pre-commit install
-
-To manually run `pre-commit <https://pre-commit.com/>`__ for all the files present in the repository, run the following command:
+To manually run `prek <https://prek.j178.dev/>`__ for all the files present in the repository, run the following command:
 
 .. code-block:: bash
 
-    pre-commit run --all-files --show-diff-on-failure
+    prek run --all-files --show-diff-on-failure
 
 
 Python
@@ -46,10 +39,10 @@ C++
 
 C++ code should follow the result of running :code:`clang-format` with the style specified in the file :code:`.clang-format`.
 Please refer to the `clang-format documentation <https://clang.llvm.org/docs/ClangFormat.html>`__ for details.
-The :code:`clang-format` style will be automatically enforced by pre-commit via CI.
+The :code:`clang-format` style will be automatically enforced by prek via CI.
 When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the **freud** repository.
 
-The :code:`check-style` step of continuous integration (CI) runs :code:`clang-tidy` and :code:`cppcheck`.
+The :code:`check-style` step of continuous integration (CI) runs :code:`clang-tidy`.
 If the :code:`check-style` CI fails, please read the output log for information on what to fix.
 
 Additionally, all CMake code is tested using `cmakelang's cmake-format <https://cmake-format.readthedocs.io/en/latest/index.html>`__.
@@ -90,12 +83,12 @@ The ``__init__`` method defines basic parameters of the run, the ``bench_setup``
 More examples can be found in the :code:`benchmarks` directory.
 The runtime of :code:`BenchmarkDensityRDF.bench_run` will be timed for :code:`number` of times on the input sizes of :code:`Ns`.
 Its runtime with respect to the number of threads will also be measured.
-Benchmarks are run as a part of continuous integration, with performance comparisons between the current commit and the master branch.
+Benchmarks are run as a part of continuous integration, with performance comparisons between the current commit and the main branch.
 
 Steps for Adding New Code
 =========================
 
-Once you've determined to add new code to **freud**, the first step is to create a new branch off of :code:`master`.
+Once you've determined to add new code to **freud**, the first step is to create a new branch off of :code:`main`.
 The process of adding code differs based on whether or not you are editing an existing module in **freud**.
 Adding new methods to an existing module in **freud** requires creating the new C++ files in the ``cpp`` directory, modifying the corresponding ``_MODULENAME.pxd`` file in the ``freud`` directory, and creating a wrapper class in ``freud/MODULENAME.pyx``.
 If the new methods belong in a new module, you must create the corresponding ``cpp`` directory and the ``pxd`` and ``pyx`` files accordingly.

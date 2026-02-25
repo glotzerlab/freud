@@ -1,0 +1,248 @@
+name: release
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "main"
+      - "next"
+    tags:
+      - "*"
+
+  pull_request:
+
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  name: freud
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  build_wheels:
+    name: Build wheels [${{ matrix.os.base }}-${{ matrix.os.arch }}]
+    runs-on: ${{ matrix.os.base }}-${{ matrix.os.version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - base: ubuntu
+          version: 24.04
+          arch: 'x86_64'
+        - base: ubuntu
+          version: 24.04-arm
+          arch: 'aarch64'
+        - base: windows
+          version: 2025
+          arch: 'amd64'
+        - base: macos
+          version: 15
+          arch: 'arm64'
+        - base: macos
+          version: 15
+          arch: 'intel'
+
+        python:
+        # Pinned versions installed in CIBW_TEST_REQIURES are kept. Those defined installed in
+        # CIBW_BEFORE_TEST are often upgraded when the wheel is installed. This means we can't
+        # store the pinned requirements in a requirements file.
+        # Generate these version sets with commands like this:
+        # echo -e "numpy==1.21.6\nscipy\ngsd\nmatplotlib\nsympy" | uv pip compile --python-platform linux --python-version 3.9 --only-binary :all: - --resolution=lowest --no-deps
+        - version: 'cp312'
+          oldest_numpy: '1.26.2'
+          oldest_scipy: '1.11.2'
+          oldest_gsd: '3.2.0'
+          oldest_matplotlib: '3.7.3'
+          oldest_pytest: '8.2.1'
+          oldest_sympy: '1.10'
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: "recursive"
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e # v3.3.1
+        env:
+          # Configure environment variables.
+          CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
+          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb:/Users/runner/work/tbb-install CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
+
+          # Set up TBB.
+          CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package} linux"
+          CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package} macos"
+          CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
+
+          # Repair the wheels. Only needed on Windows; cibuildwheel repairs correctly on Linux/Mac.
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "powershell .github/workflows/cibuildwheel-repair-wheel.ps1 \"{dest_dir}\" \"{wheel}\""
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: dist-${{ matrix.os.base }}-${{ matrix.os.version }}-${{ matrix.os.arch }}-${{ matrix.python.version }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: "recursive"
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.14"
+
+      - name: Set up Python environment
+        uses: glotzerlab/workflows/setup-uv@204dc7c0f82720090703712694b7cab761aacaa0 # 0.13.0
+
+      - name: Build sdist
+        run: uv build --sdist --out-dir dist/ .
+
+      - name: Check sdist size
+        run: du -hs dist/*
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: dist-sdist
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    name: Publish [PyPI]
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    concurrency: upload
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          merge-multiple: 'true'
+          pattern: dist-*
+          path: dist
+
+      - name: Check files
+        run: ls -lR dist
+
+      - name: Upload to PyPI
+        # upload to PyPI on every tag starting with 'v'
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+
+      - name: Upload to TestPyPI
+        # upload to TestPyPI on non-tags
+        if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+
+      - name: Slack notification
+        if: startsWith(github.ref, 'refs/tags/v') || failure()
+        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
+        with:
+          status: ${{ job.status }}
+          channel: '#dev-freud'
+
+  source:
+    name: Build source tarball
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        path: code
+        submodules: true
+
+    - name: Determine filename-safe ref from GITHUB_REF_NAME
+      run: echo ref="$(echo "${GITHUB_REF_NAME}" | sed  -e 's/\//-/g')" >> "$GITHUB_ENV"
+
+    - name: Copy source
+      run: cp -R code "${name}-${ref}"
+
+    - name: Remove .git
+      run: rm -rf "${name}-${ref}/.git"
+
+    - name: Remove examples data
+      run: rm -rf "${name}-${ref}/doc/source/gettingstarted/examples" && ls -laR "${name}-${ref}"
+
+    - name: Tar/zstd source
+      run: tar --zstd -cvf "${name}-${ref}.tar.zst" "${name}-${ref}"
+
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: source
+        path: |
+          *.tar.*
+
+  release-notes:
+    name: Extract release notes
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        path: code
+
+    - name: Write release-notes.md
+      # 1. Search for the content from the start of the file to the 2nd version heading.
+      # 2. Remove the 2nd version heading.
+      # 3. Search for the content after the first version heading (removes any description at the
+      #    start of the file.
+      # 4. Remove the 1st version heading.
+      # This leaves the content of the release notes for the current release.
+      run: >
+        grep -P -m 2 -B 10000 "^## v*\d*\.\d*\.\d*" ChangeLog.md |
+        sed '$d' |
+        grep -P -A 10000 "^## v*\d*\.\d*\.\d*" |
+        sed '1d' |
+        tee "${GITHUB_WORKSPACE}/release-notes.md"
+      working-directory: code
+
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: release-notes
+        path: |
+          release-notes.md
+
+  publish_github:
+    name: Publish [GitHub]
+    needs: [release-notes, source]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      with:
+        merge-multiple: true
+
+    - name: List files
+      run: ls -lR
+
+    - name: Create release
+      uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          *.zst
+        body_path: release-notes.md
+        make_latest: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,37 @@
+data_cif_file
+
+_journal_year 1999
+_journal_page_first 0
+_journal_page_last 123
+
+_chemical_name_mineral 'Copper FCC'
+_chemical_formula_sum 'Cu'
+
+_cell_length_a     3.6
+_cell_length_b     3.6
+_cell_length_c     3.6
+_cell_angle_alpha  90.0
+_cell_angle_beta   90.0
+_cell_angle_gamma  90.0
+
+
+loop_
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_type_symbol
+_atom_site_Wyckoff_label
+Cu1 0.0000000000 0.0000000000 0.0000000000  Cu a
+
+_symmetry_space_group_name_H-M  'Fm-3m'
+
+# Note that this table is only a subset of the full symmetry of the crystal, but
+# it is sufficient to reconstruct the unit cell.
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1  x,y,z
+96  z,y+1/2,x+1/2
+118  z+1/2,-y,x+1/2
+192  z+1/2,y+1/2,x

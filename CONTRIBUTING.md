@@ -3,7 +3,7 @@ your work to ensure that your plans mesh well with the planned development direc
 Then implement your code.
 
 Submit a pull request. Multiple developers and/or users will review requested changes and make comments.
-The lead developer(s) will merge into the `master` branch after the review is complete and approved.
+The lead developer(s) will merge into the `main` branch after the review is complete and approved.
 
 # Features
 
@@ -35,7 +35,7 @@ of _freud_.
 ## Base your work off the correct branch
 
 Use the [OneFlow](https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow) model of development:
-  * Both new features and bug fixes should be developed in branches based on `master`.
+  * Both new features and bug fixes should be developed in branches based on `main`.
   * Hotfixes (critical bugs that need to be released *fast*) should be developed in a branch based on the latest tagged release.
 
 ## Propose a single set of related changes

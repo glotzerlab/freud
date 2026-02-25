@@ -1,0 +1,56 @@
+name: Style
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - "main"
+
+  workflow_dispatch:
+
+jobs:
+  clang-tidy:
+    name: Check C++ Code Style
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: true
+      - name: Create Python Environment
+        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # v0.9.4
+        with:
+          pixi-version: v0.54.1
+          cache: false
+          environments: py313
+          activate-environment: true
+      - name: Configure compile_commands.json
+        run: |
+          cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
+      - name: clang-tidy
+        run: git ls-files | grep -E '^freud.*(.h|.hpp|.hh|.cc|.cpp)$' | xargs clang-tidy-18 -fix -p build --warnings-as-errors=*
+      - run: git diff --color
+
+  prek:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - name: prek
+      uses: glotzerlab/workflows/prek@204dc7c0f82720090703712694b7cab761aacaa0 # 0.13.0
+
+  # This job is used to provide a single requirement for branch merge conditions.
+  tests_complete:
+    name: All style checks
+    if: always()
+    needs: [clang-tidy, prek]
+    runs-on: ubuntu-24.04
+
+    steps:
+    - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'
+    - name: Done
+      run: exit 0

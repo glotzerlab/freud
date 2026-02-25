@@ -1,5 +1,8 @@
-# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# Copyright (c) 2010-2026 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
+
+import os
+import pathlib
 
 import numpy as np
 import numpy.testing as npt
@@ -34,6 +37,30 @@ class TestUnitCell:
         assert box == freud.box.Box.cube(1)
         npt.assert_array_equal(
             points, [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
+        )
+
+    @pytest.mark.parametrize(
+        "fn",
+        [pathlib.Path(os.path.realpath(__file__)).parent / "example_file.cif"],
+    )
+    def test_cif(self, fn):
+        """Test that the data from cif files is correct"""
+        EXPECTED_L = 3.6
+        box, points = freud.data.UnitCell.from_cif(fn).generate_system()
+        points /= EXPECTED_L
+
+        # Boxes are equal within fp precision
+        npt.assert_allclose(
+            [*box.to_dict().values()],
+            [*freud.box.Box.cube(EXPECTED_L).to_dict().values()],
+            rtol=1e-15,
+            atol=1e-15,
+        )
+        npt.assert_allclose(
+            points[::-1],
+            [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]],
+            rtol=1e-15,
+            atol=1e-15,
         )
 
     @pytest.mark.parametrize("scale", [0.5, 2])
@@ -114,14 +141,14 @@ class TestUnitCell:
 
         np.random.seed(0)
         first_rand = np.random.randint(num_points)
-        box, points = freud.data.UnitCell.fcc().generate_system(
+        _box, _points = freud.data.UnitCell.fcc().generate_system(
             sigma_noise=sigma, seed=1
         )
         second_rand = np.random.randint(num_points)
 
         np.random.seed(0)
         third_rand = np.random.randint(num_points)
-        box, points = freud.data.UnitCell.fcc().generate_system(
+        _box, _points = freud.data.UnitCell.fcc().generate_system(
             sigma_noise=sigma, seed=2
         )
         fourth_rand = np.random.randint(num_points)
@@ -131,11 +158,11 @@ class TestUnitCell:
 
 
 class TestRandomSystem:
-    @pytest.mark.parametrize("N", (0, 1, 10, 100, 1000))
-    @pytest.mark.parametrize("is2D", (True, False))
+    @pytest.mark.parametrize("N", [0, 1, 10, 100, 1000])
+    @pytest.mark.parametrize("is2D", [True, False])
     def test_sizes_and_dimensions(self, N, is2D):
         box, points = freud.data.make_random_system(
-            box_size=10, num_points=N, is2D=is2D
+            box_size=10, num_points=N, is2D=is2D, seed=1
         )
         assert points.shape == (N, 3)
         assert box.is2D == is2D
@@ -147,14 +174,14 @@ class TestRandomSystem:
 
         np.random.seed(0)
         first_rand = np.random.randint(num_points)
-        box, points = freud.data.make_random_system(
+        _box, _points = freud.data.make_random_system(
             box_size=box_size, num_points=num_points, seed=1
         )
         second_rand = np.random.randint(num_points)
 
         np.random.seed(0)
         third_rand = np.random.randint(num_points)
-        box, points = freud.data.make_random_system(
+        _box, _points = freud.data.make_random_system(
             box_size=box_size, num_points=num_points, seed=2
         )
         fourth_rand = np.random.randint(num_points)

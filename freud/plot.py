@@ -1,19 +1,29 @@
-# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# Copyright (c) 2010-2026 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import io
 import warnings
+from importlib.util import find_spec
 
 import numpy as np
 
 import freud
 
-try:
+_HAS_MPL = find_spec("matplotlib") is not None
+if _HAS_MPL:
+    import matplotlib.colors
     import matplotlib.pyplot as plt
+    from matplotlib import cm
     from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.collections import PatchCollection
+    from matplotlib.colorbar import Colorbar
+    from matplotlib.patches import Polygon
     from matplotlib.ticker import FormatStrFormatter, MaxNLocator
-except ImportError:
-    raise ImportError("matplotlib must be installed for freud.plot.")
+    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+else:
+    msg = "matplotlib must be installed for freud.plot. "
+    raise ImportError(msg)
 
 
 def _ax_to_bytes(ax):
@@ -61,7 +71,7 @@ def _set_3d_axes_equal(ax, limits=None):
     return ax
 
 
-def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
+def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
     """Helper function to plot a :class:`~.box.Box` object.
 
     Args:
@@ -81,6 +91,8 @@ def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
             :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
             :meth:`matplotlib.axes.Axes.plot`.
     """
+    if image is None:
+        image = [0, 0, 0]
     box = freud.box.Box.from_box(box)
 
     if ax is None:
@@ -89,7 +101,6 @@ def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
             ax = fig.subplots()
         else:
             # This import registers the 3d projection
-            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
             ax = fig.add_subplot(111, projection="3d")
 
@@ -102,7 +113,7 @@ def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
         corners += np.asarray(image)
         corners = box.make_absolute(corners)[:, :2]
         color = kwargs.pop("color", "k")
-        ax.plot(corners[:, 0], corners[:, 1], color=color, *args, **kwargs)
+        ax.plot(corners[:, 0], corners[:, 1], color=color, *args, **kwargs)  # noqa: B026
         ax.set_aspect("equal", "datalim")
         ax.set_xlabel("$x$")
         ax.set_ylabel("$y$")
@@ -167,7 +178,6 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
             ax = fig.subplots()
         else:
             # This import registers the 3d projection
-            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
             ax = fig.add_subplot(111, projection="3d")
 
@@ -250,8 +260,8 @@ def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
         sorted_keys,
         sorted_freqs,
         title="Cluster Frequency",
-        xlabel="Keys of {} largest clusters (total clusters: "
-        "{})".format(len(sorted_freqs), len(freqs)),
+        xlabel=f"Keys of {len(sorted_freqs)} largest clusters (total clusters: "
+        f"{len(freqs)})",
         ylabel="Number of particles",
         ax=ax,
     )
@@ -314,7 +324,7 @@ def histogram_plot(
     return ax
 
 
-def pmft_plot(pmft, ax=None):
+def pmft_plot(pmft, ax=None, cmap="viridis"):
     """Helper function to draw 2D PMFT diagram.
 
     Args:
@@ -323,23 +333,22 @@ def pmft_plot(pmft, ax=None):
         ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
+        cmap (str): String name of Matplotlib colormap.
+            (Default value = :code:`"viridis"`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     # Plot figures
     if ax is None:
         fig = plt.figure()
         ax = fig.subplots()
 
-    pmft_arr = np.copy(pmft.PMFT)
+    pmft_arr = np.copy(pmft.pmft)
     pmft_arr[np.isinf(pmft_arr)] = np.nan
 
-    xlims = (pmft.X[0], pmft.X[-1])
-    ylims = (pmft.Y[0], pmft.Y[-1])
+    xlims, ylims = pmft.bounds
     ax.set_xlim(xlims)
     ax.set_ylim(ylims)
     ax.xaxis.set_ticks([i for i in range(int(xlims[0]), int(xlims[1] + 1))])
@@ -355,7 +364,7 @@ def pmft_plot(pmft, ax=None):
         np.flipud(pmft_arr),
         extent=[xlims[0], xlims[1], ylims[0], ylims[1]],
         interpolation="nearest",
-        cmap="viridis",
+        cmap=cmap,
         vmin=-2.5,
         vmax=3.0,
     )
@@ -381,8 +390,6 @@ def density_plot(density, box, ax=None):
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if ax is None:
         fig = plt.figure()
@@ -408,51 +415,54 @@ def density_plot(density, box, ax=None):
     return ax
 
 
-def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
+def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
     """Helper function to draw 2D Voronoi diagram.
 
     Args:
+        voronoi (:class:`freud.locality.Voronoi`):
+            Voronoi object with the data to plot.
         box (:class:`freud.box.Box`):
             Simulation box.
-        polytopes (:class:`numpy.ndarray`):
-            Array containing Voronoi polytope vertices.
         ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
-        color_by_sides (bool):
-            If :code:`True`, color cells by the number of sides.
-            If :code:`False`, random colors are used for each cell.
-            (Default value = :code:`True`).
+        color_by (str):
+            If :code:`'sides'`, color cells by the number of sides.
+            If :code:`'area'`, color cells by their area.
+            If :code:`None`, random colors are used for each cell.
+            (Default value = :code:`None`).
         cmap (str):
             Colormap name to use (Default value = :code:`None`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    from matplotlib import cm
-    from matplotlib.collections import PatchCollection
-    from matplotlib.colorbar import Colorbar
-    from matplotlib.patches import Polygon
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if ax is None:
         fig = plt.figure()
         ax = fig.subplots()
 
     # Draw Voronoi polytopes
-    patches = [Polygon(poly[:, :2]) for poly in polytopes]
+    patches = [Polygon(poly[:, :2]) for poly in voronoi.polytopes]
     patch_collection = PatchCollection(patches, edgecolors="black", alpha=0.4)
 
-    if color_by_sides:
-        colors = np.array([len(poly) for poly in polytopes])
+    if color_by == "sides":
+        colors = np.array([len(poly) for poly in voronoi.polytopes])
         num_colors = np.ptp(colors) + 1
-    else:
+    elif color_by == "area":
+        colors = voronoi.volumes
+        num_colors = None  # creates a continuous colormap
+    elif color_by is None:
         colors = np.random.RandomState().permutation(np.arange(len(patches)))
         num_colors = np.unique(colors).size
+    else:
+        msg = f"Invalid color_by option {color_by}."
+        raise RuntimeError(msg)
 
     # Ensure we have enough colors to uniquely identify the cells
-    if cmap is None:
-        if color_by_sides and num_colors <= 10:
+    continuous_colorby_options = ["area"]
+    if cmap is None and color_by not in continuous_colorby_options:
+        if color_by is not None and num_colors <= 10:
             cmap = "tab10"
         else:
             if num_colors > 20:
@@ -461,8 +471,10 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
                     "Consider providing a colormap to the cmap "
                     "argument.",
                     UserWarning,
+                    stacklevel=2,
                 )
             cmap = "tab20"
+
     cmap = cm.get_cmap(cmap, num_colors)
     bounds = np.arange(np.min(colors), np.max(colors) + 1)
 
@@ -485,11 +497,12 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     ax.set_aspect("equal", "datalim")
 
     # Add colorbar for number of sides
-    if color_by_sides:
+    color_by_labels = dict(sides="Number of sides", area="Polytope Area")
+    if color_by is not None:
         ax_divider = make_axes_locatable(ax)
         cax = ax_divider.append_axes("right", size="7%", pad="10%")
         cb = Colorbar(cax, patch_collection)
-        cb.set_label("Number of sides")
+        cb.set_label(color_by_labels[color_by])
         cb.set_ticks(bounds)
     return ax
 
@@ -521,9 +534,6 @@ def diffraction_plot(
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    import matplotlib.colors
-    from matplotlib.colorbar import Colorbar
-    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if vmin is None:
         vmin = 4e-6 * N_points
