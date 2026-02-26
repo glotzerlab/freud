@@ -316,6 +316,7 @@ class TestRAD(FilterTest):
                 query_points_radii=bad_query_radii,
             )
 
+
 class TestSANN(FilterTest):
     """Tests specific to the SANN filtering method."""
 

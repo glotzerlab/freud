@@ -26,9 +26,8 @@ public:
     explicit FilterSANN(bool allow_incomplete_shell) : Filter(allow_incomplete_shell) {}
 
     void compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* query_points,
-                 unsigned int num_query_points, std::shared_ptr<NeighborList> nlist,
-                 const QueryArgs& qargs, const float* points_radii = nullptr,
-                 const float* query_points_radii = nullptr) override;
+                 unsigned int num_query_points, std::shared_ptr<NeighborList> nlist, const QueryArgs& qargs,
+                 const float* points_radii = nullptr, const float* query_points_radii = nullptr) override;
 
 private:
     //! warn/raise exception about unfilled shells

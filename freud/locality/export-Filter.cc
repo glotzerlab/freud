@@ -30,7 +30,8 @@ void compute(const std::shared_ptr<Filter>& filter, std::shared_ptr<NeighborQuer
 {
     const auto num_query_points = query_points.shape(0);
     const auto* query_points_data = (const vec3<float>*) query_points.data();
-    filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs, nullptr, nullptr);
+    filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs, nullptr,
+                    nullptr);
 }
 
 void compute_rad(const std::shared_ptr<FilterRAD>& filter, std::shared_ptr<NeighborQuery> nq,
@@ -43,8 +44,8 @@ void compute_rad(const std::shared_ptr<FilterRAD>& filter, std::shared_ptr<Neigh
     const auto* query_points_data = (const vec3<float>*) query_points.data();
     const auto* points_radii_data = points_radii.data();
     const auto* query_points_radii_data = query_points_radii.data();
-    filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs, points_radii_data,
-                    query_points_radii_data);
+    filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs,
+                    points_radii_data, query_points_radii_data);
 }
 
 }; // namespace wrap

@@ -1431,13 +1431,15 @@ class FilterRAD(Filter):
                 If ``None``, an unfiltered neighborlist will be created such that
                 all pairs of particles are neighbors via :meth:`.NeighborList.all_pairs`
                 (Default value = ``None``).
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points \
+                ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the unfiltered neighborlist. Uses
                 the system's points if :code:`None` (Default value = :code:`None`).
             points_radii ((:math:`N_{points}`,) :class:`numpy.ndarray`, optional):
                 Radii associated with points in ``system``. If :code:`None`,
                 all radii are set to 1 (Default value = :code:`None`).
-            query_points_radii ((:math:`N_{query\_points}`,) :class:`numpy.ndarray`, optional):
+            query_points_radii \
+                ((:math:`N_{query\_points}`,) :class:`numpy.ndarray`, optional):
                 Radii associated with ``query_points``. If :code:`None`, all
                 radii are set to 1 (Default value = :code:`None`).
         """
@@ -1458,15 +1460,17 @@ class FilterRAD(Filter):
         )
 
         if not np.all(np.isfinite(points_radii)):
-            raise ValueError("points_radii must contain only finite values.")
+            msg = "points_radii must contain only finite values."
+            raise ValueError(msg)
         if not np.all(points_radii > 0):
-            raise ValueError("points_radii must contain only values greater than 0.")
+            msg = "points_radii must contain only values greater than 0."
+            raise ValueError(msg)
         if not np.all(np.isfinite(query_points_radii)):
-            raise ValueError("query_points_radii must contain only finite values.")
+            msg = "query_points_radii must contain only finite values."
+            raise ValueError(msg)
         if not np.all(query_points_radii > 0):
-            raise ValueError(
-                "query_points_radii must contain only values greater than 0."
-            )
+            msg = "query_points_radii must contain only values greater than 0."
+            raise ValueError(msg)
 
         self._cpp_obj.compute(
             nq._cpp_obj,
