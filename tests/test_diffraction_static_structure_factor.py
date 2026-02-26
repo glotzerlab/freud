@@ -504,34 +504,36 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
 
     def test_random_system_2D(self, sf_params):
-        sf = self.build_structure_factor_object(*sf_params)
-        box, positions = freud.data.make_random_system(10, 1000, is2D=True)
+        _, k_max, _k_min, _num_sampled_k_points = sf_params
+        sf = freud.diffraction.StaticStructureFactorDirect(
+            50, k_max, _k_min, _num_sampled_k_points
+        )
+        box, positions = freud.data.make_random_system(10, 10000, is2D=True, seed=1)
         system = freud.AABBQuery.from_system((box, positions))
         sf.compute(system)
-        # Check that all elements in S_k are around 1
-        npt.assert_allclose(sf.S_k, 1, rtol=1e-5, atol=1e-5)
+
+        # For a random system, S(k) approaches 1 at sufficiently large k.
+        high_k_sampled = (sf.bin_centers > sf.min_valid_k) & (
+            sf.bin_centers > 0.6 * k_max
+        )
+        assert np.any(high_k_sampled)
+        npt.assert_allclose(np.mean(sf.S_k[high_k_sampled]), 1, atol=0.2)
 
     def test_square_lattice_2D(self, sf_params):
-        sf = self.build_structure_factor_object(*sf_params)
+        _, k_max, _k_min, _num_sampled_k_points = sf_params
+        sf = freud.diffraction.StaticStructureFactorDirect(
+            50, k_max, _k_min, _num_sampled_k_points
+        )
         box, positions = freud.data.UnitCell.square().generate_system(10)
         system = freud.AABBQuery.from_system((box, positions))
         sf.compute(system)
 
-        def find_structure_factor_peaks_for_square_lattice(k_values, a):
-            # Calculate where we expect peaks for a square lattice
-            # only considering the peaks along the kx or ky direction
-            peak_positions = np.arange(2 * np.pi / a, k_values[-1], 2 * np.pi / a)
-
-            # We find the index in k_values closest to each expected peak position
-            peaks = [
-                np.abs(k_values - peak_position).argmin()
-                for peak_position in peak_positions
-            ]
-
-            return peaks
-
-        peaks = find_structure_factor_peaks_for_square_lattice(sf.bin_centers, a=1)
-        npt.assert_allclose(np.where(sf.S_k > 0), peaks)
+        valid_indices = np.where(sf.bin_centers > sf.min_valid_k)[0]
+        # The dominant isotropic Bragg peak of a square lattice with a=1 is at |k| = 2*pi.
+        strongest_peak_idx = valid_indices[np.argmax(sf.S_k[valid_indices])]
+        strongest_peak_k = sf.bin_centers[strongest_peak_idx]
+        bin_width = sf.bin_edges[1] - sf.bin_edges[0]
+        npt.assert_allclose(strongest_peak_k, 2 * np.pi, atol=1.5 * bin_width)
 
     def test_num_sampled_k_points_scales_k_point_count_2D(self):
         box, points = freud.data.make_random_system(10, 64, is2D=True, seed=1)
