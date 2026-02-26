@@ -21,8 +21,11 @@ namespace freud { namespace locality {
 
 void FilterSANN::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* query_points,
                          unsigned int num_query_points, std::shared_ptr<NeighborList> nlist,
-                         const QueryArgs& qargs)
+                         const QueryArgs& qargs, const float* points_radii, const float* query_points_radii)
 {
+    (void) points_radii;
+    (void) query_points_radii;
+
     // make the unfiltered neighborlist from the arguments
     m_unfiltered_nlist = makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs);
 

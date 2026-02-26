@@ -21,8 +21,17 @@ namespace freud { namespace locality {
 
 void FilterRAD::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* query_points,
                         unsigned int num_query_points, std::shared_ptr<NeighborList> nlist,
-                        const QueryArgs& qargs)
+                        const QueryArgs& qargs, const float* points_radii, const float* query_points_radii)
 {
+    (void) query_points_radii;
+
+    std::vector<float> default_points_radii;
+    if (points_radii == nullptr)
+    {
+        default_points_radii = std::vector<float>(nq->getNPoints(), 1.0f);
+        points_radii = default_points_radii.data();
+    }
+
     // make the unfiltered neighborlist from the arguments
     m_unfiltered_nlist = makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs);
 
@@ -66,10 +75,15 @@ void FilterRAD::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* qu
                 {
                     const auto second_neighbor_idx = sorted_neighbors(first_idx + k, 1);
                     const auto v2 = box.wrap(query_points[i] - points[second_neighbor_idx]);
+                    const float first_neighbor_radius = points_radii[first_neighbor_idx];
+                    const float second_neighbor_radius = points_radii[second_neighbor_idx];
+                    const float first_neighbor_radius_sq = first_neighbor_radius * first_neighbor_radius;
+                    const float second_neighbor_radius_sq = second_neighbor_radius * second_neighbor_radius;
 
                     // check if k blocks j
-                    if ((dot(v2, v2) * sorted_dist(first_idx + j) * sorted_dist(first_idx + k))
-                        < (dot(v1, v2) * dot(v1, v1)))
+                    if ((first_neighbor_radius_sq * dot(v2, v2) * sorted_dist(first_idx + j)
+                         * sorted_dist(first_idx + k))
+                        < (second_neighbor_radius_sq * dot(v1, v2) * dot(v1, v1)))
                     {
                         good_neighbor = false;
                         break;
