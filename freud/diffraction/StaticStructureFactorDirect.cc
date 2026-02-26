@@ -250,8 +250,9 @@ evaluate_quadratic_equation(float coef_a, float coef_b, float coef_c_min, float 
 }
 
 // Function to evaluate if k_vector should be kept for 2D sampling.
-bool should_keep_k_vector2D(float q_distance_sq, float q_prune_distance, bool add_all_k_points, float q_max_sq,
-                            float q_min_sq, std::uniform_real_distribution<float>& base_dist, std::mt19937& rng)
+bool should_keep_k_vector2D(float q_distance_sq, float q_prune_distance, bool add_all_k_points,
+                            float q_max_sq, float q_min_sq, std::uniform_real_distribution<float>& base_dist,
+                            std::mt19937& rng)
 {
     const auto prune_probability = q_prune_distance / std::sqrt(q_distance_sq);
     return (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
@@ -259,8 +260,9 @@ bool should_keep_k_vector2D(float q_distance_sq, float q_prune_distance, bool ad
 }
 
 // Function to evaluate if k_vector should be kept for 3D sampling.
-bool should_keep_k_vector3D(float q_distance_sq, float q_prune_distance_sq, bool add_all_k_points, float q_max_sq,
-                            float q_min_sq, std::uniform_real_distribution<float>& base_dist, std::mt19937& rng)
+bool should_keep_k_vector3D(float q_distance_sq, float q_prune_distance_sq, bool add_all_k_points,
+                            float q_max_sq, float q_min_sq, std::uniform_real_distribution<float>& base_dist,
+                            std::mt19937& rng)
 {
     const auto prune_probability = q_prune_distance_sq / q_distance_sq;
     return (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
