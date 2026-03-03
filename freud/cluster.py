@@ -6,15 +6,23 @@ The :class:`freud.cluster` module aids in finding and computing the properties
 of clusters of points in a system.
 """
 
+from __future__ import annotations
+
 from importlib.util import find_spec
+from typing import TYPE_CHECKING
 
 import numpy as np
+import numpy.typing as npt
 
 import freud._cluster
 import freud.locality
 import freud.util
+from freud._typing import ArrayLike
 from freud.locality import _PairCompute
 from freud.util import _Compute
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
@@ -47,10 +55,15 @@ class Cluster(_PairCompute):
     :code:`cluster_keys` contains the point ids present in each cluster.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._cluster.Cluster()
 
-    def compute(self, system, keys=None, neighbors=None):
+    def compute(
+        self,
+        system: object,
+        keys: ArrayLike | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+    ) -> Cluster:
         r"""Compute the clusters for the given set of points.
 
         Args:
@@ -78,26 +91,26 @@ class Cluster(_PairCompute):
         return self
 
     @_Compute._computed_property
-    def num_clusters(self):
+    def num_clusters(self) -> int:
         """int: The number of clusters."""
         return self._cpp_obj.getNumClusters()
 
     @_Compute._computed_property
-    def cluster_idx(self):
+    def cluster_idx(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: The cluster index for
         each point."""
         return self._cpp_obj.getClusterIdx().toNumpyArray()
 
     @_Compute._computed_property
-    def cluster_keys(self):
+    def cluster_keys(self) -> list[list[int]]:
         """list(list): A list of lists of the keys contained in each
         cluster."""
         return self._cpp_obj.getClusterKeys()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.cluster.{type(self).__name__}()"
 
-    def plot(self, ax=None):
+    def plot(self, ax: Axes | None = None) -> Axes | None:
         """Plot cluster distribution.
 
         Args:
@@ -116,7 +129,7 @@ class Cluster(_PairCompute):
             return None
         return freud.plot.clusters_plot(values, counts, num_clusters_to_plot=10, ax=ax)
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
@@ -141,10 +154,12 @@ class ClusterProperties(_Compute):
         using the minimum image convention
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._cluster.ClusterProperties()
 
-    def compute(self, system, cluster_idx, masses=None):
+    def compute(
+        self, system: object, cluster_idx: ArrayLike, masses: ArrayLike | None = None
+    ) -> ClusterProperties:
         r"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the geometric
         center, center of mass, moment of inertia, gyration tensors, and
@@ -185,7 +200,7 @@ class ClusterProperties(_Compute):
         return self
 
     @_Compute._computed_property
-    def centers(self):
+    def centers(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The geometric centers
         of the clusters, independent of mass and defined as
 
@@ -200,7 +215,7 @@ class ClusterProperties(_Compute):
         return self._cpp_obj.getClusterCenters().toNumpyArray()
 
     @_Compute._computed_property
-    def centers_of_mass(self):
+    def centers_of_mass(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of mass
         of the clusters:
 
@@ -216,7 +231,7 @@ class ClusterProperties(_Compute):
         return self._cpp_obj.getClusterCentersOfMass().toNumpyArray()
 
     @_Compute._computed_property
-    def gyrations(self):
+    def gyrations(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
         tensors of the clusters. Normalized by particle number:
 
@@ -234,7 +249,7 @@ class ClusterProperties(_Compute):
         return self._cpp_obj.getClusterGyrations().toNumpyArray()
 
     @_Compute._computed_property
-    def inertia_tensors(self):
+    def inertia_tensors(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The inertia
         tensors of the clusters. Neither normalized by mass nor number:
 
@@ -252,19 +267,19 @@ class ClusterProperties(_Compute):
         return self._cpp_obj.getClusterMomentsOfInertia().toNumpyArray()
 
     @_Compute._computed_property
-    def sizes(self):
+    def sizes(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The cluster sizes."""
         return self._cpp_obj.getClusterSizes().toNumpyArray()
 
     @_Compute._computed_property
-    def cluster_masses(self):
+    def cluster_masses(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The total mass of
         particles in each cluster.
         """
         return self._cpp_obj.getClusterMasses().toNumpyArray()
 
     @_Compute._computed_property
-    def radii_of_gyration(self):
+    def radii_of_gyration(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`,) :class:`numpy.ndarray`: The radius of
         gyration of each cluster. Defined by IUPAP as
 
@@ -281,5 +296,5 @@ class ClusterProperties(_Compute):
             / (2 * self.cluster_masses)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.cluster.{type(self).__name__}()"
