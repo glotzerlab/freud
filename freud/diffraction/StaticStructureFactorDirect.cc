@@ -11,9 +11,11 @@
 #include <random>
 #include <stdexcept>
 #include <tbb/concurrent_vector.h>
+#include <utility>
 #include <vector>
 
-#include "Eigen/Eigen/Dense"
+#include <Eigen/Eigen/Dense>
+#include <Eigen/Eigen/src/Core/Matrix.h>
 
 #include "Box.h"
 #include "NeighborQuery.h"
