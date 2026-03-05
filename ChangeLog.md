@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## Next release
 
+### Added
+* Support for `StaticStructureFactorDirect` in 2D.
+
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
 
