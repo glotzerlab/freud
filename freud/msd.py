@@ -176,7 +176,7 @@ class MSD(_Compute):
 
     def compute(
         self, positions: ArrayLike, images: ArrayLike | None = None, reset: bool = True
-    ) -> "MSD":
+    ) -> MSD:
         """Calculate the MSD for the positions provided.
 
         .. note::
