@@ -337,7 +337,9 @@ class Box:  # noqa: PLW1641
         :math:`(xz \times L_z, yz \times L_z, L_z)`."""
         return self.get_box_vector(2)
 
-    def wrap(self, vecs: ArrayLike, out: ArrayLike | None = None) -> npt.NDArray[np.floating]:
+    def wrap(
+        self, vecs: ArrayLike, out: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
@@ -445,7 +447,9 @@ class Box:  # noqa: PLW1641
         result = self._cpp_obj.centerOfMass(vecs, masses)
         return np.asarray(result)
 
-    def center(self, vecs: ArrayLike, masses: ArrayLike | None = None) -> npt.NDArray[np.floating]:
+    def center(
+        self, vecs: ArrayLike, masses: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Subtract center of mass from an array of vectors, using periodic boundaries.
 
         This calculation accounts for periodic images. `This Wikipedia page

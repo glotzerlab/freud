@@ -64,7 +64,9 @@ else:
     msg_mpl = "Plotting requires matplotlib."
 
 
-def _quat_to_z_angle(orientations: FloatArray, num_points: int) -> npt.NDArray[np.floating]:
+def _quat_to_z_angle(
+    orientations: FloatArray, num_points: int
+) -> npt.NDArray[np.floating]:
     """If orientations are quaternions, convert them to angles.
 
     For consistency with the boxes and points in freud, we require that
@@ -90,7 +92,9 @@ def _quat_to_z_angle(orientations: FloatArray, num_points: int) -> npt.NDArray[n
     return orientations
 
 
-def _gen_angle_array(orientations: ArrayLike, shape: tuple[int, ...]) -> npt.NDArray[np.floating]:
+def _gen_angle_array(
+    orientations: ArrayLike, shape: tuple[int, ...]
+) -> npt.NDArray[np.floating]:
     """Generates properly shaped, freud-compliant arrays of angles.
 
     This computation is specific to 2D calculations that require angles as

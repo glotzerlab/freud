@@ -822,7 +822,9 @@ class NeighborList:
         new_copy.copy(self)
         return new_copy
 
-    def __getitem__(self, key: int | slice | tuple[int | slice, ...]) -> npt.NDArray[np.integer]:
+    def __getitem__(
+        self, key: int | slice | tuple[int | slice, ...]
+    ) -> npt.NDArray[np.integer]:
         r"""Access the bond array by index or slice."""
         return self._cpp_obj.getNeighbors().toNumpyArray()[key]
 
