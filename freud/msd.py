@@ -1,12 +1,12 @@
 # Copyright (c) 2010-2026 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from __future__ import annotations
-
 r"""
 The :class:`freud.msd` module provides functions for computing the
 mean-squared-displacement (MSD) of particles in periodic systems.
 """
+
+from __future__ import annotations
 
 import logging
 from importlib.util import find_spec
