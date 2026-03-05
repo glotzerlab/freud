@@ -421,8 +421,6 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`. Note that box is
                 allowed to change when accumulating average static structure factor.
-                For non-orthorhombic boxes the points are wrapped into a orthorhombic
-                box.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
