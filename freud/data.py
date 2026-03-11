@@ -270,7 +270,7 @@ class UnitCell:
         Returns:
             :class:`~.UnitCell`: An oblique unit cell.
         """
-        fractions = np.array([0, 0, 0])
+        fractions = np.array([[0.0, 0.0, 0.0]])
         return cls(
             freud.Box.from_box_lengths_and_angles(
                 1, aspect, 0, np.pi / 2, np.pi / 2, np.deg2rad(theta)
