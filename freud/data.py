@@ -247,7 +247,7 @@ class UnitCell:
         Returns:
             :class:`~.UnitCell`: A rectangular unit cell.
         """
-        fractions = np.array([[0, 0, 0], *([] if not centered else [[0.5, 0.5, 0.5]])])
+        fractions = np.array([[0, 0, 0], *([] if not centered else [[0.5, 0.5, 0.0]])])
         return cls([1, aspect], fractions)
 
     @classmethod
@@ -258,6 +258,23 @@ class UnitCell:
             :class:`~.UnitCell`: A hexagonal unit cell.
         """
         fractions = np.array([[0, 0, 0], [0.5, 0.5, 0]])
+        return cls([1, np.sqrt(3)], fractions)
+
+    @classmethod
+    def graphene(cls):
+        """Create a graphene (hexagonal honeycomb) unit cell.
+
+        Returns:
+            :class:`~.UnitCell`: A hexagonal honeycomb unit cell.
+        """
+        fractions = np.array(
+            [
+                [0, 0, 0],
+                [0, 1 / 3, 0],
+                [1 / 2, 1 / 2, 0],
+                [1 / 2, 5 / 6, 0],
+            ]
+        )
         return cls([1, np.sqrt(3)], fractions)
 
     @classmethod
