@@ -6,14 +6,23 @@ The :class:`freud.msd` module provides functions for computing the
 mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
+from __future__ import annotations
+
 import logging
 from importlib.util import find_spec
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
+import numpy.typing as npt
 
 import freud.box
 import freud.parallel
+import freud.util
+from freud._typing import ArrayLike, FloatArray
 from freud.util import _Compute
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
@@ -57,7 +66,7 @@ except ImportError:
         logger.info("Using NumPy for FFTs")
 
 
-def _autocorrelation(x):
+def _autocorrelation(x: FloatArray) -> npt.NDArray[np.floating]:
     r"""Compute the autocorrelation of a sequence"""
     N = x.shape[0]
     F = fft(x, n=2 * N, axis=0)
@@ -148,20 +157,26 @@ class MSD(_Compute):
             :code:`'direct'`.  (Default value = :code:`'window'`).
     """  # noqa: E501
 
-    def __init__(self, box=None, mode="window"):
+    def __init__(
+        self,
+        box: freud.box.Box | ArrayLike | None = None,
+        mode: Literal["window", "direct"] = "window",
+    ) -> None:
         if box is not None:
             self._box = freud.util._convert_box(box)
         else:
             self._box = None
 
-        self._particle_msd = []
+        self._particle_msd: list[FloatArray] = []
 
         if mode not in ["window", "direct"]:
             msg = "Invalid mode"
             raise ValueError(msg)
         self.mode = mode
 
-    def compute(self, positions, images=None, reset=True):
+    def compute(
+        self, positions: ArrayLike, images: ArrayLike | None = None, reset: bool = True
+    ) -> MSD:
         """Calculate the MSD for the positions provided.
 
         .. note::
@@ -196,7 +211,9 @@ class MSD(_Compute):
 
         self._called_compute = True
 
-        positions = freud.util._convert_array(positions, shape=(None, None, 3))
+        positions = freud.util._convert_array(
+            positions, shape=(None, None, 3), dtype=np.float32
+        )
         if images is not None:
             images = freud.util._convert_array(
                 images, shape=positions.shape, dtype=np.int32
@@ -237,26 +254,26 @@ class MSD(_Compute):
         return self
 
     @property
-    def box(self):
+    def box(self) -> freud.box.Box | None:
         """:class:`freud.box.Box`: Box used in the calculation."""
         return self._box
 
     @_Compute._computed_property
-    def msd(self):
+    def msd(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
         squared displacement."""
         return np.concatenate(self._particle_msd, axis=1).mean(axis=-1)
 
     @_Compute._computed_property
-    def particle_msd(self):
+    def particle_msd(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{frames}, N_{particles} \\right)` :class:`numpy.ndarray`: The per
         particle based mean squared displacement."""  # noqa: E501
         return np.concatenate(self._particle_msd, axis=1)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.msd.{type(self).__name__}(box={self._box}, mode={self.mode!r})"
 
-    def plot(self, ax=None):
+    def plot(self, ax: Axes | None = None) -> Axes:
         """Plot MSD.
 
         Args:
@@ -282,7 +299,7 @@ class MSD(_Compute):
             ax=ax,
         )
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):

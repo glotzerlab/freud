@@ -239,6 +239,7 @@ target_set_install_rpath(_util)
 # Python module
 set(python_files
     __init__.py
+    _typing.py
     box.py
     cluster.py
     data.py

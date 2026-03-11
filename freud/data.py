@@ -12,10 +12,14 @@ x), existing freud scripts may need to be updated. The API will be finalized in
 a future release.
 """
 
+from __future__ import annotations
+
 import numpy as np
+import numpy.typing as npt
 import parsnip
 
 import freud
+from freud._typing import ArrayLike, ScalarLike
 
 
 class UnitCell:
@@ -35,7 +39,9 @@ class UnitCell:
             (Default value = ``[[0, 0, 0]]``).
     """
 
-    def __init__(self, box, basis_positions=None):
+    def __init__(
+        self, box: freud.box.Box | ArrayLike, basis_positions: ArrayLike | None = None
+    ) -> None:
         if basis_positions is None:
             basis_positions = [[0, 0, 0]]
         self._box = freud.box.Box.from_box(box)
@@ -43,11 +49,11 @@ class UnitCell:
 
     def generate_system(
         self,
-        num_replicas=1,
-        scale=1.0,
-        sigma_noise=0.0,
-        seed=None,
-    ):
+        num_replicas: int | tuple[int, int, int] = 1,
+        scale: ScalarLike = 1.0,
+        sigma_noise: ScalarLike = 0.0,
+        seed: int | None = None,
+    ) -> tuple[freud.box.Box, npt.NDArray[np.floating]]:
         """Generate a system from the unit cell.
 
         The box and the positions are expanded by ``scale``, and then Gaussian
@@ -153,44 +159,44 @@ class UnitCell:
         return box, positions
 
     @property
-    def box(self):
+    def box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: The box instance containing the lattice
         vectors."""
         return self._box
 
     @property
-    def lattice_vectors(self):
+    def lattice_vectors(self) -> npt.NDArray[np.floating]:
         """:math:`(3, 3)` :class:`np.ndarray`: The matrix of lattice
         vectors."""
         return self.box.to_matrix()
 
     @property
-    def basis_positions(self):
+    def basis_positions(self) -> npt.NDArray[np.floating]:
         """:math:`(N_{points}, 3)` :class:`np.ndarray`: The basis positions."""
         return self._basis_positions
 
     @property
-    def a1(self):
+    def a1(self) -> npt.NDArray[np.floating]:
         """:math:`(3, )` :class:`np.ndarray`: The first lattice vector."""
         return self.box.to_matrix()[:, 0]
 
     @property
-    def a2(self):
+    def a2(self) -> npt.NDArray[np.floating]:
         """:math:`(3, )` :class:`np.ndarray`: The second lattice vector."""
         return self.box.to_matrix()[:, 1]
 
     @property
-    def a3(self):
+    def a3(self) -> npt.NDArray[np.floating]:
         """:math:`(3, )` :class:`np.ndarray`: The third lattice vector."""
         return self.box.to_matrix()[:, 2]
 
     @property
-    def dimensions(self):
+    def dimensions(self) -> int:
         """int: The dimensionality of the unit cell."""
         return self.box.dimensions
 
     @classmethod
-    def fcc(cls):
+    def fcc(cls) -> UnitCell:
         """Create a face-centered cubic (fcc) unit cell.
 
         Returns:
@@ -200,7 +206,7 @@ class UnitCell:
         return cls([1, 1, 1], fractions)
 
     @classmethod
-    def bcc(cls):
+    def bcc(cls) -> UnitCell:
         """Create a body-centered cubic (bcc) unit cell.
 
         Returns:
@@ -210,7 +216,7 @@ class UnitCell:
         return cls([1, 1, 1], fractions)
 
     @classmethod
-    def sc(cls):
+    def sc(cls) -> UnitCell:
         """Create a simple cubic (sc) unit cell.
 
         Returns:
@@ -220,7 +226,7 @@ class UnitCell:
         return cls([1, 1, 1], fractions)
 
     @classmethod
-    def square(cls):
+    def square(cls) -> UnitCell:
         """Create a square unit cell.
 
         Returns:
@@ -230,7 +236,7 @@ class UnitCell:
         return cls([1, 1], fractions)
 
     @classmethod
-    def hex(cls):
+    def hex(cls) -> UnitCell:
         """Create a hexagonal unit cell.
 
         Returns:
@@ -240,7 +246,7 @@ class UnitCell:
         return cls([1, np.sqrt(3)], fractions)
 
     @classmethod
-    def from_cif(cls, filename: str):
+    def from_cif(cls, filename: str) -> UnitCell:
         """Create a unit cell from a `CIF`_ file.
 
         This method reads the Wyckoff sites and symmetry operations from a CIF file,
@@ -266,7 +272,12 @@ class UnitCell:
         return cls(freud.box.Box(*cif.box), cif.build_unit_cell())
 
 
-def make_random_system(box_size, num_points, is2D=False, seed=None):
+def make_random_system(
+    box_size: ScalarLike,
+    num_points: int,
+    is2D: bool = False,
+    seed: int | None = None,
+) -> tuple[freud.box.Box, npt.NDArray[np.floating]]:
     r"""Helper function to make random points with a cubic or square box.
 
     Args:

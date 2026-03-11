@@ -6,8 +6,13 @@ The :class:`freud.interface` module contains functions to measure the interface
 between sets of points.
 """
 
-import numpy as np
+from __future__ import annotations
 
+import numpy as np
+import numpy.typing as npt
+
+import freud.locality
+from freud._typing import ArrayLike, IntArray
 from freud.locality import _make_default_nlist, _PairCompute
 from freud.util import _Compute
 
@@ -15,11 +20,19 @@ from freud.util import _Compute
 class Interface(_PairCompute):
     r"""Measures the interface between two sets of points."""
 
-    def __init__(self):
+    _point_ids: IntArray
+    _query_point_ids: IntArray
+
+    def __init__(self) -> None:
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
-    def compute(self, system, query_points, neighbors=None):
+    def compute(
+        self,
+        system: object,
+        query_points: ArrayLike,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+    ) -> Interface:
         r"""Compute the particles at the interface between two sets of points.
 
         Args:
@@ -44,25 +57,25 @@ class Interface(_PairCompute):
         return self
 
     @_Compute._computed_property
-    def point_count(self):
+    def point_count(self) -> int:
         """int: Number of particles from :code:`points` on the interface."""
         return len(self._point_ids)
 
     @_Compute._computed_property
-    def point_ids(self):
+    def point_ids(self) -> npt.NDArray[np.integer]:
         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
         return np.asarray(self._point_ids)
 
     @_Compute._computed_property
-    def query_point_count(self):
+    def query_point_count(self) -> int:
         """int: Number of particles from :code:`query_points` on the
         interface."""
         return len(self._query_point_ids)
 
     @_Compute._computed_property
-    def query_point_ids(self):
+    def query_point_ids(self) -> npt.NDArray[np.integer]:
         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
         return np.asarray(self._query_point_ids)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.interface.{type(self).__name__}()"

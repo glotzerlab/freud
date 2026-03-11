@@ -1,11 +1,34 @@
 # Copyright (c) 2010-2026 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+from __future__ import annotations
+
+from collections.abc import Callable, Sequence
 from functools import wraps
+from typing import Literal, TypeAlias, TypeVar
 
 import numpy as np
+import numpy.typing as npt
 
 import freud.box
+from freud._typing import ArrayLike, ShapeLike
+
+C = TypeVar("C", bound="_Compute")
+R = TypeVar("R")
+RequirementFlag: TypeAlias = Literal[
+    "C",
+    "C_CONTIGUOUS",
+    "CONTIGUOUS",
+    "F",
+    "F_CONTIGUOUS",
+    "FORTRAN",
+    "A",
+    "ALIGNED",
+    "W",
+    "WRITEABLE",
+    "O",
+    "OWNDATA",
+]
 
 
 class _Compute:
@@ -33,10 +56,10 @@ class _Compute:
             Flag representing whether the compute method has been called.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._called_compute = False
 
-    def __getattribute__(self, attr):
+    def __getattribute__(self, attr: str):
         """Compute methods set a flag to indicate that quantities have been
         computed. Compute must be called before plotting."""
         attribute = object.__getattribute__(self, attr)
@@ -46,7 +69,7 @@ class _Compute:
             compute = attribute
 
             @wraps(compute)
-            def compute_wrapper(*args, **kwargs):
+            def compute_wrapper(*args: object, **kwargs: object) -> object:
                 return_value = compute(*args, **kwargs)
                 self._called_compute = True
                 return return_value
@@ -59,7 +82,7 @@ class _Compute:
         return attribute
 
     @staticmethod
-    def _computed_property(prop):
+    def _computed_property(prop: Callable[[C], R]) -> property:
         r"""Decorator that makes a class method to be a property with limited access.
 
         Args:
@@ -69,23 +92,26 @@ class _Compute:
             Decorator decorating appropriate property method.
         """
 
-        @property
         @wraps(prop)
-        def wrapper(self, *args, **kwargs):  # noqa: PLR0206 - it works...
+        def wrapper(self: C) -> R:
             if not self._called_compute:
                 msg = "Property not computed. Call compute first."
                 raise AttributeError(msg)
-            return prop(self, *args, **kwargs)
+            return prop(self)
 
-        return wrapper
+        return property(wrapper)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 
 def _convert_array(
-    array, shape=None, dtype=np.float32, requirements=("C",), allow_copy=True
-):
+    array: ArrayLike | None,
+    shape: ShapeLike | None = None,
+    dtype: npt.DTypeLike = np.float32,
+    requirements: Sequence[RequirementFlag] = ("C",),
+    allow_copy: bool = True,
+) -> npt.NDArray[np.generic]:
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -141,7 +167,9 @@ def _convert_array(
     return return_arr
 
 
-def _convert_box(box, dimensions=None):
+def _convert_box(
+    box: object | ArrayLike, dimensions: int | None = None
+) -> freud.box.Box:
     """Function which takes a box-like object and attempts to convert it to
     :class:`freud.box.Box`. Existing :class:`freud.box.Box` objects are
     used directly.

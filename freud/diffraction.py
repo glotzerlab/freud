@@ -12,17 +12,25 @@ diffraction pattern of particles in systems with long range order.
 finalized in a future release.
 """
 
+from __future__ import annotations
+
 import logging
 from importlib.util import find_spec
+from typing import TYPE_CHECKING, Protocol
 
 import numpy as np
+import numpy.typing as npt
 import rowan
 import scipy.ndimage
 
 import freud._diffraction
 import freud.locality
 import freud.util
+from freud._typing import ArrayLike, FloatArray, ScalarLike
 from freud.util import _Compute
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
@@ -36,34 +44,47 @@ else:
 logger = logging.getLogger(__name__)
 
 
+class _CPPStaticStructureFactor(Protocol):
+    def getStructureFactor(self) -> freud.locality._CPPFloatArray: ...
+    def getMinValidK(self) -> float: ...
+    def getBinEdges(self) -> freud.locality._CPPFloatArray: ...
+    def getBinCenters(self) -> freud.locality._CPPFloatArray: ...
+    def accumulate(self, *args: object) -> None: ...
+    def reset(self) -> None: ...
+    def getNumSampledKPoints(self) -> int: ...
+    def getKPoints(self) -> freud.locality._CPPFloatArray: ...
+
+
 class _StaticStructureFactor(_Compute):
-    def __init__(self):
+    _cpp_obj: _CPPStaticStructureFactor
+
+    def __init__(self) -> None:
         # abstract class
         pass
 
     @_Compute._computed_property
-    def S_k(self):
+    def S_k(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
         structure factor :math:`S(k)` values."""
         return self._cpp_obj.getStructureFactor().toNumpyArray()
 
     @property
-    def k_max(self):
+    def k_max(self) -> float:
         """float: Maximum value of k at which to calculate the structure
         factor."""
         return self.bounds[1]
 
     @property
-    def k_min(self):
+    def k_min(self) -> float:
         """float: Minimum value of k at which to calculate the structure
         factor."""
         return self.bounds[0]
 
     @_Compute._computed_property
-    def min_valid_k(self):
+    def min_valid_k(self) -> float:
         return self._cpp_obj.getMinValidK()
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
@@ -138,29 +159,37 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
             0).
     """
 
-    def __init__(self, num_k_values, k_max, k_min=0):
+    def __init__(
+        self, num_k_values: int, k_max: ScalarLike, k_min: ScalarLike = 0
+    ) -> None:
         self._cpp_obj = freud._diffraction.StaticStructureFactorDebye(
             num_k_values, k_max, k_min
         )
 
     @property
-    def num_k_values(self):
+    def num_k_values(self) -> int:
         """int: The number of k values used."""
         return len(self.k_values)
 
     @property
-    def k_values(self):
+    def k_values(self) -> npt.NDArray[np.floating]:
         """:class:`numpy.ndarray`: The :math:`k` values for the calculation."""
         return self._cpp_obj.getBinCenters().toNumpyArray()
 
     @property
-    def bounds(self):
+    def bounds(self) -> tuple[float, float]:
         """tuple: A tuple indicating the smallest and largest :math:`k` values
         used."""
         k_values = self.k_values
         return (k_values[0], k_values[len(k_values) - 1])
 
-    def compute(self, system, query_points=None, N_total=None, reset=True):
+    def compute(
+        self,
+        system: object,
+        query_points: ArrayLike | None = None,
+        N_total: int | None = None,
+        reset: bool = True,
+    ) -> StaticStructureFactorDebye:
         r"""Computes static structure factor.
 
         Example for a single component system::
@@ -237,23 +266,23 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
         self._cpp_obj.accumulate(nq._cpp_obj, query_points, N_total)
         return self
 
-    def _reset(self):
+    def _reset(self) -> None:
         self._cpp_obj.reset()
 
     @_Compute._computed_property
-    def min_valid_k(self):
+    def min_valid_k(self) -> float:
         """float: Minimum valid value of k for the computed system box, equal
         to :math:`2\\pi/(L/2)=4\\pi/L` where :math:`L` is the minimum side length.
         For more information see :cite:`Liu2016`."""
         return self._cpp_obj.getMinValidK()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.diffraction.{type(self).__name__}(num_k_values={self.num_k_values},"
             f" k_max={self.k_max}, k_min={self.k_min})"
         )
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax: Axes | None = None, **kwargs: object) -> Axes:
         r"""Plot static structure factor.
 
         .. note::
@@ -358,34 +387,46 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
             value = 0).
     """
 
-    def __init__(self, bins, k_max, k_min=0, num_sampled_k_points=0):
+    def __init__(
+        self,
+        bins: int,
+        k_max: ScalarLike,
+        k_min: ScalarLike = 0,
+        num_sampled_k_points: int = 0,
+    ) -> None:
         self._cpp_obj = freud._diffraction.StaticStructureFactorDirect(
             int(bins), float(k_max), float(k_min), int(num_sampled_k_points)
         )
 
     @property
-    def nbins(self):
+    def nbins(self) -> int:
         """float: Number of bins in the histogram."""
         return len(self.bin_centers)
 
     @property
-    def bin_edges(self):
+    def bin_edges(self) -> npt.NDArray[np.floating]:
         """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
         return self._cpp_obj.getBinEdges().toNumpyArray()
 
     @property
-    def bin_centers(self):
+    def bin_centers(self) -> npt.NDArray[np.floating]:
         """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
         return self._cpp_obj.getBinCenters().toNumpyArray()
 
     @property
-    def bounds(self):
+    def bounds(self) -> tuple[float, float]:
         """tuple: A tuple indicating upper and lower bounds of the
         histogram."""
         bin_edges = self.bin_edges
         return (bin_edges[0], bin_edges[len(bin_edges) - 1])
 
-    def compute(self, system, query_points=None, N_total=None, reset=True):
+    def compute(
+        self,
+        system: object,
+        query_points: ArrayLike | None = None,
+        N_total: int | None = None,
+        reset: bool = True,
+    ) -> StaticStructureFactorDirect:
         r"""Computes static structure factor.
 
         Example for a single component system::
@@ -461,37 +502,37 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
         self._cpp_obj.accumulate(nq._cpp_obj, query_points, N_total)
         return self
 
-    def _reset(self):
+    def _reset(self) -> None:
         self._cpp_obj.reset()
 
     @_Compute._computed_property
-    def min_valid_k(self):
+    def min_valid_k(self) -> float:
         """float: Minimum valid value of k for the computed system box, equal
         to :math:`2\\pi/L` where :math:`L` is the minimum side length.
         For more information see :cite:`Liu2016`."""
         return self._cpp_obj.getMinValidK()
 
     @property
-    def num_sampled_k_points(self):
+    def num_sampled_k_points(self) -> int:
         r"""int: The target number of :math:`\vec{k}` points to use when
         constructing :math:`k` space grid."""
         return self._cpp_obj.getNumSampledKPoints()
 
     @_Compute._computed_property
-    def k_points(self):
+    def k_points(self) -> npt.NDArray[np.floating]:
         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
         calculation."""
         k_points = self._cpp_obj.getKPoints()
         return k_points.toNumpyArray()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.diffraction.{type(self).__name__}(bins={self.nbins}, "
             f"k_max={self.k_max}, k_min={self.k_min}, "
             f"num_sampled_k_points={self.num_sampled_k_points})"
         )
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax: Axes | None = None, **kwargs: object) -> Axes:
         r"""Plot static structure factor.
 
         .. note::
@@ -559,7 +600,7 @@ class DiffractionPattern(_Compute):
             not provided or ``None`` (Default value = :code:`None`).
     """
 
-    def __init__(self, grid_size=512, output_size=None):
+    def __init__(self, grid_size: int = 512, output_size: int | None = None) -> None:
         super().__init__()
         self._grid_size = int(grid_size)
         self._output_size = int(grid_size) if output_size is None else int(output_size)
@@ -574,7 +615,9 @@ class DiffractionPattern(_Compute):
         self._diffraction = np.zeros((self.output_size, self.output_size))
         self._frame_counter = 0
 
-    def _calc_proj(self, view_orientation, box):
+    def _calc_proj(
+        self, view_orientation: FloatArray, box: freud.box.Box
+    ) -> npt.NDArray[np.floating]:
         """Calculate the inverse shear matrix from finding the projected box
         vectors whose area of parallogram is the largest.
 
@@ -613,7 +656,9 @@ class DiffractionPattern(_Compute):
         # Return the inverse shear matrix
         return np.linalg.inv(shear)
 
-    def _transform(self, img, box, inv_shear, zoom):
+    def _transform(
+        self, img: FloatArray, box: freud.box.Box, inv_shear: FloatArray, zoom: float
+    ) -> npt.NDArray[np.floating]:
         """Zoom, shear, and scale diffraction intensities.
 
         Args:
@@ -676,13 +721,13 @@ class DiffractionPattern(_Compute):
 
     def compute(
         self,
-        system,
-        view_orientation=None,
-        zoom=4,
-        peak_width=1,
-        weights=None,
-        reset=True,
-    ):
+        system: object,
+        view_orientation: ArrayLike | None = None,
+        zoom: ScalarLike = 4,
+        peak_width: ScalarLike = 1,
+        weights: ArrayLike | None = None,
+        reset: bool = True,
+    ) -> DiffractionPattern:
         r"""Computes diffraction pattern.
 
         Args:
@@ -791,17 +836,17 @@ class DiffractionPattern(_Compute):
         return self
 
     @property
-    def grid_size(self):
+    def grid_size(self) -> int:
         """int: Resolution of the diffraction grid."""
         return self._grid_size
 
     @property
-    def output_size(self):
+    def output_size(self) -> int:
         """int: Resolution of the output diffraction image."""
         return self._output_size
 
     @_Compute._computed_property
-    def diffraction(self):
+    def diffraction(self) -> npt.NDArray[np.floating]:
         """
         (``output_size``, ``output_size``) :class:`numpy.ndarray`:
             Diffraction pattern.
@@ -809,12 +854,12 @@ class DiffractionPattern(_Compute):
         return np.asarray(self._diffraction) / self._frame_counter
 
     @_Compute._computed_property
-    def N_points(self):
+    def N_points(self) -> int:
         """int: Number of points used in the last computation."""
         return self._N_points
 
     @_Compute._computed_property
-    def k_values(self):
+    def k_values(self) -> npt.NDArray[np.floating]:
         """(``output_size``,) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
             self._k_values = np.asarray(self._k_values_orig) * self._k_scale_factor
@@ -822,7 +867,7 @@ class DiffractionPattern(_Compute):
         return np.asarray(self._k_values)
 
     @_Compute._computed_property
-    def k_vectors(self):
+    def k_vectors(self) -> npt.NDArray[np.floating]:
         """(``output_size``, ``output_size``, 3) :class:`numpy.ndarray`: \
         k-vectors."""
         if not self._k_vectors_cached:
@@ -833,13 +878,15 @@ class DiffractionPattern(_Compute):
             self._k_vectors_cached = True
         return np.asarray(self._k_vectors)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.diffraction.{type(self).__name__}(grid_size={self.grid_size}, "
             f"output_size={self.output_size})"
         )
 
-    def to_image(self, cmap="afmhot", vmin=None, vmax=None):
+    def to_image(
+        self, cmap: str = "afmhot", vmin: float | None = None, vmax: float | None = None
+    ) -> np.ndarray:
         """Generates image of diffraction pattern.
 
         Args:
@@ -867,7 +914,13 @@ class DiffractionPattern(_Compute):
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 
-    def plot(self, ax=None, cmap="afmhot", vmin=None, vmax=None):
+    def plot(
+        self,
+        ax: Axes | None = None,
+        cmap: str = "afmhot",
+        vmin: float | None = None,
+        vmax: float | None = None,
+    ) -> Axes:
         """Plot Diffraction Pattern.
 
         Args:
@@ -896,7 +949,7 @@ class DiffractionPattern(_Compute):
             self.diffraction, self.k_values, self.N_points, ax, cmap, vmin, vmax
         )
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):

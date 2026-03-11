@@ -10,19 +10,28 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
+from __future__ import annotations
+
 import collections.abc
 import logging
 import time
 import warnings
 from importlib.util import find_spec
 from math import floor
+from typing import TYPE_CHECKING
 
 import numpy as np
+import numpy.typing as npt
 
 import freud._order
 import freud.locality
+import freud.util
+from freud._typing import ArrayLike, ScalarLike
 from freud.locality import _PairCompute
 from freud.util import _Compute
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
@@ -52,7 +61,14 @@ class Cubatic(_Compute):
             (Default value = :code:`None`).
     """
 
-    def __init__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
+    def __init__(
+        self,
+        t_initial: ScalarLike,
+        t_final: ScalarLike,
+        scale: ScalarLike,
+        n_replicates: int = 1,
+        seed: int | None = None,
+    ) -> None:
         if seed is None:
             seed = int(time.time())
 
@@ -60,7 +76,7 @@ class Cubatic(_Compute):
             t_initial, t_final, scale, n_replicates, seed
         )
 
-    def compute(self, orientations):
+    def compute(self, orientations: ArrayLike) -> Cubatic:
         r"""Calculates the per-particle and global order parameter.
 
         Args:
@@ -72,62 +88,62 @@ class Cubatic(_Compute):
         return self
 
     @property
-    def t_initial(self):
+    def t_initial(self) -> float:
         """float: The value of the initial temperature."""
         return self._cpp_obj.getTInitial()
 
     @property
-    def t_final(self):
+    def t_final(self) -> float:
         """float: The value of the final temperature."""
         return self._cpp_obj.getTFinal()
 
     @property
-    def scale(self):
+    def scale(self) -> float:
         """float: The scale."""
         return self._cpp_obj.getScale()
 
     @property
-    def n_replicates(self):
+    def n_replicates(self) -> int:
         """unsigned int: Number of replicate simulated annealing runs."""
         return self._cpp_obj.getNReplicates()
 
     @property
-    def seed(self):
+    def seed(self) -> int:
         """unsigned int: Random seed to use in calculations."""
         return self._cpp_obj.getSeed()
 
     @_Compute._computed_property
-    def order(self):
+    def order(self) -> float:
         """float: Cubatic order parameter of the system."""
         return self._cpp_obj.getCubaticOrderParameter()
 
     @_Compute._computed_property
-    def orientation(self):
+    def orientation(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(4 \\right)` :class:`numpy.ndarray`: The quaternion of
         global orientation."""
         q = self._cpp_obj.getCubaticOrientation()
         return np.asarray(q, dtype=np.float32)
 
     @_Compute._computed_property
-    def particle_order(self):
+    def particle_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
         parameter."""
         return self._cpp_obj.getParticleOrderParameter().toNumpyArray()
 
     @_Compute._computed_property
-    def global_tensor(self):
+    def global_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
         tensor corresponding to the global orientation. Computed from all
         orientations."""
         return self._cpp_obj.getGlobalTensor().toNumpyArray()
 
     @_Compute._computed_property
-    def cubatic_tensor(self):
+    def cubatic_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
         homogeneous tensor representing the optimal system-wide coordinates."""
         return self._cpp_obj.getCubaticTensor().toNumpyArray()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.order.{type(self).__name__}(t_initial={self.t_initial}, "
             f"t_final={self.t_final}, scale={self.scale}, "
@@ -160,10 +176,10 @@ class Nematic(_Compute):
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._order.Nematic()
 
-    def compute(self, orientations):
+    def compute(self, orientations: ArrayLike) -> Nematic:
         """Calculates the per-particle and global order parameter.
 
         Example::
@@ -200,30 +216,30 @@ class Nematic(_Compute):
         return self
 
     @_Compute._computed_property
-    def order(self):
+    def order(self) -> float:
         """float: Nematic order parameter of the system."""
         return self._cpp_obj.getNematicOrderParameter()
 
     @_Compute._computed_property
-    def director(self):
+    def director(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3 \\right)` :class:`numpy.ndarray`: The average
         nematic director."""
         return np.asarray([*self._cpp_obj.getNematicDirector()], dtype=np.float32)
 
     @_Compute._computed_property
-    def particle_tensor(self):
+    def particle_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`:
         One 3x3 matrix per-particle corresponding to each individual
         particle orientation."""
         return self._cpp_obj.getParticleTensor().toNumpyArray()
 
     @_Compute._computed_property
-    def nematic_tensor(self):
+    def nematic_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`: 3x3 matrix
         corresponding to the average particle orientation."""
         return self._cpp_obj.getNematicTensor().toNumpyArray()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.order.{type(self).__name__}()"
 
 
@@ -278,10 +294,14 @@ class Hexatic(_PairCompute):
             :code:`False`).
     """
 
-    def __init__(self, k=6, weighted=False):
+    def __init__(self, k: int = 6, weighted: bool = False) -> None:
         self._cpp_obj = freud._order.Hexatic(k, weighted)
 
-    def compute(self, system, neighbors=None):
+    def compute(
+        self,
+        system: object,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+    ) -> Hexatic:
         r"""Calculates the hexatic order parameter.
 
         Example::
@@ -314,33 +334,33 @@ class Hexatic(_PairCompute):
         return self
 
     @property
-    def default_query_args(self):
+    def default_query_args(self) -> dict[str, object]:
         """The default query arguments are
         :code:`{'mode': 'nearest', 'num_neighbors': self.k}`."""
         return dict(mode="nearest", num_neighbors=self.k)
 
     @_Compute._computed_property
-    def particle_order(self):
+    def particle_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
         parameter."""
         return self._cpp_obj.getOrder().toNumpyArray()
 
     @property
-    def k(self):
+    def k(self) -> int:
         """unsigned int: Symmetry of the order parameter."""
         return self._cpp_obj.getK()
 
     @property
-    def weighted(self):
+    def weighted(self) -> bool:
         """bool: Whether neighbor weights were used in the computation."""
         return self._cpp_obj.isWeighted()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.order.{type(self).__name__}(k={self.k}, weighted={self.weighted})"
         )
 
-    def plot(self, ax=None):
+    def plot(self, ax: Axes | None = None) -> Axes:
         """Plot order parameter distribution.
 
         Args:
@@ -365,7 +385,7 @@ class Hexatic(_PairCompute):
             ax=ax,
         )
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
@@ -486,7 +506,14 @@ class Steinhardt(_PairCompute):
             of the Steinhardt order parameter (Default value = :code:`False`).
     """
 
-    def __init__(self, l, average=False, wl=False, weighted=False, wl_normalize=False):
+    def __init__(
+        self,
+        l: int | list[int],
+        average: bool = False,
+        wl: bool = False,
+        weighted: bool = False,
+        wl_normalize: bool = False,
+    ) -> None:
         if not isinstance(l, collections.abc.Sequence):
             l = [l]
         if len(l) == 0:
@@ -495,34 +522,34 @@ class Steinhardt(_PairCompute):
         self._cpp_obj = freud._order.Steinhardt(l, average, wl, weighted, wl_normalize)
 
     @property
-    def average(self):
+    def average(self) -> bool:
         """bool: Whether the averaged Steinhardt order parameter was
         calculated."""
         return self._cpp_obj.isAverage()
 
     @property
-    def wl(self):
+    def wl(self) -> bool:
         """bool: Whether the :math:`w_l` version of the Steinhardt order
         parameter was used."""
         return self._cpp_obj.isWl()
 
     @property
-    def weighted(self):
+    def weighted(self) -> bool:
         """bool: Whether neighbor weights were used in the computation."""
         return self._cpp_obj.isWeighted()
 
     @property
-    def wl_normalize(self):
+    def wl_normalize(self) -> bool:
         return self._cpp_obj.isWlNormalized()
 
     @property
-    def l(self):
+    def l(self) -> int | list[int]:
         """unsigned int: Spherical harmonic quantum number l."""
         ls = self._cpp_obj.getL()
         return ls[0] if len(ls) == 1 else ls
 
     @_Compute._computed_property
-    def order(self):
+    def order(self) -> npt.NDArray[np.floating] | float:
         r"""float: The system wide normalization of the order parameter,
         computed by averaging the :math:`q_{lm}` values (or
         :math:`\overline{q}_{lm}` values if ``average`` is enabled) over all
@@ -532,7 +559,7 @@ class Steinhardt(_PairCompute):
         return order[0] if len(order) == 1 else order
 
     @_Compute._computed_property
-    def particle_order(self):
+    def particle_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, N_l \\right)` :class:`numpy.ndarray`:
         Variant of the Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors)."""
@@ -540,7 +567,7 @@ class Steinhardt(_PairCompute):
         return np.ravel(p_orders) if p_orders.shape[1] == 1 else p_orders
 
     @_Compute._computed_property
-    def ql(self):
+    def ql(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, N_l\\right)` :class:`numpy.ndarray`:
         :math:`q_l` Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors). This is always available,
@@ -551,14 +578,20 @@ class Steinhardt(_PairCompute):
         return np.ravel(ql) if ql.shape[1] == 1 else ql
 
     @_Compute._computed_property
-    def particle_harmonics(self):
+    def particle_harmonics(
+        self,
+    ) -> list[npt.NDArray[np.floating]] | npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, 2l+1\\right)` :class:`numpy.ndarray`:
         The raw array of :math:`q_{lm}(i)`. The array is provided in the
         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
         qlm_list = [qlm.toNumpyArray() for qlm in self._cpp_obj.getQlm()]
         return qlm_list if len(qlm_list) > 1 else qlm_list[0]
 
-    def compute(self, system, neighbors=None):
+    def compute(
+        self,
+        system: object,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+    ) -> Steinhardt:
         r"""Compute the order parameter.
 
         Example::
@@ -588,14 +621,14 @@ class Steinhardt(_PairCompute):
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.order.{type(self).__name__}(l={self.l}, "
             f"average={self.average}, wl={self.wl}, weighted={self.weighted}, "
             f"wl_normalize={self.wl_normalize})"
         )
 
-    def plot(self, ax=None):
+    def plot(self, ax: Axes | None = None) -> Axes:
         """Plot order parameter distribution.
 
         Args:
@@ -635,7 +668,7 @@ class Steinhardt(_PairCompute):
             legend_labels=legend_labels,
         )
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
@@ -681,7 +714,13 @@ class SolidLiquid(_PairCompute):
             :code:`True`).
     """
 
-    def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):
+    def __init__(
+        self,
+        l: int,
+        q_threshold: ScalarLike,
+        solid_threshold: int | ScalarLike,
+        normalize_q: bool = True,
+    ) -> None:
         if not isinstance(solid_threshold, int):
             warning_text = (
                 "solid_threshold should be an integer, and will be rounded down"
@@ -693,7 +732,11 @@ class SolidLiquid(_PairCompute):
             l, q_threshold, solid_threshold, normalize_q
         )
 
-    def compute(self, system, neighbors=None):
+    def compute(
+        self,
+        system: object,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+    ) -> SolidLiquid:
         r"""Compute the order parameter.
 
         Args:
@@ -715,76 +758,76 @@ class SolidLiquid(_PairCompute):
         return self
 
     @property
-    def l(self):
+    def l(self) -> int:
         """unsigned int: Spherical harmonic quantum number l."""
         return self._cpp_obj.getL()
 
     @property
-    def q_threshold(self):
+    def q_threshold(self) -> float:
         """float: Value of dot product threshold."""
         return self._cpp_obj.getQThreshold()
 
     @property
-    def solid_threshold(self):
+    def solid_threshold(self) -> float:
         """float: Value of number-of-bonds threshold."""
         return self._cpp_obj.getSolidThreshold()
 
     @property
-    def normalize_q(self):
+    def normalize_q(self) -> bool:
         """bool: Whether the dot product is normalized."""
         return self._cpp_obj.getNormalizeQ()
 
     @_Compute._computed_property
-    def cluster_idx(self):
+    def cluster_idx(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
         Solid-like cluster indices for each particle."""
         return self._cpp_obj.getClusterIdx().toNumpyArray()
 
     @_Compute._computed_property
-    def ql_ij(self):
+    def ql_ij(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: Bond dot
         products :math:`q_l(i, j)`. Indexed by the elements of
         :code:`self.nlist`."""
         return self._cpp_obj.getQlij().toNumpyArray()
 
     @_Compute._computed_property
-    def particle_harmonics(self):
+    def particle_harmonics(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
         The raw array of \\overline{q}_{lm}(i). The array is provided in the
         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
         return self._cpp_obj.getQlm().toNumpyArray()
 
     @_Compute._computed_property
-    def cluster_sizes(self):
+    def cluster_sizes(self) -> npt.NDArray[np.floating]:
         """:math:`(N_{clusters}, )` :class:`np.ndarray`: The sizes of all
         clusters."""
         return self._cpp_obj.getClusterSizes().toNumpyArray()
 
     @_Compute._computed_property
-    def largest_cluster_size(self):
+    def largest_cluster_size(self) -> int:
         """unsigned int: The largest cluster size."""
         return self._cpp_obj.getLargestClusterSize()
 
     @_Compute._computed_property
-    def nlist(self):
+    def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: Neighbor list of solid-like
         bonds."""
         return freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
 
     @_Compute._computed_property
-    def num_connections(self):
+    def num_connections(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
         number of solid-like bonds for each particle."""
         return self._cpp_obj.getNumberOfConnections().toNumpyArray()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.order.{type(self).__name__}(l={self.l}, "
             f"q_threshold={self.q_threshold}, solid_threshold={self.solid_threshold}, "
             f"normalize_q={self.normalize_q})"
         )
 
-    def plot(self, ax=None):
+    def plot(self, ax: Axes | None = None) -> Axes | None:
         """Plot solid-like cluster distribution.
 
         Args:
@@ -806,7 +849,7 @@ class SolidLiquid(_PairCompute):
                 values, counts, num_clusters_to_plot=10, ax=ax
             )
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
@@ -843,13 +886,15 @@ class RotationalAutocorrelation(_Compute):
             integer.
     """
 
-    def __init__(self, l):
+    def __init__(self, l: int) -> None:
         if l % 2 or l < 0:
             msg = "The quantum number must be a positive, even integer."
             raise ValueError(msg)
         self._cpp_obj = freud._order.RotationalAutocorrelation(l)
 
-    def compute(self, ref_orientations, orientations):
+    def compute(
+        self, ref_orientations: ArrayLike, orientations: ArrayLike
+    ) -> RotationalAutocorrelation:
         """Calculates the rotational autocorrelation function for a single frame.
 
         Args:
@@ -865,23 +910,23 @@ class RotationalAutocorrelation(_Compute):
         return self
 
     @_Compute._computed_property
-    def order(self):
+    def order(self) -> float:
         """float: Autocorrelation of the system."""
         return self._cpp_obj.getRotationalAutocorrelation()
 
     @_Compute._computed_property
-    def particle_order(self):
+    def particle_order(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{orientations}`) :class:`numpy.ndarray`: Rotational
         autocorrelation values calculated for each orientation."""
         return self._cpp_obj.getRAArray().toNumpyArray()
 
     @property
-    def l(self):
+    def l(self) -> int:
         """int: The azimuthal quantum number, which defines the order of the
         hyperspherical harmonic."""
         return self._cpp_obj.getL()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.order.{type(self).__name__}(l={self.l})"
 
 
@@ -935,14 +980,23 @@ class ContinuousCoordination(_PairCompute):
             (Default value: :code:`True`)
     """
 
-    def __init__(self, powers=None, compute_log=True, compute_exp=True):
+    def __init__(
+        self,
+        powers: list[float] | None = None,
+        compute_log: bool = True,
+        compute_exp: bool = True,
+    ) -> None:
         if powers is None:
             powers = [2.0]
         self._cpp_obj = freud._order.ContinuousCoordination(
             powers, compute_log, compute_exp
         )
 
-    def compute(self, system=None, voronoi=None):
+    def compute(
+        self,
+        system: object | None = None,
+        voronoi: freud.locality.Voronoi | None = None,
+    ) -> ContinuousCoordination:
         r"""Calculates the local coordination number for the specified points.
 
         Example::
@@ -978,7 +1032,7 @@ class ContinuousCoordination(_PairCompute):
         return self
 
     @_Compute._computed_property
-    def particle_order(self):
+    def particle_order(self) -> npt.NDArray[np.floating]:
         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
                 coordination of points per query point.
 
@@ -987,7 +1041,7 @@ class ContinuousCoordination(_PairCompute):
         return self.coordination
 
     @_Compute._computed_property
-    def coordination(self):
+    def coordination(self) -> npt.NDArray[np.floating]:
         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`): \
                 coordination of points per query point.
 
@@ -996,7 +1050,7 @@ class ContinuousCoordination(_PairCompute):
         return self._cpp_obj.getCoordination().toNumpyArray()
 
     @property
-    def powers(self):
+    def powers(self) -> list[float]:
         """list[float]: The powers to compute the continuous coordination number.
 
         Changes to this property are not reflected when computing coordination
@@ -1005,21 +1059,21 @@ class ContinuousCoordination(_PairCompute):
         return self._cpp_obj.getPowers()
 
     @property
-    def compute_log(self):
+    def compute_log(self) -> bool:
         """bool: Whether to compute the log continuous coordination number."""
         return self._cpp_obj.getComputeLog()
 
     @property
-    def compute_exp(self):
+    def compute_exp(self) -> bool:
         """bool: Whether to compute the exponential coordination number."""
         return self._cpp_obj.getComputeExp()
 
     @property
-    def number_of_coordinations(self):
+    def number_of_coordinations(self) -> int:
         """int: The number of coordination numbers computed."""
         return self._cpp_obj.getNumberOfCoordinations()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.order.{type(self).__name__}(powers={self.powers}, "
             f"compute_log={self.compute_log}, compute_exp={self.compute_exp})"
