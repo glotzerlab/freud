@@ -889,6 +889,48 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
         assert nlist_equal(nlist1, nlist2)
 
+    def test_query_point_outside_grid_bounds_nearest(self):
+        """Test that query points outside grid bounds find neighbors in nearest mode.
+
+        For nearest queries, the grid is built with r_cut = r_guess * 0.35, which
+        can be much smaller than the actual search radius. A query point outside
+        the grid bounds but within r_max of particles should still find neighbors.
+        """
+        L = 20
+        box = freud.box.Box.cube(L)
+
+        # Particle near the edge of the box
+        ref_points = np.array([[1.0, 10.0, 10.0]], dtype=np.float32)
+
+        # Use nearest query with explicit small r_guess
+        # Grid will be built with r_cut = r_guess * 0.35 = 0.7
+        r_guess = 2.0
+
+        cc = freud.locality.CellQuery(box, ref_points)
+
+        # Query point outside the grid bounds but within search range of particle
+        # Grid x range is approximately [-10.7, 11.0]
+        # Query at x=-11.2 (outside grid), distance to particle at x=1.0 is ~12.2
+        query_point = np.array([[-11.2, 10.0, 10.0]], dtype=np.float32)
+
+        # CellQuery should find the neighbor
+        result = list(
+            cc.query(
+                query_point, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
+            )
+        )
+        assert len(result) == 1, (
+            "CellQuery should find neighbor even when query point is outside grid bounds"
+        )
+
+        # Compare with AABBQuery which handles this correctly
+        aq = freud.locality.AABBQuery(box, ref_points)
+        result_aq = list(aq.query(query_point, dict(mode="nearest", num_neighbors=1)))
+        assert len(result_aq) == 1
+        assert len(result) == len(result_aq), (
+            "CellQuery and AABBQuery should return same number of neighbors"
+        )
+
 
 #     @pytest.mark.parametrize(
 #         ("r_guess", "scale"),
