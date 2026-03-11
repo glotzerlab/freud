@@ -53,10 +53,8 @@ class TestUnitCell:
         center = np.array([box.Lx / 2 + box.xy * box.Ly / 2, box.Ly / 2, 0])
         npt.assert_allclose(points.squeeze(), -center, rtol=1e-6)
 
-    @pytest.mark.parametrize(
-        "aspect, theta",
-        [(1.0, 30.0), (1.0, 45.0), (1.0, 60.0), (1.0, 90.0), (0.5, 45.0), (2.0, 45.0)],
-    )
+    @pytest.mark.parametrize("theta", [17.123, 30.0, 45.0, 60.0, 90.0])
+    @pytest.mark.parametrize("aspect", [0.5, 1.0, 2.0])
     def test_oblique_params(self, aspect, theta):
         """Test that the oblique lattice respects aspect ratio and angle theta."""
         box, points = freud.data.UnitCell.oblique(
