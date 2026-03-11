@@ -251,6 +251,34 @@ class UnitCell:
         return cls([1, aspect], fractions)
 
     @classmethod
+    def oblique(
+        cls,
+        aspect: int | float | np.integer | np.floating = 1.0,
+        theta: int | float | np.integer | np.floating = 45.0,
+    ):
+        r"""Create an oblique unit cell with aspect :math:`b/a` and angle :math:`\theta`
+
+        Args:
+            aspect (float):
+                The ratio of the lattice parameter :math:`b` to :math:`a`.
+                (Default value = :code:`1.0`).
+            theta (float):
+                The angle between lattice vectors :math:`a` and :math:`b`, in degrees.
+                Must be in the range :math:`0\degree < \theta < 180\degree`.
+                (Default value = :code:`45.0`).
+
+        Returns:
+            :class:`~.UnitCell`: An oblique unit cell.
+        """
+        fractions = np.array([0, 0, 0])
+        return cls(
+            freud.Box.from_box_lengths_and_angles(
+                1, aspect, 0, np.pi / 2, np.pi / 2, np.deg2rad(theta)
+            ),
+            fractions,
+        )
+
+    @classmethod
     def hex(cls):
         """Create a hexagonal unit cell.
 
