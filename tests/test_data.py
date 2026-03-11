@@ -41,6 +41,34 @@ class TestUnitCell:
         assert box == freud.box.Box(1, aspect)
         npt.assert_array_equal(points, [[-0.5, -aspect / 2, 0], [0, 0, 0]])
 
+    def test_oblique(self):
+        """Test that the oblique lattice is correctly generated."""
+        box, points = freud.data.UnitCell.oblique().generate_system()
+        # Default: aspect=1, theta=45 degrees
+        expected_box = freud.box.Box.from_box_lengths_and_angles(
+            1, 1, 0, np.pi / 2, np.pi / 2, np.deg2rad(45)
+        )
+        assert box == expected_box
+        # Center of tilted box: (Lx/2 + xy*Ly/2, Ly/2, 0)
+        center = np.array([box.Lx / 2 + box.xy * box.Ly / 2, box.Ly / 2, 0])
+        npt.assert_allclose(points.squeeze(), -center, rtol=1e-6)
+
+    @pytest.mark.parametrize(
+        "aspect, theta",
+        [(1.0, 30.0), (1.0, 45.0), (1.0, 60.0), (1.0, 90.0), (0.5, 45.0), (2.0, 45.0)],
+    )
+    def test_oblique_params(self, aspect, theta):
+        """Test that the oblique lattice respects aspect ratio and angle theta."""
+        box, points = freud.data.UnitCell.oblique(
+            aspect=aspect, theta=theta
+        ).generate_system()
+        expected_box = freud.box.Box.from_box_lengths_and_angles(
+            1, aspect, 0, np.pi / 2, np.pi / 2, np.deg2rad(theta)
+        )
+        assert box == expected_box
+        center = np.array([box.Lx / 2 + box.xy * box.Ly / 2, box.Ly / 2, 0])
+        npt.assert_allclose(points.squeeze(), -center, rtol=1e-6)
+
     def test_graphene(self):
         """Test that the graphene lattice is correctly generated."""
         box, points = freud.data.UnitCell.graphene().generate_system()
