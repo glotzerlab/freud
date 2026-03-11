@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ### Added
 * Support for `StaticStructureFactorDirect` in 2D.
-* `oblique`, `rectangular`, and `graphene` lattices to `freud.data.UnitCell`.
+* `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
 
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
