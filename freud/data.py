@@ -230,6 +230,27 @@ class UnitCell:
         return cls([1, 1], fractions)
 
     @classmethod
+    def rectangular(
+        cls,
+        aspect: int | float | np.integer | np.floating = 2.0,
+        centered: bool = False,
+    ):
+        """Create a simple or centered rectangular unit cell with aspect :math:`b / a`.
+
+        Args:
+            aspect (float):
+                The ratio of the lattice parameter :math:`b` to :math:`a`.
+                (Default value = :code:`2.0`).
+            centered (bool): If true, add an additional basis point at
+                :code:`[0.5, 0.5, 0.5]` (Default value = :code:`False`).
+
+        Returns:
+            :class:`~.UnitCell`: A rectangular unit cell.
+        """
+        fractions = np.array([[0, 0, 0], *([] if not centered else [[0.5, 0.5, 0.5]])])
+        return cls([1, aspect], fractions)
+
+    @classmethod
     def hex(cls):
         """Create a hexagonal unit cell.
 
