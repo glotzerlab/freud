@@ -13,6 +13,34 @@ import freud
 
 
 class TestUnitCell:
+    def test_rectangular(self):
+        """Test that the rectangular lattice is correctly generated."""
+        box, points = freud.data.UnitCell.rectangular().generate_system()
+        assert box == freud.box.Box(1, 2)
+        npt.assert_array_equal(points, [[-0.5, -1, 0]])
+
+    @pytest.mark.parametrize("aspect", [0.5, 1.0, 2.0, 3.0])
+    def test_rectangular_aspect(self, aspect):
+        """Test that the rectangular lattice respects aspect ratio."""
+        box, points = freud.data.UnitCell.rectangular(aspect=aspect).generate_system()
+        assert box == freud.box.Box(1, aspect)
+        npt.assert_array_equal(points, [[-0.5, -aspect / 2, 0]])
+
+    def test_rectangular_centered(self):
+        """Test that the centered rectangular lattice is correctly generated."""
+        box, points = freud.data.UnitCell.rectangular(centered=True).generate_system()
+        assert box == freud.box.Box(1, 2)
+        npt.assert_array_equal(points, [[-0.5, -1, 0], [0, 0, 0]])
+
+    @pytest.mark.parametrize("aspect", [1.0, 2.0, 4.0])
+    def test_rectangular_centered_aspect(self, aspect):
+        """Test centered rectangular with different aspect ratios."""
+        box, points = freud.data.UnitCell.rectangular(
+            aspect=aspect, centered=True
+        ).generate_system()
+        assert box == freud.box.Box(1, aspect)
+        npt.assert_array_equal(points, [[-0.5, -aspect / 2, 0], [0, 0, 0]])
+
     def test_square(self):
         """Test that the square lattice is correctly generated."""
         box, points = freud.data.UnitCell.square().generate_system()
