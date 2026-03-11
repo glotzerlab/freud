@@ -41,6 +41,33 @@ class TestUnitCell:
         assert box == freud.box.Box(1, aspect)
         npt.assert_array_equal(points, [[-0.5, -aspect / 2, 0], [0, 0, 0]])
 
+    def test_graphene(self):
+        """Test that the graphene lattice is correctly generated."""
+        box, points = freud.data.UnitCell.graphene().generate_system()
+        assert box == freud.box.Box(1, np.sqrt(3))
+        expected_points = np.array(
+            [
+                [-0.5, -np.sqrt(3) / 2, 0],
+                [-0.5, -np.sqrt(3) / 6, 0],
+                [0, np.sqrt(3) / 3, 0],
+                [0, 0, 0],
+            ]
+        )
+        npt.assert_allclose(points, expected_points, rtol=1e-6)
+
+    def test_graphene_bond_length(self):
+        """Test that graphene has correct C-C bond length of 1/sqrt(3)."""
+        # Generate a larger system so all neighbors are within the system
+        box, points = freud.data.UnitCell.graphene().generate_system(3)
+        bond_length = 1 / np.sqrt(3)
+        # Use neighbor query to find 3 nearest neighbors for each atom
+        aq = freud.locality.AABBQuery(box, points)
+        nlist = aq.query(
+            points, {"num_neighbors": 3, "exclude_ii": True}
+        ).toNeighborList()
+        # All bonds should have the same length (honeycomb structure)
+        npt.assert_allclose(nlist.distances, bond_length, rtol=1e-5)
+
     def test_square(self):
         """Test that the square lattice is correctly generated."""
         box, points = freud.data.UnitCell.square().generate_system()
