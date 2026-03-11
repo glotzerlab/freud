@@ -201,23 +201,16 @@ public:
             throw std::runtime_error("Cell data is uninitialized.");
         }
 
-        // Check if the query point is within the grid bounds.
-        unsigned int cell_idx_u;
-        if (!m_cell_query->getCellIdxSafe(m_query_point, cell_idx_u))
-        {
-            m_finished = true;
-            return;
-        }
-
+        // Compute cell coordinates, clamping to grid bounds if query point is outside.
+        // This handles the case where the query point is outside the grid but still
+        // within r_max of particles inside the grid.
         const vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
-        const int cx = coords.x;
-        const int cy = coords.y;
-        const int cz = coords.z;
-
-        // Cache grid dimensions and pointers for performance
-        const int nz_dim = static_cast<int>(m_cell_query->getNz());
-        const int ny_dim = static_cast<int>(m_cell_query->getNy());
         const int nx_dim = static_cast<int>(m_cell_query->getNx());
+        const int ny_dim = static_cast<int>(m_cell_query->getNy());
+        const int nz_dim = static_cast<int>(m_cell_query->getNz());
+        const int cx = std::clamp(coords.x, 0, nx_dim - 1);
+        const int cy = std::clamp(coords.y, 0, ny_dim - 1);
+        const int cz = std::clamp(coords.z, 0, nz_dim - 1);
 
         // Map to track the minimum distance for each particle ID
         std::unordered_map<unsigned int, NeighborBond> min_distance_bonds;
