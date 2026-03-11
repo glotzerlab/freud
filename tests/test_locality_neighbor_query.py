@@ -908,9 +908,9 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
 
         cc = freud.locality.CellQuery(box, ref_points)
 
-        # Query point outside the grid bounds but within search range of particle
-        # Grid x range is approximately [-10.7, 11.0]
-        # Query at x=-11.2 (outside grid), distance to particle at x=1.0 is ~12.2
+        # Query point outside the grid bounds (and outside the periodic box)
+        # In a periodic box, this wraps to [8.8, 10.0, 10.0]
+        # Distance from wrapped point [8.8, 10.0, 10.0] to particle at [1.0, 10.0, 10.0] is 7.8
         query_point = np.array([[-11.2, 10.0, 10.0]], dtype=np.float32)
 
         # CellQuery should find the neighbor
@@ -927,8 +927,19 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         aq = freud.locality.AABBQuery(box, ref_points)
         result_aq = list(aq.query(query_point, dict(mode="nearest", num_neighbors=1)))
         assert len(result_aq) == 1
-        assert len(result) == len(result_aq), (
-            "CellQuery and AABBQuery should return same number of neighbors"
+
+        # Verify neighbor index and distance match exactly
+        assert result[0][1] == result_aq[0][1], "Neighbor indices should match"
+        npt.assert_allclose(
+            result[0][2], result_aq[0][2], rtol=1e-5,
+            err_msg="Distances should match"
+        )
+
+        # Verify expected distance (query wraps to 8.8, particle at 1.0)
+        expected_distance = 7.8
+        npt.assert_allclose(
+            result[0][2], expected_distance, rtol=1e-5,
+            err_msg="Distance should be ~7.8 (wrapped)"
         )
 
     def test_query_point_outside_grid_bounds_ball(self):
@@ -992,22 +1003,29 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
             )
         )
 
-        # Each query point should find exactly one neighbor
-        assert len(result) == 3, "Each query point should find one neighbor"
-
         # Compare with AABBQuery
         aq = freud.locality.AABBQuery(box, ref_points)
         result_aq = list(aq.query(query_points, dict(mode="nearest", num_neighbors=1)))
-        assert len(result_aq) == 3
+
+        assert len(result) == 3, "Each query point should find one neighbor"
         assert len(result) == len(result_aq), (
             "CellQuery and AABBQuery should return same number of neighbors"
         )
 
-        # Verify each query point found a neighbor
-        query_point_indices = {b[0] for b in result}
-        assert query_point_indices == {0, 1, 2}, (
-            "All three query points should have found neighbors"
-        )
+        # Sort by query point index for consistent comparison
+        result_sorted = sorted(result, key=lambda b: b[0])
+        result_aq_sorted = sorted(result_aq, key=lambda b: b[0])
+
+        # Verify each query point's neighbor index and distance match AABBQuery
+        for i, (r, r_aq) in enumerate(zip(result_sorted, result_aq_sorted)):
+            assert r[1] == r_aq[1], (
+                f"Query point {i}: neighbor indices should match "
+                f"(got {r[1]}, expected {r_aq[1]})"
+            )
+            npt.assert_allclose(
+                r[2], r_aq[2], rtol=1e-5,
+                err_msg=f"Query point {i}: distances should match"
+            )
 
 
 #     @pytest.mark.parametrize(

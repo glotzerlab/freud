@@ -201,10 +201,13 @@ public:
             throw std::runtime_error("Cell data is uninitialized.");
         }
 
-        // Compute cell coordinates, clamping to grid bounds if query point is outside.
-        // This handles the case where the query point is outside the grid but still
-        // within r_max of particles inside the grid.
-        const vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
+        // Wrap the query point into the box first, then compute cell coordinates.
+        // For nearest queries, the grid may be smaller than the search radius, so
+        // we need to handle query points outside the grid bounds. By wrapping into
+        // the box first, we ensure we start searching from the correct cell.
+        vec3<float> wrapped_point = m_query_point;
+        wrapped_point = m_cell_query->getBox().wrap(wrapped_point);
+        const vec3<int> coords = m_cell_query->cell_idx_xyz(wrapped_point);
         const int nx_dim = static_cast<int>(m_cell_query->getNx());
         const int ny_dim = static_cast<int>(m_cell_query->getNy());
         const int nz_dim = static_cast<int>(m_cell_query->getNz());
