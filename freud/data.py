@@ -190,6 +190,19 @@ class UnitCell:
         return self.box.dimensions
 
     @classmethod
+    def hcp(cls):
+        """Create a hexagonal close-packed (hcp) unit cell.
+
+        Returns:
+            :class:`~.UnitCell`: A hexagonal close-packed unit cell.
+        """
+        fractions = np.array(
+            [[1.0 / 3.0, 2.0 / 3.0, 1.0 / 4.0], [2.0 / 3.0, 1.0 / 3.0, 3.0 / 4.0]]
+        )
+        box = freud.Box.from_box_lengths_and_angles(1, 1, np.sqrt(8 / 3), 90, 90, 120)
+        return cls(box, fractions)
+
+    @classmethod
     def fcc(cls):
         """Create a face-centered cubic (fcc) unit cell.
 
