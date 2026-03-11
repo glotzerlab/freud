@@ -931,6 +931,84 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
             "CellQuery and AABBQuery should return same number of neighbors"
         )
 
+    def test_query_point_outside_grid_bounds_ball(self):
+        """Test that ball queries handle out-of-bounds query points correctly."""
+        L = 20
+        box = freud.box.Box.cube(L)
+
+        # Particle near the center of the box
+        ref_points = np.array([[0.0, 0.0, 0.0]], dtype=np.float32)
+
+        r_max = 5.0
+        cc = freud.locality.CellQuery(box, ref_points)
+
+        # Query point far outside the box, beyond r_max from any particle
+        query_point = np.array([[-15.0, 0.0, 0.0]], dtype=np.float32)
+
+        # CellQuery should return no neighbors (correctly)
+        result = list(cc.query(query_point, dict(mode="ball", r_max=r_max)))
+        assert len(result) == 0, (
+            "Ball query should return empty result when query point is outside r_max"
+        )
+
+        # Compare with AABBQuery
+        aq = freud.locality.AABBQuery(box, ref_points)
+        result_aq = list(aq.query(query_point, dict(mode="ball", r_max=r_max)))
+        assert len(result_aq) == 0
+        assert len(result) == len(result_aq)
+
+    def test_query_points_mixed_inside_outside_grid(self):
+        """Test multiple query points with mixed inside/outside grid bounds."""
+        L = 20
+        box = freud.box.Box.cube(L)
+
+        # Particles spread across the box
+        ref_points = np.array(
+            [
+                [1.0, 10.0, 10.0],  # Near left edge
+                [-9.0, 10.0, 10.0],  # Near right edge
+                [0.0, 0.0, 0.0],  # Center
+            ],
+            dtype=np.float32,
+        )
+
+        r_guess = 2.0
+        cc = freud.locality.CellQuery(box, ref_points)
+
+        # Mix of query points: inside grid, outside left, outside right
+        query_points = np.array(
+            [
+                [0.0, 10.0, 10.0],  # Inside grid - should find ref_points[0]
+                [-11.2, 10.0, 10.0],  # Outside left - should find ref_points[0]
+                [11.2, 10.0, 10.0],  # Outside right - should find ref_points[1]
+            ],
+            dtype=np.float32,
+        )
+
+        # Query for 1 nearest neighbor each
+        result = list(
+            cc.query(
+                query_points, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
+            )
+        )
+
+        # Each query point should find exactly one neighbor
+        assert len(result) == 3, "Each query point should find one neighbor"
+
+        # Compare with AABBQuery
+        aq = freud.locality.AABBQuery(box, ref_points)
+        result_aq = list(aq.query(query_points, dict(mode="nearest", num_neighbors=1)))
+        assert len(result_aq) == 3
+        assert len(result) == len(result_aq), (
+            "CellQuery and AABBQuery should return same number of neighbors"
+        )
+
+        # Verify each query point found a neighbor
+        query_point_indices = {b[0] for b in result}
+        assert query_point_indices == {0, 1, 2}, (
+            "All three query points should have found neighbors"
+        )
+
 
 #     @pytest.mark.parametrize(
 #         ("r_guess", "scale"),
