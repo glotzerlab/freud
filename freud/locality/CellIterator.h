@@ -201,16 +201,20 @@ public:
             throw std::runtime_error("Cell data is uninitialized.");
         }
 
-        // Wrap the query point into the box first, then compute cell coordinates.
-        // For nearest queries, the grid may be smaller than the search radius, so
-        // we need to handle query points outside the grid bounds. By wrapping into
-        // the box first, we ensure we start searching from the correct cell.
-        vec3<float> wrapped_point = m_query_point;
-        wrapped_point = m_cell_query->getBox().wrap(wrapped_point);
-        const vec3<int> coords = m_cell_query->cell_idx_xyz(wrapped_point);
+        // Compute cell coordinates for the query point.
+        // For nearest queries, the grid may be smaller than the search radius.
+        // If the query point is outside the grid, we clamp to the nearest edge cell
+        // and use periodic wrapping for all distance calculations.
+        const vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
         const int nx_dim = static_cast<int>(m_cell_query->getNx());
         const int ny_dim = static_cast<int>(m_cell_query->getNy());
         const int nz_dim = static_cast<int>(m_cell_query->getNz());
+
+        // Check if query point is inside the grid - determines if we need wrapping
+        unsigned int unused_idx;
+        const bool query_inside_grid = m_cell_query->getCellIdxSafe(m_query_point, unused_idx);
+
+        // Clamp to valid cell range to ensure we have a valid starting point for the search
         const int cx = std::clamp(coords.x, 0, nx_dim - 1);
         const int cy = std::clamp(coords.y, 0, ny_dim - 1);
         const int cz = std::clamp(coords.z, 0, nz_dim - 1);
@@ -218,7 +222,9 @@ public:
         // Map to track the minimum distance for each particle ID
         std::unordered_map<unsigned int, NeighborBond> min_distance_bonds;
 
-        // Collect all neighbors within r_max, keeping only the closest image of each particle
+        // Collect all neighbors within r_max, keeping only the closest image of each particle.
+        // Use wrapping when query point is outside the grid to handle periodic boundaries correctly.
+        const bool use_wrap = !query_inside_grid;
         for (int dz = -1; dz <= 1; dz++)
         {
             const int nz = cz + dz;
@@ -238,7 +244,7 @@ public:
                         const int end_cell_idx = (((nz * ny_dim) + ny) * nx_dim) + cx + max_dx;
 
                         // Process the contiguous block of cells
-                        processCell(min_distance_bonds, start_cell_idx, end_cell_idx);
+                        processCell(min_distance_bonds, start_cell_idx, end_cell_idx, use_wrap);
                     }
                 }
             }
