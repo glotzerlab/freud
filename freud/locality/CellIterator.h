@@ -203,22 +203,21 @@ public:
 
         // Compute cell coordinates for the query point.
         // For nearest queries, the grid may be smaller than the search radius.
-        // If the query point is outside the grid, we clamp to the nearest edge cell
-        // and use periodic wrapping for all distance calculations.
-        const vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
+        // If the query point is outside the grid, clamp to the nearest edge cell and use
+        // periodic wrapping for distance calculations to find all neighbors.
         const int nx_dim = static_cast<int>(m_cell_query->getNx());
         const int ny_dim = static_cast<int>(m_cell_query->getNy());
         const int nz_dim = static_cast<int>(m_cell_query->getNz());
 
-        // Check if query point is inside the grid - determines if we need wrapping
+        // Check if query point is inside the grid
         unsigned int unused_idx;
         const bool query_inside_grid = m_cell_query->getCellIdxSafe(m_query_point, unused_idx);
 
+        const vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
         // Clamp to valid cell range to ensure we have a valid starting point for the search
         const int cx = std::clamp(coords.x, 0, nx_dim - 1);
         const int cy = std::clamp(coords.y, 0, ny_dim - 1);
         const int cz = std::clamp(coords.z, 0, nz_dim - 1);
-
         // Map to track the minimum distance for each particle ID
         std::unordered_map<unsigned int, NeighborBond> min_distance_bonds;
 
@@ -253,7 +252,10 @@ public:
         const int max_shell_distance = std::max({nx_dim - 1, ny_dim - 1, nz_dim - 1});
         for (int shell_distance = 2; shell_distance <= max_shell_distance; shell_distance++)
         {
-            if (min_distance_bonds.size() >= m_k)
+            // Only break early if query point is inside the grid.
+            // When outside, we must search all shells because the nearest neighbors
+            // might be in unexpected locations due to periodic wrapping.
+            if (query_inside_grid && min_distance_bonds.size() >= m_k)
             {
                 break;
             }
