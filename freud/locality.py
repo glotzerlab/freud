@@ -902,6 +902,11 @@ class CellQuery(NeighborQuery):
 
     Also available as ``freud.CellQuery``.
 
+    .. note::
+
+        This query type is much faster than ``freud.AABBQuery`` for ``r_max``-type
+        neighbor searches but may be slower for ``num_neighbors`` queries.
+
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
