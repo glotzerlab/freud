@@ -995,7 +995,9 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         nlist_cc = cc.query(
             query_points, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
         ).toNeighborList()
-        nlist_aq = aq.query(query_points, dict(mode="nearest", num_neighbors=1)).toNeighborList()
+        nlist_aq = aq.query(
+            query_points, dict(mode="nearest", num_neighbors=1)
+        ).toNeighborList()
 
         # Verify neighbor indices and distances match exactly
         npt.assert_array_equal(nlist_cc[:], nlist_aq[:])
