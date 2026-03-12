@@ -215,9 +215,21 @@ public:
 
         const vec3<int> coords = m_cell_query->cell_idx_xyz(m_query_point);
         // Clamp to valid cell range to ensure we have a valid starting point for the search
-        const int cx = std::clamp(coords.x, 0, nx_dim - 1);
-        const int cy = std::clamp(coords.y, 0, ny_dim - 1);
-        const int cz = std::clamp(coords.z, 0, nz_dim - 1);
+        int cx;
+        int cy;
+        int cz;
+        if (!query_inside_grid)
+        {
+            cx = std::clamp(coords.x, 0, nx_dim - 1);
+            cy = std::clamp(coords.y, 0, ny_dim - 1);
+            cz = std::clamp(coords.z, 0, nz_dim - 1);
+        }
+        else
+        {
+            cx = coords.x;
+            cy = coords.y;
+            cz = coords.z;
+        }
         // Map to track the minimum distance for each particle ID
         std::unordered_map<unsigned int, NeighborBond> min_distance_bonds;
 
