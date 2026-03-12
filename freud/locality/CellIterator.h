@@ -262,12 +262,19 @@ public:
         }
         // Beyond a certain number of shells, particles could see themselves
         const int max_shell_distance = std::max({nx_dim - 1, ny_dim - 1, nz_dim - 1});
+
+        // Calculate minimum shells needed to cover r_max.
+        // Once we've searched this many shells and found k neighbors, we can break.
+        const float cell_width = m_cell_query->getCellWidth();
+        const int min_shells_for_r_max = static_cast<int>(std::ceil(std::sqrt(m_r_max_sq) / cell_width)) + 1;
+
         for (int shell_distance = 2; shell_distance <= max_shell_distance; shell_distance++)
         {
-            // Only break early if query point is inside the grid.
-            // When outside, we must search all shells because the nearest neighbors
-            // might be in unexpected locations due to periodic wrapping.
-            if (query_inside_grid && min_distance_bonds.size() >= m_k)
+            // Break early if we've found k neighbors AND either:
+            // 1. Query point is inside the grid (neighbors must be nearby), OR
+            // 2. We've searched enough shells to cover r_max (no more neighbors possible)
+            if (min_distance_bonds.size() >= m_k
+                && (query_inside_grid || shell_distance >= min_shells_for_r_max))
             {
                 break;
             }
