@@ -931,15 +931,16 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         # Verify neighbor index and distance match exactly
         assert result[0][1] == result_aq[0][1], "Neighbor indices should match"
         npt.assert_allclose(
-            result[0][2], result_aq[0][2], rtol=1e-5,
-            err_msg="Distances should match"
+            result[0][2], result_aq[0][2], rtol=1e-5, err_msg="Distances should match"
         )
 
         # Verify expected distance (query wraps to 8.8, particle at 1.0)
         expected_distance = 7.8
         npt.assert_allclose(
-            result[0][2], expected_distance, rtol=1e-5,
-            err_msg="Distance should be ~7.8 (wrapped)"
+            result[0][2],
+            expected_distance,
+            rtol=1e-5,
+            err_msg="Distance should be ~7.8 (wrapped)",
         )
 
     def test_query_point_outside_grid_bounds_ball(self):
@@ -1023,8 +1024,10 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
                 f"(got {r[1]}, expected {r_aq[1]})"
             )
             npt.assert_allclose(
-                r[2], r_aq[2], rtol=1e-5,
-                err_msg=f"Query point {i}: distances should match"
+                r[2],
+                r_aq[2],
+                rtol=1e-5,
+                err_msg=f"Query point {i}: distances should match",
             )
 
 
