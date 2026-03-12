@@ -1004,34 +1004,6 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         npt.assert_allclose(nlist_cc.distances, nlist_aq.distances, rtol=1e-5)
 
 
-#     @pytest.mark.parametrize(
-#         ("r_guess", "scale"),
-#         [(r_guess, scale) for r_guess in [0.5, 1, 2] for scale in [1.01, 1.1, 1.3]],
-#     )
-#     def test_r_guess_scale(self, r_guess, scale):
-#         """Ensure that r_guess and scale have no effect on query results."""
-#         np.random.seed(0)
-#         L = 10
-#         box = freud.box.Box.cube(L)
-
-#         N = 100
-#         positions = box.wrap(L / 2 * np.random.rand(N, 3))
-#         nq = self.build_query_object(box, positions, L / 10)
-
-#         k = 10
-
-#         original_nlist = nq.query(
-#             positions,
-#             dict(num_neighbors=k, exclude_ii=True),
-#         ).toNeighborList()
-
-#         nlist = nq.query(
-#             positions,
-#             dict(num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale),
-#         ).toNeighborList()
-#         assert nlist_equal(nlist, original_nlist)
-
-
 class TestMultipleMethods:
     """Check that different methods of making a NeighborList give the same
     result."""
