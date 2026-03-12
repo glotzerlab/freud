@@ -7,14 +7,14 @@
 #include <memory>
 #include <stdexcept>
 
-#include "AABBQuery.h"
 #include "Box.h"
+#include "LinearCell.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file RawPoints.h
     \brief Defines a simplest NeighborQuery object that actually farms out
-           querying logic to an AABBQuery.
+           querying logic to a CellQuery.
 */
 
 namespace freud { namespace locality {
@@ -39,7 +39,7 @@ public:
     ~RawPoints() override = default;
 
     //! Perform a query based on a set of query parameters.
-    /*! Shadow parent function to ensure that the underlying AABBQuery is
+    /*! Shadow parent function to ensure that the underlying CellQuery is
      * only constructed when this object is actually queried. Note that unlike
      * the parent function it is not const since it does modify the object.
      *
@@ -52,11 +52,12 @@ public:
     {
         if (!aq)
         {
-            aq = std::make_unique<AABBQuery>(m_box, m_points, m_n_points);
+            aq = std::make_unique<CellQuery>(m_box, m_points, m_n_points);
         }
 
         this->validateQueryArgs(query_args);
-        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
+        // Delegate to CellQuery::query to ensure the grid is built
+        return aq->query(query_points, n_query_points, query_args);
     }
 
     // dummy implementation for pure virtual function in the parent class
@@ -65,7 +66,7 @@ public:
     {
         if (!aq)
         {
-            throw std::runtime_error("The underlying AABBQuery object has not yet been initialized. Please "
+            throw std::runtime_error("The underlying CellQuery object has not yet been initialized. Please "
                                      "report this error.");
         }
 
@@ -73,7 +74,7 @@ public:
     }
 
 private:
-    mutable std::unique_ptr<AABBQuery> aq; //!< The AABBQuery object that will be used to perform queries.
+    mutable std::unique_ptr<CellQuery> aq; //!< The CellQuery object that will be used to perform queries.
 };
 
 }; }; // end namespace freud::locality
