@@ -925,23 +925,16 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
 
         # Compare with AABBQuery which handles this correctly
         aq = freud.locality.AABBQuery(box, ref_points)
-        result_aq = list(aq.query(query_point, dict(mode="nearest", num_neighbors=1)))
-        assert len(result_aq) == 1
+        nlist_cc = cc.query(
+            query_point, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
+        ).toNeighborList()
+        nlist_aq = aq.query(
+            query_point, dict(mode="nearest", num_neighbors=1)
+        ).toNeighborList()
 
-        # Verify neighbor index and distance match exactly
-        assert result[0][1] == result_aq[0][1], "Neighbor indices should match"
-        npt.assert_allclose(
-            result[0][2], result_aq[0][2], rtol=1e-5, err_msg="Distances should match"
-        )
-
-        # Verify expected distance (query wraps to 8.8, particle at 1.0)
-        expected_distance = 7.8
-        npt.assert_allclose(
-            result[0][2],
-            expected_distance,
-            rtol=1e-5,
-            err_msg="Distance should be ~7.8 (wrapped)",
-        )
+        # Verify neighbor indices and distances match exactly
+        npt.assert_array_equal(nlist_cc[:], nlist_aq[:])
+        npt.assert_allclose(nlist_cc.distances, nlist_aq.distances, rtol=1e-5)
 
     def test_query_point_outside_grid_bounds_ball(self):
         """Test that ball queries handle out-of-bounds query points correctly."""
