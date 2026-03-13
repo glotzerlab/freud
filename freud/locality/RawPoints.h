@@ -9,13 +9,12 @@
 
 #include "AABBQuery.h"
 #include "Box.h"
-#include "LinearCell.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file RawPoints.h
     \brief Defines a simplest NeighborQuery object that actually farms out
-           querying logic to a CellQuery.
+           querying logic to an AABBQuery.
 */
 
 namespace freud { namespace locality {
@@ -40,7 +39,7 @@ public:
     ~RawPoints() override = default;
 
     //! Perform a query based on a set of query parameters.
-    /*! Shadow parent function to ensure that the underlying CellQuery is
+    /*! Shadow parent function to ensure that the underlying AABBQuery is
      * only constructed when this object is actually queried. Note that unlike
      * the parent function it is not const since it does modify the object.
      *
@@ -51,58 +50,30 @@ public:
     std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
                                                  QueryArgs query_args) const override
     {
-        this->validateQueryArgs(query_args);
+        if (!aq)
+        {
+            aq = std::make_unique<AABBQuery>(m_box, m_points, m_n_points);
+        }
 
-        // Use CellQuery for ball queries (can early terminate when shells exceed r_max)
-        // Use AABBQuery for nearest queries (CellQuery must search all shells for correctness)
-        if (query_args.mode == QueryType::ball)
-        {
-            if (!m_cell_query)
-            {
-                m_cell_query = std::make_unique<CellQuery>(m_box, m_points, m_n_points);
-            }
-            return m_cell_query->query(query_points, n_query_points, query_args);
-        }
-        else
-        {
-            if (!m_aabb_query)
-            {
-                m_aabb_query = std::make_unique<AABBQuery>(m_box, m_points, m_n_points);
-            }
-            return m_aabb_query->query(query_points, n_query_points, query_args);
-        }
+        this->validateQueryArgs(query_args);
+        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
     }
 
     // dummy implementation for pure virtual function in the parent class
     std::shared_ptr<NeighborQueryPerPointIterator>
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs qargs) const override
     {
-        if (qargs.mode == QueryType::ball)
+        if (!aq)
         {
-            if (!m_cell_query)
-            {
-                throw std::runtime_error(
-                    "The underlying CellQuery object has not yet been initialized. Please "
-                    "report this error.");
-            }
-            return m_cell_query->querySingle(query_point, query_point_idx, qargs);
+            throw std::runtime_error("The underlying AABBQuery object has not yet been initialized. Please "
+                                     "report this error.");
         }
-        else
-        {
-            if (!m_aabb_query)
-            {
-                throw std::runtime_error(
-                    "The underlying AABBQuery object has not yet been initialized. Please "
-                    "report this error.");
-            }
-            return m_aabb_query->querySingle(query_point, query_point_idx, qargs);
-        }
+
+        return aq->querySingle(query_point, query_point_idx, qargs);
     }
 
 private:
-    mutable std::unique_ptr<CellQuery> m_cell_query; //!< Used for ball queries (efficient shell termination).
-    mutable std::unique_ptr<AABBQuery>
-        m_aabb_query; //!< Used for nearest queries (CellQuery must search all shells).
+    mutable std::unique_ptr<AABBQuery> aq; //!< The AABBQuery object that will be used to perform queries.
 };
 
 }; }; // end namespace freud::locality
