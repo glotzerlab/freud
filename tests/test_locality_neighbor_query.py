@@ -1027,6 +1027,133 @@ class TestMultipleMethods:
             assert nlist_equal(nlist, check_nlist)
 
 
+class TestAABBQueryVsCellQuery:
+    """Compare AABBQuery and CellQuery results across many random systems."""
+
+    @pytest.mark.parametrize("seed", range(10))
+    @pytest.mark.parametrize("is2D", [True, False])
+    def test_ball_query_equivalence(self, seed, is2D):
+        """Test that AABBQuery and CellQuery produce identical neighbor lists for ball queries."""
+        np.random.seed(seed)
+
+        # Generate random system with varying parameters
+        if is2D:
+            L = np.random.uniform(10, 50)
+            N = np.random.randint(10, 200)
+        else:
+            L = np.random.uniform(10, 30)
+            N = np.random.randint(10, 100)
+
+        box, points = freud.data.make_random_system(L, N, is2D=is2D, seed=seed)
+
+        # r_max should be less than half the smallest box dimension to avoid issues
+        r_max = L * np.random.uniform(0.1, 0.4)
+
+        # Build query objects
+        aq = freud.locality.AABBQuery(box, points)
+        # Use _RawPoints which internally uses CellQuery for ball queries
+        from freud.locality import _RawPoints
+
+        rp = _RawPoints(box, points)
+
+        # Query with exclude_ii=True
+        nlist_aq = aq.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+        nlist_rp = rp.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+
+        # Convert to sets of (query_idx, point_idx) pairs for comparison
+        aq_pairs = set(zip(nlist_aq[0], nlist_aq[1]))
+        rp_pairs = set(zip(nlist_rp[0], nlist_rp[1]))
+
+        # Check that the pairs match
+        missing = aq_pairs - rp_pairs
+        extra = rp_pairs - aq_pairs
+
+        assert len(missing) == 0, (
+            f"Seed {seed}, L={L}, N={N}, r_max={r_max}, is2D={is2D}: "
+            f"CellQuery missing {len(missing)} pairs that AABBQuery found. "
+            f"Missing: {list(missing)[:5]}"
+        )
+        assert len(extra) == 0, (
+            f"Seed {seed}, L={L}, N={N}, r_max={r_max}, is2D={is2D}: "
+            f"CellQuery found {len(extra)} extra pairs not in AABBQuery. "
+            f"Extra: {list(extra)[:5]}"
+        )
+
+        # Check distances match
+        npt.assert_allclose(
+            np.sort(nlist_aq.distances),
+            np.sort(nlist_rp.distances),
+            rtol=1e-5,
+            err_msg=f"Seed {seed}: Distances don't match between AABBQuery and CellQuery",
+        )
+
+        # Check vectors match by comparing each (query_idx, point_idx) pair
+        # Both methods use the same convention: raw vector from query to neighbor
+        aq_pair_to_idx = {
+            (q, p): i for i, (q, p) in enumerate(zip(nlist_aq[0], nlist_aq[1]))
+        }
+        for i, (q, p) in enumerate(zip(nlist_rp[0], nlist_rp[1])):
+            aq_idx = aq_pair_to_idx[(q, p)]
+            npt.assert_allclose(
+                nlist_aq.vectors[aq_idx],
+                nlist_rp.vectors[i],
+                rtol=1e-5,
+                err_msg=f"Seed {seed}: Vector mismatch for pair ({q}, {p})",
+            )
+
+    @pytest.mark.parametrize("seed", range(10))
+    @pytest.mark.parametrize("is2D", [True, False])
+    def test_ball_query_with_query_points(self, seed, is2D):
+        """Test ball queries where query_points differ from points."""
+        np.random.seed(seed)
+
+        # Generate random system
+        if is2D:
+            L = np.random.uniform(10, 50)
+            N_ref = np.random.randint(10, 100)
+            N_query = np.random.randint(10, 100)
+        else:
+            L = np.random.uniform(10, 30)
+            N_ref = np.random.randint(10, 50)
+            N_query = np.random.randint(10, 50)
+
+        box, ref_points = freud.data.make_random_system(L, N_ref, is2D=is2D, seed=seed)
+        _, query_points = freud.data.make_random_system(
+            L, N_query, is2D=is2D, seed=seed + 10000
+        )
+
+        r_max = L * np.random.uniform(0.1, 0.4)
+
+        # Build query objects
+        aq = freud.locality.AABBQuery(box, ref_points)
+        from freud.locality import _RawPoints
+
+        rp = _RawPoints(box, ref_points)
+
+        # Query
+        nlist_aq = aq.query(query_points, dict(r_max=r_max)).toNeighborList()
+        nlist_rp = rp.query(query_points, dict(r_max=r_max)).toNeighborList()
+
+        # Compare pairs
+        aq_pairs = set(zip(nlist_aq[0], nlist_aq[1]))
+        rp_pairs = set(zip(nlist_rp[0], nlist_rp[1]))
+
+        missing = aq_pairs - rp_pairs
+        extra = rp_pairs - aq_pairs
+
+        assert len(missing) == 0, (
+            f"Seed {seed}: CellQuery missing {len(missing)} pairs. Missing: {list(missing)[:5]}"
+        )
+        assert len(extra) == 0, (
+            f"Seed {seed}: CellQuery has {len(extra)} extra pairs. Extra: {list(extra)[:5]}"
+        )
+
+        # Check distances
+        npt.assert_allclose(
+            np.sort(nlist_aq.distances), np.sort(nlist_rp.distances), rtol=1e-5
+        )
+
+
 def _from_system_inputs():
     """Each list value is a tuple (system_name, system)."""
     list_systems = []

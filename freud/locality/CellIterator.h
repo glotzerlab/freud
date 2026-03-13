@@ -49,8 +49,9 @@ public:
 
         m_r_max_sq = r_max * r_max;
         m_r_min_sq = r_min * r_min;
+        m_current_bond = ITERATOR_TERMINATOR;
 
-        // Check if the query point is within the grid bounds. TODO: is this allowed?
+        // Check if the query point is within the grid bounds.
         unsigned int cell_idx_u;
         if (!m_cell_query->getCellIdxSafe(m_query_point, cell_idx_u))
         {
@@ -78,8 +79,20 @@ public:
     //! Get the next element.
     NeighborBond next() final
     {
+        if (m_finished)
+        {
+            return ITERATOR_TERMINATOR;
+        }
+
         NeighborBond res = m_current_bond;
-        find_next_pair();
+        if (res == ITERATOR_TERMINATOR)
+        {
+            m_finished = true;
+        }
+        else
+        {
+            find_next_pair();
+        }
         return res;
     }
 
@@ -144,7 +157,6 @@ private:
             }
             start_dy = -1;
         }
-        m_finished = true;
         m_current_bond = ITERATOR_TERMINATOR;
     }
 
@@ -264,13 +276,8 @@ public:
         const int max_shell_distance = std::max({nx_dim - 1, ny_dim - 1, nz_dim - 1});
         for (int shell_distance = 2; shell_distance <= max_shell_distance; shell_distance++)
         {
-            // Only break early if query point is inside the grid.
-            // When outside, we must search all shells because the nearest neighbors
-            // might be in unexpected locations due to periodic wrapping.
-            if (query_inside_grid && min_distance_bonds.size() >= m_k)
-            {
-                break;
-            }
+            // Must search all shells to guarantee finding k nearest neighbors.
+            // Shell order != distance order, so early termination would miss closer neighbors.
             processShell(min_distance_bonds, cx, cy, cz, nx_dim, ny_dim, nz_dim, shell_distance);
         }
 
