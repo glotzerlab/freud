@@ -14,6 +14,7 @@ void export_NeighborQuery(nanobind::module_& module);
 void export_AABBQuery(nanobind::module_& module);
 void export_LinkCell(nanobind::module_& module);
 void export_RawPoints(nanobind::module_& module);
+void export_CellQuery(nanobind::module_& module);
 void export_QueryArgs(nanobind::module_& module);
 void export_NeighborQueryIterator(nanobind::module_& module);
 void export_NeighborList(nanobind::module_& module);
@@ -36,6 +37,7 @@ NB_MODULE(_locality, module) // NOLINT: caused by nanobind
     export_AABBQuery(module);
     export_LinkCell(module);
     export_RawPoints(module);
+    export_CellQuery(module);
     export_QueryArgs(module);
     export_NeighborQueryIterator(module);
     export_NeighborList(module);

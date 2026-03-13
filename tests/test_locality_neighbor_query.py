@@ -694,6 +694,316 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
 
+class TestNeighborQueryCellQuery(NeighborQueryTest):
+    @classmethod
+    def build_query_object(cls, box, ref_points, r_max=None):
+        return freud.locality.CellQuery(box, ref_points)
+
+    @staticmethod
+    def assert_box_contains_grid_points(original_box, grid_box, r_max):
+        """Assert that the bounding box of a CellQuery is sufficiently large."""
+        # Vertices of the original system's box
+        original_box_vertices = original_box.make_absolute(
+            [(i, j, k) for i in (0, 1.0) for j in (0, 1.0) for k in (0, 1.0)]
+        )
+        # Cell grid should contain the vertices of the original box
+        np.testing.assert_array_equal(
+            grid_box.contains(original_box_vertices),
+            True,
+        )
+        # Cell grid should also contain the original box rounded by r_max
+        np.testing.assert_array_equal(
+            grid_box.contains(
+                [*(original_box_vertices + r_max), *(original_box_vertices - r_max)]
+            ),
+            True,
+        )
+        # All support points of the original box, offset by ±r_max along x, y, and z
+        # This ensures that our cell list contains all possible points offset by rcut
+        signs = [(i, j, k) for i in (-1, 0, 1) for j in (-1, 0, 1) for k in (-1, 0, 1)]
+        signs = np.array(signs) * r_max
+
+        all_offset_points = np.sum(
+            [*itertools.product(original_box_vertices, signs)], axis=1
+        )
+        np.testing.assert_array_equal(grid_box.contains(all_offset_points), True)
+
+    @pytest.mark.parametrize(
+        "box",
+        [
+            freud.box.Box.square(5),
+            freud.box.Box(10.0, 5.0, 9.0),
+            freud.box.Box.from_box_lengths_and_angles(
+                3.307, 7.412, 2.793, 1.55433, 1.48673, 1.49588
+            ),
+            freud.box.Box(6.0, 6.0, 5.0, 0.1, -20.3, 0.0),
+            freud.box.Box(1000.0, 6.0, 5.0, 99.1, 140.3, 888.0),
+        ],
+    )
+    @pytest.mark.parametrize("r_max", [0.25, 1, 2.49])
+    def test_grid_large_enough(self, box, r_max):
+        cc = freud.locality.CellQuery(box, [[0, 0, 0]])
+        cc._cpp_obj.setupGrid(r_max)
+
+        nx_ny_nz = np.array(
+            [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        )
+        cell_box = freud.box.Box(*(nx_ny_nz * r_max)[: 2 if box.is2D else 3])
+        assert cell_box.is2D == box.is2D, "Cell grid should be constructable as 2D."
+
+        self.assert_box_contains_grid_points(box, cell_box, r_max)
+
+    @pytest.mark.parametrize(
+        ("box", "r_cut", "cells"),
+        [
+            # Technically, we could span our box with only 6 cells (4 inside + 2 ghost)
+            # Howevever, we add an additional cell because in the general triclinic case
+            # we can make no guarantees about covering the entire box
+            (freud.Box.cube(10), 2.5, [7, 7, 7]),
+            (freud.Box.cube(10), 2.4999, [7, 7, 7]),
+            # Here, we get three extra: one in the center and one on each boundary
+            (freud.Box(1000, 100, 10), 1.0, [1003, 103, 13]),
+            (freud.Box(10000, 1000, 100), 1.0, [10003, 1003, 103]),
+            # Sheared cases are worked out by hand. This one also gets an extra cell
+            (freud.Box(2.0, 2.0, 2.0, 1.5, 1.0, 1.0), 1.0, [10, 7, 5]),
+            # This one is not an exact divisor, so it does NOT get an extra cell
+            (freud.Box(1.0, 2.0, 3.0, 1.5, 0.5, 1.0), 0.4, [16, 15, 10]),
+        ],
+    )
+    def test_known_cell_counts(self, box, r_cut, cells):
+        cc = freud.locality.CellQuery(box, [[0, 0, 0]])
+        cc._cpp_obj.setupGrid(r_cut)
+        nx_ny_nz = np.array(
+            [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        )
+        np.testing.assert_array_equal(nx_ny_nz, cells)
+        cell_box = freud.box.Box(*(nx_ny_nz * r_cut))
+
+        self.assert_box_contains_grid_points(box, cell_box, r_cut)
+
+    @pytest.mark.parametrize("r_max", [0.25, 1, 2.49])
+    def test_cell_width_set_correctly(self, r_max):
+        cc = freud.locality.CellQuery(freud.Box.cube(10), [[0, 0, 0]])
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.setupGrid(r_max)
+        np.testing.assert_allclose(cc._cpp_obj.getCellWidth(), r_max)
+        np.testing.assert_allclose(cc._cpp_obj.getCellInverseWidth(), 1.0 / r_max)
+
+    @pytest.mark.parametrize("n", [1, 63, 100_000])
+    def test_cell_occupancies_cube(self, n):
+        box = freud.Box.cube(10)
+        p = [5, 5, 5]
+        cc = freud.locality.CellQuery(box, [*np.zeros((n, 3)), p])
+        cc.query([[0, 0, 0]], query_args={"r_max": 4.999})
+        cc._cpp_obj.buildGrid(4.999)
+
+        def map_point_to_cell(p, L=10):
+            """Map a point in real space to a cell in the grid."""
+            min_pos = cc._cpp_obj.getMinPos().toNumpyArray()
+            return ((p - min_pos) * cc._cpp_obj.getCellInverseWidth()).astype(np.int32)
+
+        nx_ny_nz = np.array(
+            [cc._cpp_obj.getNx(), cc._cpp_obj.getNy(), cc._cpp_obj.getNz()]
+        )
+        real_grid = cc._cpp_obj.getCountsReal().toNumpyArray().reshape(*nx_ny_nz[::-1])
+        # Center of 5x5x5 grid should have occupancy n
+        assert real_grid[2, 2, 2] == n
+
+        # Bin (3,3,3) should have occupancy 1
+        p_idx = map_point_to_cell(p, box.L)
+        assert real_grid[tuple(p_idx)] == 1
+
+        # Full grid, including ghosts: should have (n+1 + 7 ghosts)
+        full_grid = cc._cpp_obj.getCounts().toNumpyArray().reshape(*nx_ny_nz[::-1])
+        assert full_grid.sum() == n + (1 + 7)
+        assert full_grid[(1, 1, 1)] == 1
+        assert full_grid[(1, 1, 3)] == 1
+        assert full_grid[(1, 3, 1)] == 1
+        assert full_grid[(1, 3, 3)] == 1
+        assert full_grid[(3, 1, 1)] == 1
+        assert full_grid[(3, 1, 3)] == 1
+        assert full_grid[(3, 3, 3)] == 1  # This one is the original particle.
+
+    @pytest.mark.parametrize("n", [1, 63, 100])
+    def test_n_total_cube(self, n):
+        box = freud.Box.cube(10)
+        p = [5, 5, 5]
+        cc = freud.locality.CellQuery(box, [*np.zeros((n, 3)), p])
+        r_max = 5
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.buildGrid(r_max)
+
+        # n points at (0,0,0) + 1 point at (5,5,5) with 7 ghosts
+        # Total = n + 1 + 7 = n + 8
+        assert cc._cpp_obj.getNTotal() == n + 8
+
+    @pytest.mark.parametrize(
+        "box",
+        [
+            freud.box.Box.square(5),
+            freud.box.Box(10.0, 5.0, 9.0),
+            freud.box.Box.from_box_lengths_and_angles(
+                3.307, 7.412, 2.793, 1.55433, 1.48673, 1.49588
+            ),
+            freud.box.Box(6.0, 6.0, 5.0, 0.1, -20.3, 0.0),
+            freud.box.Box(1000.0, 6.0, 5.0, 99.1, 140.3, 888.0),
+        ],
+    )
+    def test_cell_starts(self, box):
+        n = 10
+        cc = freud.locality.CellQuery(
+            box, box.make_absolute(np.random.uniform(0.0, 1.0, (n, 3)))
+        )
+        r_max = 2.5
+        cc.query([[0, 0, 0]], query_args={"r_max": r_max})
+        cc._cpp_obj.buildGrid(r_max)
+
+        counts = cc._cpp_obj.getCounts().toNumpyArray()
+        starts = cc._cpp_obj.getCellStarts().toNumpyArray()
+
+        npt.assert_array_equal(starts[1:], np.cumsum(counts)[:-1])
+        assert starts[0] == 0
+        assert starts[-1] + counts[-1] == cc._cpp_obj.getNTotal()
+
+    def test_too_large_r_max_raises(self):
+        """Test that specifying too large an r_max value raises an error."""
+        L = 5
+
+        box = freud.box.Box.square(L)
+        points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
+        cc = freud.locality.CellQuery(box, points)
+        with pytest.raises(RuntimeError):
+            list(cc.query(points, dict(r_max=L)))
+
+    def test_chaining(self):
+        N = 500
+        L = 10
+        r_max = 1
+        box, points = freud.data.make_random_system(L, N, seed=1)
+        nlist1 = (
+            freud.locality.CellQuery(box, points)
+            .query(points, dict(r_max=r_max, exclude_ii=True))
+            .toNeighborList()
+        )
+        cc = freud.locality.CellQuery(box, points)
+        nlist2 = cc.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+        assert nlist_equal(nlist1, nlist2)
+
+    def test_query_point_outside_grid_bounds_nearest(self):
+        """Test that query points outside grid bounds find neighbors in nearest mode.
+
+        For nearest queries, the grid is built with r_cut = r_guess * 0.35, which
+        can be much smaller than the actual search radius. A query point outside
+        the grid bounds but within r_max of particles should still find neighbors.
+        """
+        L = 20
+        box = freud.box.Box.cube(L)
+
+        # Particle near the edge of the box
+        ref_points = np.array([[1.0, 10.0, 10.0]], dtype=np.float32)
+
+        # Use nearest query with explicit small r_guess
+        # Grid will be built with r_cut = r_guess * 0.35 = 0.7
+        r_guess = 2.0
+
+        cc = freud.locality.CellQuery(box, ref_points)
+
+        # Query point outside the grid bounds (and outside the periodic box)
+        # In a periodic box, this wraps to [8.8, 10.0, 10.0]
+        # Distance from wrapped point [8.8, 10.0, 10.0] to particle at [1.0, 10.0, 10.0] is 7.8
+        query_point = np.array([[-11.2, 10.0, 10.0]], dtype=np.float32)
+
+        # CellQuery should find the neighbor
+        result = list(
+            cc.query(
+                query_point, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
+            )
+        )
+        assert len(result) == 1, (
+            "CellQuery should find neighbor even when query point is outside grid bounds"
+        )
+
+        # Compare with AABBQuery which handles this correctly
+        aq = freud.locality.AABBQuery(box, ref_points)
+        nlist_cc = cc.query(
+            query_point, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
+        ).toNeighborList()
+        nlist_aq = aq.query(
+            query_point, dict(mode="nearest", num_neighbors=1)
+        ).toNeighborList()
+
+        # Verify neighbor indices and distances match exactly
+        npt.assert_array_equal(nlist_cc[:], nlist_aq[:])
+        npt.assert_allclose(nlist_cc.distances, nlist_aq.distances, rtol=1e-5)
+
+    def test_query_point_outside_grid_bounds_ball(self):
+        """Test that ball queries handle out-of-bounds query points correctly."""
+        L = 20
+        box = freud.box.Box.cube(L)
+
+        # Particle near the center of the box
+        ref_points = np.array([[0.0, 0.0, 0.0]], dtype=np.float32)
+
+        r_max = 5.0
+        cc = freud.locality.CellQuery(box, ref_points)
+
+        # Query point far outside the box, beyond r_max from any particle
+        query_point = np.array([[-15.0, 0.0, 0.0]], dtype=np.float32)
+
+        # CellQuery should return no neighbors (correctly)
+        result = list(cc.query(query_point, dict(mode="ball", r_max=r_max)))
+        assert len(result) == 0, (
+            "Ball query should return empty result when query point is outside r_max"
+        )
+
+        # Compare with AABBQuery
+        aq = freud.locality.AABBQuery(box, ref_points)
+        result_aq = list(aq.query(query_point, dict(mode="ball", r_max=r_max)))
+        assert len(result_aq) == 0
+        assert len(result) == len(result_aq)
+
+    def test_query_points_mixed_inside_outside_grid(self):
+        """Test multiple query points with mixed inside/outside grid bounds."""
+        L = 20
+        box = freud.box.Box.cube(L)
+
+        # Particles spread across the box
+        ref_points = np.array(
+            [
+                [1.0, 10.0, 10.0],  # Near left edge
+                [-9.0, 10.0, 10.0],  # Near right edge
+                [0.0, 0.0, 0.0],  # Center
+            ],
+            dtype=np.float32,
+        )
+
+        r_guess = 2.0
+        cc = freud.locality.CellQuery(box, ref_points)
+
+        # Mix of query points: inside grid, outside left, outside right
+        query_points = np.array(
+            [
+                [0.0, 10.0, 10.0],  # Inside grid - should find ref_points[0]
+                [-11.2, 10.0, 10.0],  # Outside left - should find ref_points[0]
+                [11.2, 10.0, 10.0],  # Outside right - should find ref_points[1]
+            ],
+            dtype=np.float32,
+        )
+
+        # Compare with AABBQuery using toNeighborList
+        aq = freud.locality.AABBQuery(box, ref_points)
+        nlist_cc = cc.query(
+            query_points, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
+        ).toNeighborList()
+        nlist_aq = aq.query(
+            query_points, dict(mode="nearest", num_neighbors=1)
+        ).toNeighborList()
+
+        # Verify neighbor indices and distances match exactly
+        npt.assert_array_equal(nlist_cc[:], nlist_aq[:])
+        npt.assert_allclose(nlist_cc.distances, nlist_aq.distances, rtol=1e-5)
+
+
 class TestMultipleMethods:
     """Check that different methods of making a NeighborList give the same
     result."""
@@ -715,6 +1025,133 @@ class TestMultipleMethods:
                 continue
             check_nlist = nq.query(query_points, neighbors).toNeighborList()
             assert nlist_equal(nlist, check_nlist)
+
+
+class TestAABBQueryVsCellQuery:
+    """Compare AABBQuery and CellQuery results across many random systems."""
+
+    @pytest.mark.parametrize("seed", range(10))
+    @pytest.mark.parametrize("is2D", [True, False])
+    def test_ball_query_equivalence(self, seed, is2D):
+        """Test that AABBQuery and CellQuery produce identical neighbor lists for ball queries."""
+        np.random.seed(seed)
+
+        # Generate random system with varying parameters
+        if is2D:
+            L = np.random.uniform(10, 50)
+            N = np.random.randint(10, 200)
+        else:
+            L = np.random.uniform(10, 30)
+            N = np.random.randint(10, 100)
+
+        box, points = freud.data.make_random_system(L, N, is2D=is2D, seed=seed)
+
+        # r_max should be less than half the smallest box dimension to avoid issues
+        r_max = L * np.random.uniform(0.1, 0.4)
+
+        # Build query objects
+        aq = freud.locality.AABBQuery(box, points)
+        # Use _RawPoints which internally uses CellQuery for ball queries
+        from freud.locality import _RawPoints
+
+        rp = _RawPoints(box, points)
+
+        # Query with exclude_ii=True
+        nlist_aq = aq.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+        nlist_rp = rp.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+
+        # Convert to sets of (query_idx, point_idx) pairs for comparison
+        aq_pairs = set(zip(nlist_aq[0], nlist_aq[1]))
+        rp_pairs = set(zip(nlist_rp[0], nlist_rp[1]))
+
+        # Check that the pairs match
+        missing = aq_pairs - rp_pairs
+        extra = rp_pairs - aq_pairs
+
+        assert len(missing) == 0, (
+            f"Seed {seed}, L={L}, N={N}, r_max={r_max}, is2D={is2D}: "
+            f"CellQuery missing {len(missing)} pairs that AABBQuery found. "
+            f"Missing: {list(missing)[:5]}"
+        )
+        assert len(extra) == 0, (
+            f"Seed {seed}, L={L}, N={N}, r_max={r_max}, is2D={is2D}: "
+            f"CellQuery found {len(extra)} extra pairs not in AABBQuery. "
+            f"Extra: {list(extra)[:5]}"
+        )
+
+        # Check distances match
+        npt.assert_allclose(
+            np.sort(nlist_aq.distances),
+            np.sort(nlist_rp.distances),
+            rtol=1e-5,
+            err_msg=f"Seed {seed}: Distances don't match between AABBQuery and CellQuery",
+        )
+
+        # Check vectors match by comparing each (query_idx, point_idx) pair
+        # Both methods use the same convention: raw vector from query to neighbor
+        aq_pair_to_idx = {
+            (q, p): i for i, (q, p) in enumerate(zip(nlist_aq[0], nlist_aq[1]))
+        }
+        for i, (q, p) in enumerate(zip(nlist_rp[0], nlist_rp[1])):
+            aq_idx = aq_pair_to_idx[(q, p)]
+            npt.assert_allclose(
+                nlist_aq.vectors[aq_idx],
+                nlist_rp.vectors[i],
+                rtol=1e-5,
+                err_msg=f"Seed {seed}: Vector mismatch for pair ({q}, {p})",
+            )
+
+    @pytest.mark.parametrize("seed", range(10))
+    @pytest.mark.parametrize("is2D", [True, False])
+    def test_ball_query_with_query_points(self, seed, is2D):
+        """Test ball queries where query_points differ from points."""
+        np.random.seed(seed)
+
+        # Generate random system
+        if is2D:
+            L = np.random.uniform(10, 50)
+            N_ref = np.random.randint(10, 100)
+            N_query = np.random.randint(10, 100)
+        else:
+            L = np.random.uniform(10, 30)
+            N_ref = np.random.randint(10, 50)
+            N_query = np.random.randint(10, 50)
+
+        box, ref_points = freud.data.make_random_system(L, N_ref, is2D=is2D, seed=seed)
+        _, query_points = freud.data.make_random_system(
+            L, N_query, is2D=is2D, seed=seed + 10000
+        )
+
+        r_max = L * np.random.uniform(0.1, 0.4)
+
+        # Build query objects
+        aq = freud.locality.AABBQuery(box, ref_points)
+        from freud.locality import _RawPoints
+
+        rp = _RawPoints(box, ref_points)
+
+        # Query
+        nlist_aq = aq.query(query_points, dict(r_max=r_max)).toNeighborList()
+        nlist_rp = rp.query(query_points, dict(r_max=r_max)).toNeighborList()
+
+        # Compare pairs
+        aq_pairs = set(zip(nlist_aq[0], nlist_aq[1]))
+        rp_pairs = set(zip(nlist_rp[0], nlist_rp[1]))
+
+        missing = aq_pairs - rp_pairs
+        extra = rp_pairs - aq_pairs
+
+        assert len(missing) == 0, (
+            f"Seed {seed}: CellQuery missing {len(missing)} pairs. Missing: {list(missing)[:5]}"
+        )
+        assert len(extra) == 0, (
+            f"Seed {seed}: CellQuery has {len(extra)} extra pairs. Extra: {list(extra)[:5]}"
+        )
+
+        # Check distances
+        npt.assert_allclose(
+            np.sort(nlist_aq.distances), np.sort(nlist_rp.distances), rtol=1e-5
+        )
 
 
 def _from_system_inputs():

@@ -8,6 +8,7 @@
 
 #include "AABBQuery.h"
 #include "Box.h"
+#include "LinearCell.h"
 #include "LinkCell.h"
 #include "NeighborQuery.h"
 #include "RawPoints.h"
@@ -55,6 +56,14 @@ void RawPointsConstructor(RawPoints* nq, const box::Box& box,
     new (nq) RawPoints(box, points_data, n_points);
 }
 
+void CellQueryConstructor(CellQuery* nq, const box::Box& box,
+                          const nb_array<const float, nb::shape<-1, 3>>& points)
+{
+    unsigned int const n_points = points.shape(0);
+    const auto* points_data = (const vec3<float>*) points.data();
+    new (nq) CellQuery(box, points_data, n_points);
+}
+
 }; // namespace wrap
 
 namespace detail {
@@ -81,6 +90,24 @@ void export_LinkCell(nb::module_& module)
 void export_RawPoints(nb::module_& module)
 {
     nb::class_<RawPoints, NeighborQuery>(module, "RawPoints").def("__init__", &wrap::RawPointsConstructor);
+}
+
+void export_CellQuery(nb::module_& module)
+{
+    nb::class_<CellQuery, NeighborQuery>(module, "CellQuery")
+        .def("__init__", &wrap::CellQueryConstructor)
+        .def("getCellWidth", &CellQuery::getCellWidth)
+        .def("getCountsReal", &CellQuery::getCountsReal, nb::rv_policy::reference)
+        .def("getCounts", &CellQuery::getCounts, nb::rv_policy::reference)
+        .def("getMinPos", &CellQuery::getMinPos)
+        .def("getCellInverseWidth", &CellQuery::getCellInverseWidth)
+        .def("getNx", &CellQuery::getNx)
+        .def("getNy", &CellQuery::getNy)
+        .def("getNz", &CellQuery::getNz)
+        .def("getNTotal", &CellQuery::getNTotal)
+        .def("getCellStarts", &CellQuery::getCellStarts, nb::rv_policy::reference)
+        .def("setupGrid", &CellQuery::setupGrid)
+        .def("buildGrid", &CellQuery::buildGrid);
 }
 
 void export_QueryArgs(nb::module_& module)
