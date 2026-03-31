@@ -152,6 +152,20 @@ class TestUnitCell:
             np.full(len(points), fill_value=12, dtype=int),
         )
 
+    def test_hcp_voronoi_weights(self):
+        """Test that the HCP crystal has the expected Voronoi facet area sqrt(2)/4.
+
+        The Voronoi cell of HCP is the trapezo-rhombic dodecahedron, which is like if
+        you cut a rhombic dodecahedron in half and twisted it by 60 degrees. This is
+        similar to the construction of the pseudo-rhombicuboctahedron, but applied to a
+        different shape.
+        """
+        uc = freud.data.UnitCell.hcp()
+        box, points = uc.generate_system(num_replicas=3)
+        voro = freud.locality.Voronoi()
+        voro.compute((box, points))
+        np.testing.assert_allclose(voro.nlist.weights, np.sqrt(2) / 4.0, atol=1e-6)
+
     @pytest.mark.parametrize(
         "fn",
         [pathlib.Path(os.path.realpath(__file__)).parent / "example_file.cif"],
