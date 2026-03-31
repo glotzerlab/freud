@@ -199,7 +199,9 @@ class UnitCell:
         fractions = np.array(
             [[1.0 / 3.0, 2.0 / 3.0, 1.0 / 4.0], [2.0 / 3.0, 1.0 / 3.0, 3.0 / 4.0]]
         )
-        box = freud.Box.from_box_lengths_and_angles(1, 1, np.sqrt(8 / 3), 90, 90, 120)
+        box = freud.Box.from_box_lengths_and_angles(
+            1, 1, np.sqrt(8 / 3), *np.deg2rad([90, 90, 120.0])
+        )
         return cls(box, fractions)
 
     @classmethod

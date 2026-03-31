@@ -128,6 +128,30 @@ class TestUnitCell:
             points, [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
         )
 
+    def test_hcp(self):
+        """Test that the HCP lattice is correctly generated."""
+        uc = freud.data.UnitCell.hcp()
+        box, points = uc.generate_system()
+        c = np.sqrt(8 / 3)
+        expected_box = freud.box.Box.from_box_lengths_and_angles(
+            1, 1, c, np.pi / 2, np.pi / 2, np.deg2rad(120)
+        )
+        assert box == expected_box
+        assert len(points) == 2
+
+    def test_hcp_coordination(self):
+        """Test that the HCP crystal has the expected coordination number of 12."""
+        uc = freud.data.UnitCell.hcp()
+        box, points = uc.generate_system(num_replicas=3)
+        voro = freud.locality.Voronoi()
+        voro.compute((box, points))
+        nlist = voro.nlist
+        # print(nlist.weights)
+        npt.assert_array_equal(
+            nlist.neighbor_counts,
+            np.full(len(points), fill_value=12, dtype=int),
+        )
+
     @pytest.mark.parametrize(
         "fn",
         [pathlib.Path(os.path.realpath(__file__)).parent / "example_file.cif"],
