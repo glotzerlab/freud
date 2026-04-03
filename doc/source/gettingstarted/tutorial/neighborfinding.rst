@@ -24,7 +24,7 @@ To accomodate such differences in a flexible manner, **freud** allows users to s
 Finding Periodic Neighbors
 --------------------------
 
-.. image:: ../images/PeriodicBoundaryConditions.png
+.. image:: ../images/PeriodicBoundaryConditions.svg
     :width: 200px
 
 Finding neighbors in periodic systems is significantly more challenging than in aperiodic systems.
