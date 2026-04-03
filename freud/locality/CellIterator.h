@@ -6,7 +6,6 @@
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 #include <vector>

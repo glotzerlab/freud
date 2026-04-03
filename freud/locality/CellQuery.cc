@@ -6,8 +6,6 @@
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 #include "utils.h"
-#include <algorithm>
-#include <cmath>
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
