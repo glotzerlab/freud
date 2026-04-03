@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
-/*! \file LinearCell.h
+/*! \file CellQuery.h
  *  \brief Build an cell list from points and query it for neighbors.
  */
 namespace freud::locality {

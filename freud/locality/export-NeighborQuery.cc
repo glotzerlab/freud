@@ -8,7 +8,7 @@
 
 #include "AABBQuery.h"
 #include "Box.h"
-#include "LinearCell.h"
+#include "CellQuery.h"
 #include "LinkCell.h"
 #include "NeighborQuery.h"
 #include "RawPoints.h"

@@ -2,7 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #pragma once
-#include "LinearCell.h"
+#include "CellQuery.h"
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
@@ -125,7 +125,7 @@ private:
                         if (particle_idx == -1)
                         {
                             // Compute base index for the row (dx=0)
-                            // LinearCell idx = (cz * Ny + cy) * Nx + cx
+                            // CellQuery idx = (cz * Ny + cy) * Nx + cx
                             int row_cell_idx = ((nz * ny_dim) + ny) * nx_dim;
                             // Adjust for center column
                             row_cell_idx += m_cx;
