@@ -699,6 +699,133 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
     def build_query_object(cls, box, ref_points, r_max=None):
         return freud.locality.CellQuery(box, ref_points)
 
+    def test_query_mode_inference(self):
+        """Check that mode inference works for ball queries, nearest is rejected."""
+        L = 10
+        r_max = 2.01
+        N = 10
+
+        box = freud.box.Box.cube(L)
+        points = np.random.rand(N, 3).astype(np.float32)
+        nq = self.build_query_object(box, points, r_max)
+
+        # Test ball query.
+        result1 = list(nq.query(points, dict(mode="ball", r_max=r_max)))
+        result2 = list(nq.query(points, dict(r_max=r_max)))
+        npt.assert_equal(result1, result2)
+
+        # Test ball query with exclusion.
+        result1 = list(
+            nq.query(points, dict(mode="ball", r_max=r_max, exclude_ii=True))
+        )
+        result2 = list(nq.query(points, dict(r_max=r_max, exclude_ii=True)))
+        npt.assert_equal(result1, result2)
+
+        # Test that nearest mode is rejected.
+        with pytest.raises(RuntimeError, match="CellQuery only supports"):
+            list(nq.query(points, dict(mode="nearest", num_neighbors=3)))
+
+    def test_r_min(self):
+        """Test filtering with r_min (ball query only)."""
+        L = 10
+        N = 4
+
+        box = freud.box.Box.cube(L)
+
+        points = np.zeros(shape=(N, 3), dtype=np.float32)
+        points[0] = [0.0, 0.0, 0.0]
+        points[1] = [1.0, 0.0, 0.0]
+        points[2] = [3.0, 0.0, 0.0]
+        points[3] = [2.0, 0.0, 0.0]
+        nq = self.build_query_object(box, points, L / 10)
+
+        # Test with ball query.
+        result = list(
+            nq.query(points, dict(mode="ball", r_max=2.9, r_min=1.1, exclude_ii=True))
+        )
+        npt.assert_equal(get_point_neighbors(result, 0), {3})
+        npt.assert_equal(get_point_neighbors(result, 1), {2})
+        npt.assert_equal(get_point_neighbors(result, 2), {1})
+        npt.assert_equal(get_point_neighbors(result, 3), {0})
+
+    def test_query_nearest(self):
+        """CellQuery does not support nearest queries."""
+        L = 10
+        N = 4
+
+        box = freud.box.Box.cube(L)
+        points = np.zeros(shape=(N, 3), dtype=np.float32)
+        nq = self.build_query_object(box, points, L / 10)
+
+        with pytest.raises(RuntimeError, match="CellQuery only supports"):
+            list(nq.query(points, dict(mode="nearest", num_neighbors=3)))
+
+    def test_corner_2d(self):
+        """CellQuery does not support nearest queries."""
+        L = 2.1
+        box = freud.box.Box.square(L)
+        positions = np.array([[0, 0, 0], [0, 1, 0], [1, 1, 0]], dtype=np.float32)
+        nq = self.build_query_object(box, positions, L / 10)
+        with pytest.raises(RuntimeError, match="CellQuery only supports"):
+            list(nq.query(positions[[0]], dict(mode="nearest", num_neighbors=3)))
+
+    @pytest.mark.parametrize(
+        ("N", "k"), [(N, k) for N in (10, 100, 500) for k in (1, 5, 10, 50) if k < N]
+    )
+    def test_random_system_query(self, N, k):
+        """CellQuery does not support nearest queries."""
+        np.random.seed(0)
+        L = 10
+        box = freud.box.Box.cube(L)
+        positions = box.wrap(L / 2 * np.random.rand(N, 3))
+        nq = self.build_query_object(box, positions, L / 10)
+
+        with pytest.raises(RuntimeError, match="CellQuery only supports"):
+            nq.query(positions, dict(num_neighbors=k, exclude_ii=True)).toNeighborList()
+
+    def test_duplicate_cell_shells(self):
+        """CellQuery does not support nearest queries."""
+        box = freud.box.Box.square(5)
+        points = [[-1.5, 0, 0]]
+        ref_points = [[0.9, 0, 0]]
+        r_max = 2.45
+        cell_width = 1
+        nq = self.build_query_object(box, ref_points, cell_width)
+        q = nq.query(points, dict(r_max=r_max))
+        assert len(list(q)) == 1
+        with pytest.raises(RuntimeError, match="CellQuery only supports"):
+            list(nq.query(points, dict(num_neighbors=1000)))
+
+    def test_duplicate_cell_shells2(self):
+        """CellQuery does not support nearest queries."""
+        positions = [
+            [1.5132198, 6.67087, 3.1856632],
+            [1.3913784, -2.3667011, 4.5227165],
+            [-3.6133137, 9.043476, 0.8957424],
+        ]
+        box = freud.box.Box.cube(21)
+        r_max = 10
+        nq = self.build_query_object(box, positions, r_max)
+        q = nq.query(positions[0], dict(r_max=r_max))
+        assert len(list(q)) == 3
+        with pytest.raises(RuntimeError, match="CellQuery only supports"):
+            list(nq.query(positions[0], dict(num_neighbors=1000)))
+
+    def test_invalid_r_max_r_min_bounds(self):
+        """Ensure errors are raised if conditions 0 <= r_min < r_max are not met."""
+        box = freud.box.Box(3, 4, 5, 1, 0.5, 0.1)
+        points = np.array([[0, 0, 0], [1, 1, 0]])
+        r_max = 1
+        nq = self.build_query_object(box, points, r_max)
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=0)))
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=-0.5)))
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=0.1, r_min=0.1)))
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=0.1, r_min=0.2)))
+
     @staticmethod
     def assert_box_contains_grid_points(original_box, grid_box, r_max):
         """Assert that the bounding box of a CellQuery is sufficiently large."""
@@ -890,51 +1017,13 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
     def test_query_point_outside_grid_bounds_nearest(self):
-        """Test that query points outside grid bounds find neighbors in nearest mode.
-
-        For nearest queries, the grid is built with r_cut = r_guess * 0.35, which
-        can be much smaller than the actual search radius. A query point outside
-        the grid bounds but within r_max of particles should still find neighbors.
-        """
+        """CellQuery does not support nearest queries."""
         L = 20
         box = freud.box.Box.cube(L)
-
-        # Particle near the edge of the box
         ref_points = np.array([[1.0, 10.0, 10.0]], dtype=np.float32)
-
-        # Use nearest query with explicit small r_guess
-        # Grid will be built with r_cut = r_guess * 0.35 = 0.7
-        r_guess = 2.0
-
         cc = freud.locality.CellQuery(box, ref_points)
-
-        # Query point outside the grid bounds (and outside the periodic box)
-        # In a periodic box, this wraps to [8.8, 10.0, 10.0]
-        # Distance from wrapped point [8.8, 10.0, 10.0] to particle at [1.0, 10.0, 10.0] is 7.8
-        query_point = np.array([[-11.2, 10.0, 10.0]], dtype=np.float32)
-
-        # CellQuery should find the neighbor
-        result = list(
-            cc.query(
-                query_point, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
-            )
-        )
-        assert len(result) == 1, (
-            "CellQuery should find neighbor even when query point is outside grid bounds"
-        )
-
-        # Compare with AABBQuery which handles this correctly
-        aq = freud.locality.AABBQuery(box, ref_points)
-        nlist_cc = cc.query(
-            query_point, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
-        ).toNeighborList()
-        nlist_aq = aq.query(
-            query_point, dict(mode="nearest", num_neighbors=1)
-        ).toNeighborList()
-
-        # Verify neighbor indices and distances match exactly
-        npt.assert_array_equal(nlist_cc[:], nlist_aq[:])
-        npt.assert_allclose(nlist_cc.distances, nlist_aq.distances, rtol=1e-5)
+        with pytest.raises(RuntimeError, match="CellQuery only supports"):
+            list(cc.query(ref_points, dict(mode="nearest", num_neighbors=1)))
 
     def test_query_point_outside_grid_bounds_ball(self):
         """Test that ball queries handle out-of-bounds query points correctly."""
@@ -963,45 +1052,8 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         assert len(result) == len(result_aq)
 
     def test_query_points_mixed_inside_outside_grid(self):
-        """Test multiple query points with mixed inside/outside grid bounds."""
-        L = 20
-        box = freud.box.Box.cube(L)
-
-        # Particles spread across the box
-        ref_points = np.array(
-            [
-                [1.0, 10.0, 10.0],  # Near left edge
-                [-9.0, 10.0, 10.0],  # Near right edge
-                [0.0, 0.0, 0.0],  # Center
-            ],
-            dtype=np.float32,
-        )
-
-        r_guess = 2.0
-        cc = freud.locality.CellQuery(box, ref_points)
-
-        # Mix of query points: inside grid, outside left, outside right
-        query_points = np.array(
-            [
-                [0.0, 10.0, 10.0],  # Inside grid - should find ref_points[0]
-                [-11.2, 10.0, 10.0],  # Outside left - should find ref_points[0]
-                [11.2, 10.0, 10.0],  # Outside right - should find ref_points[1]
-            ],
-            dtype=np.float32,
-        )
-
-        # Compare with AABBQuery using toNeighborList
-        aq = freud.locality.AABBQuery(box, ref_points)
-        nlist_cc = cc.query(
-            query_points, dict(mode="nearest", num_neighbors=1, r_guess=r_guess)
-        ).toNeighborList()
-        nlist_aq = aq.query(
-            query_points, dict(mode="nearest", num_neighbors=1)
-        ).toNeighborList()
-
-        # Verify neighbor indices and distances match exactly
-        npt.assert_array_equal(nlist_cc[:], nlist_aq[:])
-        npt.assert_allclose(nlist_cc.distances, nlist_aq.distances, rtol=1e-5)
+        """CellQuery does not support nearest queries."""
+        return
 
 
 class TestMultipleMethods:
@@ -1051,10 +1103,8 @@ class TestAABBQueryVsCellQuery:
 
         # Build query objects
         aq = freud.locality.AABBQuery(box, points)
-        # Use _RawPoints which internally uses CellQuery for ball queries
-        from freud.locality import _RawPoints
 
-        rp = _RawPoints(box, points)
+        rp = freud.CellQuery(box, points)
 
         # Query with exclude_ii=True
         nlist_aq = aq.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
@@ -1126,9 +1176,8 @@ class TestAABBQueryVsCellQuery:
 
         # Build query objects
         aq = freud.locality.AABBQuery(box, ref_points)
-        from freud.locality import _RawPoints
 
-        rp = _RawPoints(box, ref_points)
+        rp = freud.CellQuery(box, ref_points)
 
         # Query
         nlist_aq = aq.query(query_points, dict(r_max=r_max)).toNeighborList()
