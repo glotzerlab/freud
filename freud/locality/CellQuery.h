@@ -26,7 +26,6 @@ struct TaggedPosition
 
 // Forward declaration of iterator types we return from the query
 class CellQueryBallIterator;
-class CellQueryNearestIterator;
 
 class CellQuery : public NeighborQuery
 {
@@ -85,11 +84,6 @@ public:
     float getCellWidth() const
     {
         return 1.0F / m_cell_inverse_length;
-    }
-    //! Get the cell width (1/m_cell_inverse_length)
-    float getSafeRMax() const
-    {
-        return m_grid_max_safe_r_cut;
     }
 
     //! Get the number of real particles in each cell
@@ -185,29 +179,24 @@ protected:
         NeighborQuery::validateQueryArgs(args);
         if (args.mode == QueryType::nearest)
         {
-            validateNearestNeighborArgs(args);
+            throw std::runtime_error("CellQuery only supports ball queries (r_max), not nearest queries "
+                                     "(num_neighbors). Use AABBQuery for nearest neighbor queries.");
         }
 
-        // For nearest mode with infinite r_max, skip the box size validation: the grid
-        // will be built with r_guess, which is checked for correctness in this->q uery
-        if (args.mode != QueryType::nearest || !std::isinf(args.r_max))
+        // Validate r_max vs box size
+        const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
+        if ((nearest_plane_distance.x <= args.r_max * 2.0F) || (nearest_plane_distance.y <= args.r_max * 2.0F)
+            || (!m_box.is2D() && nearest_plane_distance.z <= args.r_max * 2.0F))
         {
-            // Validate r_max vs box size
-            const vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
-            if ((nearest_plane_distance.x <= args.r_max * 2.0F)
-                || (nearest_plane_distance.y <= args.r_max * 2.0F)
-                || (!m_box.is2D() && nearest_plane_distance.z <= args.r_max * 2.0F))
-            {
-                throw std::runtime_error("The CellQuery r_max is too large for this box.");
-            }
-
-            if (args.r_max <= 0)
-            {
-                throw std::invalid_argument("r_max must be positive.");
-            }
+            throw std::runtime_error("The CellQuery r_max is too large for this box.");
         }
 
-        if (!std::isinf(args.r_max) && args.r_max <= args.r_min)
+        if (args.r_max <= 0)
+        {
+            throw std::invalid_argument("r_max must be positive.");
+        }
+
+        if (args.r_max <= args.r_min)
         {
             throw std::invalid_argument("r_max must be greater than r_min.");
         }
@@ -315,9 +304,8 @@ private:
     mutable unsigned int m_n_total = 0;  //!< Total number of particles, including ghosts
     mutable unsigned int m_n_images = 0; //!< Total number of periodic images
 
-    mutable bool m_built = false;              //!< Whether the grid has been built.
-    mutable float m_grid_r_cut = 0.0;          //!< Current grid width to check if rebuild is necessary
-    mutable float m_grid_max_safe_r_cut = 0.0; //!< Maximum safe r_cut for the grid
+    mutable bool m_built = false;     //!< Whether the grid has been built.
+    mutable float m_grid_r_cut = 0.0; //!< Current grid width to check if rebuild is necessary
 
     //! Place particles into sorted linear buffer using cell starts and counts.
     void placeParticlesInSortedOrder(

@@ -904,8 +904,8 @@ class CellQuery(NeighborQuery):
 
     .. note::
 
-        This query type is much faster than ``freud.AABBQuery`` for ``r_max``-type
-        neighbor searches but may be slower for ``num_neighbors`` queries.
+        CellQuery only supports ball queries (``r_max``). For ``num_neighbors``
+        (nearest neighbor) queries, use :class:`freud.locality.AABBQuery`.
 
     Args:
         box (:class:`freud.box.Box`):

@@ -24,32 +24,12 @@ CellQuery::query(const vec3<float>* query_points, unsigned int n_query_points, Q
     // called in a parallel loop. This  never occurs as of writing this method,
     // as it is the NeighborQueryIterator which  is operated on in parallel --
     // although confusingly, that method is also named  `query`. For stronger
-    // guarantees, we could use a mutex here.   For nearest mode with infinite
-    // r_max, we use half the smallest nearest plane  distance as the grid r_max
-    // (or the existing grid r_max if it's larger).
-    const vec3<float> plane_distance = m_box.getNearestPlaneDistance();
-    const float min_plane_distance = std::min({plane_distance.x, plane_distance.y, plane_distance.z});
-    m_grid_max_safe_r_cut = min_plane_distance / 2.0F;
+    // guarantees, we could use a mutex here.
 
     // Build the grid if needed
     if (!m_built)
     {
-        // r_max is a placeholder or is invalid: use r_guess to build the grid
-        if (query_args.r_max <= 0 || std::isinf(query_args.r_max))
-        {
-            // r_guess puts enough particles in the center cell to find k on average,
-            // but we still have to check a 3x3x3 grid anyway.
-            this->buildGrid(query_args.r_guess * 0.35F);
-        }
-        // Standard build mode: grid is uninitialized
-        else
-        {
-            this->buildGrid(query_args.r_max);
-        }
-    }
-    else if (m_grid_r_cut >= m_grid_max_safe_r_cut && query_args.mode == QueryType::nearest)
-    {
-        throw std::runtime_error("Could not find enough neighbors within safe r_max bounds.");
+        this->buildGrid(query_args.r_max);
     }
 
     return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
@@ -63,11 +43,6 @@ CellQuery::querySingle(const vec3<float> query_point, unsigned int query_point_i
     {
         return std::make_shared<CellQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
                                                        args.r_min, args.exclude_ii);
-    }
-    if (args.mode == QueryType::nearest)
-    {
-        return std::make_shared<CellQueryNearestIterator>(
-            this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.r_min, args.exclude_ii);
     }
     throw std::runtime_error("Invalid query mode provided to query function in CellQuery.");
 }
