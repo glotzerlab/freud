@@ -226,6 +226,8 @@ jobs:
     name: Publish [GitHub]
     needs: [release-notes, source]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Download artifacts
