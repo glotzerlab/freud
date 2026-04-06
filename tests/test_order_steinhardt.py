@@ -34,7 +34,7 @@ class TestSteinhardt:
     def test_qlmi(self, sph_l):
         """Test the raw calculated qlmi."""
         special = pytest.importorskip("scipy.special")
-        sph_harm = special.sph_harm
+        sph_harm_y = special.sph_harm_y
 
         atol = 1e-4
         L = 8
@@ -68,7 +68,8 @@ class TestSteinhardt:
             phis = np.arctan2(bonds[:, 1], bonds[:, 0])
 
             qlmi[i, :] = np.sum(
-                sph_harm(ms, sph_l, phis[np.newaxis, :], thetas[np.newaxis, :]), axis=-1
+                sph_harm_y(sph_l, ms, thetas[np.newaxis, :], phis[np.newaxis, :]),
+                axis=-1,
             )
 
         qlmi /= num_neighbors
@@ -370,7 +371,7 @@ class TestSteinhardt:
     def test_multiple_l(self):
         """Test the raw calculated qlmi."""
         special = pytest.importorskip("scipy.special")
-        sph_harm = special.sph_harm
+        sph_harm_y = special.sph_harm_y
 
         atol = 1e-4
         L = 8
@@ -408,7 +409,8 @@ class TestSteinhardt:
                 phis = np.arctan2(bonds[:, 1], bonds[:, 0])
 
                 qlmi[i, :] = np.sum(
-                    sph_harm(ms, l, phis[np.newaxis, :], thetas[np.newaxis, :]), axis=-1
+                    sph_harm_y(l, ms, thetas[np.newaxis, :], phis[np.newaxis, :]),
+                    axis=-1,
                 )
 
             qlmi /= num_neighbors
