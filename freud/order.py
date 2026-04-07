@@ -196,7 +196,7 @@ class Nematic(_Compute):
             (:math:`\\left(N_{particles}, 3 \\right)` :class:`numpy.ndarray`):
                 Orientation vectors for which to calculate the order parameter.
         """
-        if orientations.shape[1] == 4:
+        if np.asarray(orientations).shape[1] == 4:
             msg = (
                 "In freud versions >=3.0.0, Nematic.compute() takes "
                 "3d orientation vectors instead of 4d quaternions."
@@ -903,7 +903,7 @@ class RotationalAutocorrelation(_Compute):
             orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """
-        assert len(ref_orientations) == len(orientations), (
+        assert len(np.asarray(ref_orientations)) == len(np.asarray(orientations)), (
             "orientations and ref_orientations must have the same shape."
         )
         self._cpp_obj.compute(ref_orientations, orientations)
