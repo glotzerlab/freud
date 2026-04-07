@@ -111,7 +111,7 @@ def _convert_array(
     dtype: npt.DTypeLike = np.float32,
     requirements: Sequence[RequirementFlag] = ("C",),
     allow_copy: bool = True,
-) -> npt.NDArray[np.generic]:
+) -> npt.NDArray[np.generic | np.floating]:
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
