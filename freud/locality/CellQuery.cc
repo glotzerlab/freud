@@ -96,7 +96,6 @@ void CellQuery::buildGrid(const float r_cut) const
         const vec3<float> Ly = m_box.getLatticeVector(1);
         const vec3<float> Lz = (!m_box.is2D()) ? m_box.getLatticeVector(2) : vec3<float>(0, 0, 0);
 
-        // TODO: SoA?
         const GhostPacket ghosts = generateGhosts(local_point, fractional_rcut, Lx, Ly, Lz);
 
         // NOTE: this will fail if i is > INT_MAX ( 4 billion )
@@ -126,7 +125,6 @@ void CellQuery::buildGrid(const float r_cut) const
     }
 
     // Calculate starts array (prefix sum) of indices that begin each cell.
-    // TODO: std::inclusive_scan
     util::prefixSum(n_cells_total, m_counts, m_cell_starts);
 
     // Reserve data for the full neighbor list, discarding the cell indices as that data
