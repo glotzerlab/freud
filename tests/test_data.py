@@ -13,6 +13,95 @@ import freud
 
 
 class TestUnitCell:
+    def test_rectangular(self):
+        """Test that the rectangular lattice is correctly generated."""
+        box, points = freud.data.UnitCell.rectangular().generate_system()
+        assert box == freud.box.Box(1, 2)
+        npt.assert_array_equal(points, [[-0.5, -1, 0]])
+
+    @pytest.mark.parametrize("aspect", [0.5, 1.0, 2.0, 3.0])
+    def test_rectangular_aspect(self, aspect):
+        """Test that the rectangular lattice respects aspect ratio."""
+        box, points = freud.data.UnitCell.rectangular(aspect=aspect).generate_system()
+        assert box == freud.box.Box(1, aspect)
+        npt.assert_array_equal(points, [[-0.5, -aspect / 2, 0]])
+
+    def test_rectangular_centered(self):
+        """Test that the centered rectangular lattice is correctly generated."""
+        box, points = freud.data.UnitCell.rectangular(centered=True).generate_system()
+        assert box == freud.box.Box(1, 2)
+        npt.assert_array_equal(points, [[-0.5, -1, 0], [0, 0, 0]])
+
+    @pytest.mark.parametrize("aspect", [1.0, 2.0, 4.0])
+    def test_rectangular_centered_aspect(self, aspect):
+        """Test centered rectangular with different aspect ratios."""
+        box, points = freud.data.UnitCell.rectangular(
+            aspect=aspect, centered=True
+        ).generate_system()
+        assert box == freud.box.Box(1, aspect)
+        npt.assert_array_equal(points, [[-0.5, -aspect / 2, 0], [0, 0, 0]])
+
+    def test_oblique(self):
+        """Test that the oblique lattice is correctly generated."""
+        box, points = freud.data.UnitCell.oblique().generate_system()
+        # Default: aspect=1, theta=45 degrees
+        theta_rad = np.deg2rad(45)
+        expected_matrix = np.array(
+            [[1, np.cos(theta_rad), 0], [0, np.sin(theta_rad), 0], [0, 0, 0]]
+        )
+        expected_box = freud.box.Box.from_matrix(expected_matrix)
+        assert box == expected_box
+        # Center of tilted box: (Lx/2 + xy*Ly/2, Ly/2, 0)
+        center = np.array([box.Lx / 2 + box.xy * box.Ly / 2, box.Ly / 2, 0])
+        npt.assert_allclose(points.squeeze(), -center, rtol=1e-6)
+
+    @pytest.mark.parametrize("theta", [17.123, 30.0, 45.0, 60.0, 90.0])
+    @pytest.mark.parametrize("aspect", [0.5, 1.0, 2.0])
+    def test_oblique_params(self, aspect, theta):
+        """Test that the oblique lattice respects aspect ratio and angle theta."""
+        box, points = freud.data.UnitCell.oblique(
+            aspect=aspect, theta=theta
+        ).generate_system()
+        theta_rad = np.deg2rad(theta)
+        expected_matrix = np.array(
+            [
+                [1, aspect * np.cos(theta_rad), 0],
+                [0, aspect * np.sin(theta_rad), 0],
+                [0, 0, 0],
+            ]
+        )
+        expected_box = freud.box.Box.from_matrix(expected_matrix)
+        assert box == expected_box
+        center = np.array([box.Lx / 2 + box.xy * box.Ly / 2, box.Ly / 2, 0])
+        npt.assert_allclose(points.squeeze(), -center, rtol=1e-6)
+
+    def test_graphene(self):
+        """Test that the graphene lattice is correctly generated."""
+        box, points = freud.data.UnitCell.graphene().generate_system()
+        assert box == freud.box.Box(1, np.sqrt(3))
+        expected_points = np.array(
+            [
+                [-0.5, -np.sqrt(3) / 2, 0],
+                [-0.5, -np.sqrt(3) / 6, 0],
+                [0, np.sqrt(3) / 3, 0],
+                [0, 0, 0],
+            ]
+        )
+        npt.assert_allclose(points, expected_points, rtol=1e-6)
+
+    def test_graphene_bond_length(self):
+        """Test that graphene has correct C-C bond length of 1/sqrt(3)."""
+        # Generate a larger system so all neighbors are within the system
+        box, points = freud.data.UnitCell.graphene().generate_system(3)
+        bond_length = 1 / np.sqrt(3)
+        # Use neighbor query to find 3 nearest neighbors for each atom
+        aq = freud.locality.AABBQuery(box, points)
+        nlist = aq.query(
+            points, {"num_neighbors": 3, "exclude_ii": True}
+        ).toNeighborList()
+        # All bonds should have the same length (honeycomb structure)
+        npt.assert_allclose(nlist.distances, bond_length, rtol=1e-5)
+
     def test_square(self):
         """Test that the square lattice is correctly generated."""
         box, points = freud.data.UnitCell.square().generate_system()
@@ -38,6 +127,44 @@ class TestUnitCell:
         npt.assert_array_equal(
             points, [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
         )
+
+    def test_hcp(self):
+        """Test that the HCP lattice is correctly generated."""
+        uc = freud.data.UnitCell.hcp()
+        box, points = uc.generate_system()
+        c = np.sqrt(8 / 3)
+        expected_box = freud.box.Box.from_box_lengths_and_angles(
+            1, 1, c, np.pi / 2, np.pi / 2, np.deg2rad(120)
+        )
+        assert box == expected_box
+        assert len(points) == 2
+
+    def test_hcp_coordination(self):
+        """Test that the HCP crystal has the expected coordination number of 12."""
+        uc = freud.data.UnitCell.hcp()
+        box, points = uc.generate_system(num_replicas=3)
+        voro = freud.locality.Voronoi()
+        voro.compute((box, points))
+        nlist = voro.nlist
+        # print(nlist.weights)
+        npt.assert_array_equal(
+            nlist.neighbor_counts,
+            np.full(len(points), fill_value=12, dtype=int),
+        )
+
+    def test_hcp_voronoi_weights(self):
+        """Test that the HCP crystal has the expected Voronoi facet area sqrt(2)/4.
+
+        The Voronoi cell of HCP is the trapezo-rhombic dodecahedron, which is like if
+        you cut a rhombic dodecahedron in half and twisted it by 60 degrees. This is
+        similar to the construction of the pseudo-rhombicuboctahedron, but applied to a
+        different shape.
+        """
+        uc = freud.data.UnitCell.hcp()
+        box, points = uc.generate_system(num_replicas=3)
+        voro = freud.locality.Voronoi()
+        voro.compute((box, points))
+        np.testing.assert_allclose(voro.nlist.weights, np.sqrt(2) / 4.0, atol=1e-6)
 
     @pytest.mark.parametrize(
         "fn",
