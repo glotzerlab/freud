@@ -153,9 +153,9 @@ class PMFTR12(_PMFT):
     """
 
     def __init__(self, r_max: ScalarLike, bins: int | tuple[int, int, int]) -> None:
-        try:
+        if isinstance(bins, tuple):
             n_r, n_t1, n_t2 = bins
-        except TypeError:
+        else:
             n_r = n_t1 = n_t2 = bins
         self._cpp_obj = freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
         self.r_max = r_max
@@ -256,9 +256,9 @@ class PMFTXYT(_PMFT):
     def __init__(
         self, x_max: ScalarLike, y_max: ScalarLike, bins: int | tuple[int, int, int]
     ) -> None:
-        try:
+        if isinstance(bins, tuple):
             n_x, n_y, n_t = bins
-        except TypeError:
+        else:
             n_x = n_y = n_t = bins
 
         self._cpp_obj = freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
@@ -366,9 +366,9 @@ class PMFTXY(_PMFT):
     def __init__(
         self, x_max: ScalarLike, y_max: ScalarLike, bins: int | tuple[int, int]
     ) -> None:
-        try:
+        if isinstance(bins, tuple):
             n_x, n_y = bins
-        except TypeError:
+        else:
             n_x = n_y = bins
 
         self._cpp_obj = freud._pmft.PMFTXY(x_max, y_max, n_x, n_y)
@@ -509,9 +509,9 @@ class PMFTXYZ(_PMFT):
     ) -> None:
         if shiftvec is None:
             shiftvec = [0, 0, 0]
-        try:
+        if isinstance(bins, tuple):
             n_x, n_y, n_z = bins
-        except TypeError:
+        else:
             n_x = n_y = n_z = bins
 
         self._cpp_obj = freud._pmft.PMFTXYZ(
