@@ -7,8 +7,13 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## Next release
 
+### Added
+* Support for `StaticStructureFactorDirect` in 2D.
+* `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
+
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
+* Unit tests pass with scipy 1.17 installed (#1413).
 
 ## 3.5.0 -- 2025-10-08
 

@@ -11,9 +11,11 @@
 #include <random>
 #include <stdexcept>
 #include <tbb/concurrent_vector.h>
+#include <utility>
 #include <vector>
 
-#include "Eigen/Eigen/Dense"
+#include <Eigen/Eigen/Dense>
+#include <Eigen/Eigen/src/Core/Matrix.h>
 
 #include "Box.h"
 #include "NeighborQuery.h"
@@ -59,10 +61,6 @@ void StaticStructureFactorDirect::accumulate(const std::shared_ptr<locality::Nei
 {
     // Compute k vectors by sampling reciprocal space.
     const auto& box = neighbor_query->getBox();
-    if (box.is2D())
-    {
-        throw std::invalid_argument("2D boxes are not currently supported.");
-    }
     const auto k_bin_edges = m_structure_factor.getBinEdges()[0];
     const auto k_min = k_bin_edges.front();
     const auto k_max = k_bin_edges.back();
@@ -120,8 +118,12 @@ void StaticStructureFactorDirect::reduce()
     // points. Unlike some other methods in freud, no frame counter is needed
     // because the binned mean accounts for accumulation over frames.
     m_k_histogram.reduceOverThreads(m_local_k_histograms);
-    m_structure_factor.reduceOverThreadsPerBin(
-        m_local_structure_factor, [&](size_t i) { m_structure_factor[i] /= float(m_k_histogram[i]); });
+    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor, [&](size_t i) {
+        if (m_k_histogram[i] != 0)
+        {
+            m_structure_factor[i] /= static_cast<float>(m_k_histogram[i]);
+        }
+    });
 }
 
 std::vector<std::complex<float>>
@@ -179,7 +181,20 @@ inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
     return mat;
 }
 
-inline float get_prune_distance(unsigned int num_sampled_k_points, float q_max, float q_volume)
+inline Eigen::Matrix2f box_to_matrix2D(const box::Box& box)
+{
+    // Build an Eigen matrix from the provided 2Dbox.
+    Eigen::Matrix2f mat;
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        const auto box_vector = box.getLatticeVector(i);
+        mat(i, 0) = box_vector.x;
+        mat(i, 1) = box_vector.y;
+    }
+    return mat;
+}
+
+inline float get_prune_distance3D(unsigned int num_sampled_k_points, float q_max, float q_volume)
 {
     if ((num_sampled_k_points > M_PI * std::pow(q_max, 3.0) / (6 * q_volume)) || (num_sampled_k_points == 0))
     {
@@ -198,33 +213,72 @@ inline float get_prune_distance(unsigned int num_sampled_k_points, float q_max, 
     return std::real(x) + q_max / 2.0F;
 }
 
+inline float get_prune_distance2D(unsigned int num_sampled_k_points, float q_max, float q_area)
+{
+    if ((num_sampled_k_points > M_PI * std::pow(q_max, 2.0) / (4 * q_area)) || (num_sampled_k_points == 0))
+    {
+        // Above this limit, all points are used and no pruning occurs.
+        return std::numeric_limits<float>::infinity();
+    }
+
+    // In 2D, a uniform radial sampling density is achieved when
+    // p_keep(q) = min(1, q_prune / q). Solving the expected-point equation
+    // over the sampled quadrant gives:
+    // N = pi / (4 q_area) * (2 q_max q_prune - q_prune^2)
+    // => q_prune = q_max - sqrt(q_max^2 - 4 N q_area / pi).
+    const auto N = static_cast<float>(num_sampled_k_points);
+    const auto discriminant = std::max(0.0F, q_max * q_max - 4.0F * N * q_area / static_cast<float>(M_PI));
+    return q_max - std::sqrt(discriminant);
+}
+
+// Helper function to set up random number generator
+std::mt19937 setup_rng(unsigned int seed)
+{
+    std::random_device rd;
+    std::seed_seq seed_seq {seed, rd(), rd(), rd()};
+    return std::mt19937(seed_seq);
+}
+
+// Function to evaluate quadratic equation for kz
+std::pair<unsigned int, unsigned int>
+evaluate_quadratic_equation(float coef_a, float coef_b, float coef_c_min, float coef_c_max, unsigned int N_kz)
+{
+    const auto b_over_2a = coef_b / (2 * coef_a);
+    const auto kz_min = static_cast<unsigned int>(
+        std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
+    const auto kz_max = static_cast<unsigned int>(
+        std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
+    return {kz_min, std::min(kz_max, N_kz)};
+}
+
+// Function to evaluate if k_vector should be kept for 2D sampling.
+bool should_keep_k_vector2D(float q_distance_sq, float q_prune_distance, bool add_all_k_points,
+                            float q_max_sq, float q_min_sq, std::uniform_real_distribution<float>& base_dist,
+                            std::mt19937& rng)
+{
+    const auto prune_probability = q_prune_distance / std::sqrt(q_distance_sq);
+    return (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+        && (add_all_k_points || prune_probability > base_dist(rng));
+}
+
+// Function to evaluate if k_vector should be kept for 3D sampling.
+bool should_keep_k_vector3D(float q_distance_sq, float q_prune_distance_sq, bool add_all_k_points,
+                            float q_max_sq, float q_min_sq, std::uniform_real_distribution<float>& base_dist,
+                            std::mt19937& rng)
+{
+    const auto prune_probability = q_prune_distance_sq / q_distance_sq;
+    return (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+        && (add_all_k_points || prune_probability > base_dist(rng));
+}
+
 std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
                                                                            float k_min,
                                                                            unsigned int num_sampled_k_points)
 {
-    const auto box_matrix = box_to_matrix(box);
-    // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-    const auto B = box_matrix.transpose().inverse();
     const auto q_max = k_max / freud::constants::TWO_PI;
     const auto q_max_sq = q_max * q_max;
     const auto q_min = k_min / freud::constants::TWO_PI;
     const auto q_min_sq = q_min * q_min;
-    const auto dq_x = B.row(0).norm();
-    const auto dq_y = B.row(1).norm();
-    const auto dq_z = B.row(2).norm();
-    const auto q_volume = dq_x * dq_y * dq_z;
-
-    // Above the pruning distance, the grid of k points is sampled isotropically
-    // at a lower density.
-    const auto q_prune_distance = get_prune_distance(num_sampled_k_points, q_max, q_volume);
-    const auto q_prune_distance_sq = q_prune_distance * q_prune_distance;
-
-    const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), B(0, 2));
-    const auto by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), B(1, 2));
-    const auto bz = freud::constants::TWO_PI * vec3<float>(B(2, 0), B(2, 1), B(2, 2));
-    const auto N_kx = static_cast<unsigned int>(std::ceil(q_max / dq_x));
-    const auto N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
-    const auto N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
 
     // The maximum number of k points is a guideline. The true number of sampled
     // k points can be less or greater than num_sampled_k_points, depending on the
@@ -234,67 +288,138 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     // NOLINTNEXTLINE(misc-include-cleaner)
     tbb::concurrent_vector<vec3<float>> k_points;
 
-    // This is a 3D loop but we parallelize in 1D because we only need to seed
-    // the random number generators once per block and there is no benefit of
-    // locality if we parallelize in 2D or 3D.
-    util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
-        // Set up thread-local random number generator for k point pruning.
-        const auto thread_start = static_cast<unsigned int>(begin);
-        std::random_device rd;
-        std::seed_seq seed {thread_start, rd(), rd(), rd()};
-        std::mt19937 rng(seed);
-        std::uniform_real_distribution<float> base_dist(0, 1);
-        auto random_prune = [&]() { return base_dist(rng); };
-
-        const auto add_all_k_points = std::isinf(q_prune_distance);
-
-        for (unsigned int kx = begin; kx < end; ++kx)
-        {
-            const auto k_vec_x = static_cast<float>(kx) * bx;
-            for (unsigned int ky = 0; ky < N_ky; ++ky)
+    if (box.is2D())
+    {
+        // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
+        const auto box_matrix = box_to_matrix2D(box);
+        const auto B = box_matrix.transpose().inverse();
+        const auto dq_x = B.row(0).norm();
+        const auto dq_y = B.row(1).norm();
+        const auto q_area = dq_x * dq_y;
+        // Above the pruning distance, the grid of k points is sampled isotropically
+        // at a lower density.
+        const auto q_prune_distance = get_prune_distance2D(num_sampled_k_points, q_max, q_area);
+        const auto N_kx = static_cast<unsigned int>(std::ceil(q_max / dq_x));
+        const auto N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
+        const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), 0.0);
+        const auto by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), 0.0);
+        // This is a 2D loop but we parallelize in 1D because we only need to seed
+        // the random number generators once per block and there is no benefit of
+        // locality if we parallelize in 2D.
+        util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
+            // Set up thread-local random number generator for k point
+            // pruning.
+            std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
+            std::uniform_real_distribution<float> base_dist(0, 1);
+            const auto add_all_k_points = std::isinf(q_prune_distance);
+            for (unsigned int kx = begin; kx < end; ++kx)
             {
-                const auto k_vec_xy = k_vec_x + static_cast<float>(ky) * by;
+                const auto k_vec_x = static_cast<float>(kx) * bx;
 
                 // Solve the quadratic equation for kz to limit which kz values we must sample:
-                // k_min^2 <= |k_vec_xy|^2 + kz^2 |bz|^2 - 2 kz (k_vec_xy \cdot bz) <= k_max^2
-                // 0 <= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_min^2)
-                // 0 >= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_max^2)
+                // k_min^2 <= |k_vec_x|^2 + ky^2 |by|^2 - 2 ky (k_vec_x \cdot by) <= k_max^2
+                // 0 <= ky^2 (|by|^2) + ky (-2 (k_vec_x \cdot by)) + (|k_vec_x|^2 - k_min^2)
+                // 0 >= ky^2 (|by|^2) + ky (-2 (k_vec_x \cdot by)) + (|k_vec_x|^2 - k_max^2)
                 // This step improves performance significantly when k_min > 0
                 // by eliminating a large portion of the search space. Likewise,
                 // it eliminates the portion of search space outside a sphere
-                // with radius k_max. We round kz_min down and kz_max up to
+                // with radius k_max. We round ky_min down and ky_max up to
                 // ensure that we don't accidentally throw out valid k points in
                 // the range (k_min, k_max) due to rounding error.
-                const auto coef_a = dot(bz, bz);
-                const auto coef_b = -2 * dot(k_vec_xy, bz);
-                const auto coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
-                const auto coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
-                const auto b_over_2a = coef_b / (2 * coef_a);
-                const auto kz_min = static_cast<unsigned int>(
-                    std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
-                const auto kz_max = static_cast<unsigned int>(
-                    std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
-                for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
+                const auto coef_a = dot(by, by);
+                const auto coef_b = -2 * dot(k_vec_x, by);
+                const auto coef_c_min = dot(k_vec_x, k_vec_x) - k_min * k_min;
+                const auto coef_c_max = dot(k_vec_x, k_vec_x) - k_max * k_max;
+                auto [ky_min, ky_max]
+                    = evaluate_quadratic_equation(coef_a, coef_b, coef_c_min, coef_c_max, N_ky);
+                for (unsigned int ky = ky_min; ky < std::min(ky_max, N_ky); ++ky)
                 {
-                    const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
+                    const auto k_vec = k_vec_x + static_cast<float>(ky) * by;
                     const auto q_distance_sq
                         = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
 
-                    // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
-                    // This sampling scheme aims to have a constant density of k vectors with respect to
+                    // The k vector is kept with probability min(1, q_prune_distance / q_distance).
+                    // This sampling scheme aims to have a constant
+                    // density of k vectors with respect to
                     // radial distance.
-                    if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+                    if (should_keep_k_vector2D(q_distance_sq, q_prune_distance, add_all_k_points, q_max_sq,
+                                               q_min_sq, base_dist, rng))
                     {
-                        const auto prune_probability = q_prune_distance_sq / q_distance_sq;
-                        if (add_all_k_points || prune_probability > random_prune())
+                        k_points.emplace_back(k_vec);
+                    }
+                }
+            }
+        });
+    }
+    else
+    {
+        // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
+        const auto box_matrix = box_to_matrix(box);
+        const auto B = box_matrix.transpose().inverse();
+        const auto dq_x = B.row(0).norm();
+        const auto dq_y = B.row(1).norm();
+        const auto dq_z = B.row(2).norm();
+        const auto q_volume = dq_x * dq_y * dq_z;
+        // Above the pruning distance, the grid of k points is sampled isotropically
+        // at a lower density.
+        const auto q_prune_distance = get_prune_distance3D(num_sampled_k_points, q_max, q_volume);
+        const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), B(0, 2));
+        const auto by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), B(1, 2));
+        const auto bz = freud::constants::TWO_PI * vec3<float>(B(2, 0), B(2, 1), B(2, 2));
+        const auto N_kx = static_cast<unsigned int>(std::ceil(q_max / dq_x));
+        const auto N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
+        const auto N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
+        const auto q_prune_distance_sq = q_prune_distance * q_prune_distance;
+        // This is a 3D loop but we parallelize in 1D because we only need to seed
+        // the random number generators once per block and there is no benefit of
+        // locality if we parallelize in 2D or 3D.
+        util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
+            // Set up thread-local random number generator for k point
+            // pruning.
+            std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
+            std::uniform_real_distribution<float> base_dist(0, 1);
+            const auto add_all_k_points = std::isinf(q_prune_distance);
+            for (unsigned int kx = begin; kx < end; ++kx)
+            {
+                const auto k_vec_x = static_cast<float>(kx) * bx;
+                for (unsigned int ky = 0; ky < N_ky; ++ky)
+                {
+                    const auto k_vec_xy = k_vec_x + static_cast<float>(ky) * by;
+                    // Solve the quadratic equation for kz to limit which kz values we must sample:
+                    // k_min^2 <= |k_vec_xy|^2 + kz^2 |bz|^2 - 2 kz (k_vec_xy \cdot bz) <= k_max^2
+                    // 0 <= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_min^2)
+                    // 0 >= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_max^2)
+                    // This step improves performance significantly when k_min > 0
+                    // by eliminating a large portion of the search space. Likewise,
+                    // it eliminates the portion of search space outside a sphere
+                    // with radius k_max. We round kz_min down and kz_max up to
+                    // ensure that we don't accidentally throw out valid k points in
+                    // the range (k_min, k_max) due to rounding error.
+                    const auto coef_a = dot(bz, bz);
+                    const auto coef_b = -2 * dot(k_vec_xy, bz);
+                    const auto coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
+                    const auto coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
+                    auto [kz_min, kz_max]
+                        = evaluate_quadratic_equation(coef_a, coef_b, coef_c_min, coef_c_max, N_kz);
+                    for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
+                    {
+                        const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
+                        const auto q_distance_sq
+                            = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
+
+                        // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
+                        // This sampling scheme aims to have a constant density of k vectors with respect to
+                        // radial distance.
+                        if (should_keep_k_vector3D(q_distance_sq, q_prune_distance_sq, add_all_k_points,
+                                                   q_max_sq, q_min_sq, base_dist, rng))
                         {
                             k_points.emplace_back(k_vec);
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
     return std::vector<vec3<float>>(k_points.cbegin(), k_points.cend());
 }
 

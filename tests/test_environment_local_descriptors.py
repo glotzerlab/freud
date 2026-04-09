@@ -345,7 +345,7 @@ class TestLocalDescriptors:
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        sph_harm = pytest.importorskip("scipy.special").sph_harm
+        sph_harm_y = pytest.importorskip("scipy.special").sph_harm_y
 
         atol = 1e-4
         L = 8
@@ -380,7 +380,7 @@ class TestLocalDescriptors:
                     # but we need to pass the swapped angles because it uses
                     # the opposite convention from fsph (which LocalDescriptors
                     # uses internally).
-                    scipy_val = sph_harm(m, l, phi, theta)
+                    scipy_val = sph_harm_y(l, m, theta, phi)
                     ld_val = (-1) ** abs(m) * ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
                         f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
@@ -389,7 +389,7 @@ class TestLocalDescriptors:
 
                 for neg_m in range(1, l + 1):
                     m = -neg_m
-                    scipy_val = sph_harm(m, l, phi, theta)
+                    scipy_val = sph_harm_y(l, m, theta, phi)
                     ld_val = ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
                         f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
@@ -399,7 +399,7 @@ class TestLocalDescriptors:
     def test_query_point_ne_points(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        sph_harm = pytest.importorskip("scipy.special").sph_harm
+        sph_harm_y = pytest.importorskip("scipy.special").sph_harm_y
 
         atol = 1e-5
         L = 8
@@ -434,7 +434,7 @@ class TestLocalDescriptors:
                     # but we need to pass the swapped angles because it uses
                     # the opposite convention from fsph (which LocalDescriptors
                     # uses internally).
-                    scipy_val = sph_harm(m, l, phi, theta)
+                    scipy_val = sph_harm_y(l, m, theta, phi)
                     ld_val = (-1) ** abs(m) * ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
                         f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
@@ -443,7 +443,7 @@ class TestLocalDescriptors:
 
                 for neg_m in range(1, l + 1):
                     m = -neg_m
-                    scipy_val = sph_harm(m, l, phi, theta)
+                    scipy_val = sph_harm_y(l, m, theta, phi)
                     ld_val = ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
                         f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
