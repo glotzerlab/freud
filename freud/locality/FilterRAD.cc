@@ -28,7 +28,7 @@ void FilterRAD::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* qu
     std::vector<float> default_points_radii;
     if (points_radii == nullptr)
     {
-        default_points_radii = std::vector<float>(nq->getNPoints(), 1.0f);
+        default_points_radii = std::vector<float>(nq->getNPoints(), 1.0F);
         points_radii = default_points_radii.data();
     }
 
