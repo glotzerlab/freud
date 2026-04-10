@@ -46,6 +46,7 @@ else:
 
 ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
 
+
 class _CPPNPoint(Protocol):
     def getQueryPointIdx(self) -> int: ...
     def getPointIdx(self) -> int: ...
