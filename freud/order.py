@@ -654,10 +654,11 @@ class Steinhardt(_PairCompute):
             for sph_l in ls
         ]
         xlabel = ", ".join(legend_labels)
+        plot_legend_labels: list[str] | None = legend_labels
 
         # Don't print legend if only one l requested.
         if len(legend_labels) == 1:
-            legend_labels = None
+            plot_legend_labels = None
 
         return freud.plot.histogram_plot(
             self.particle_order,
@@ -665,7 +666,7 @@ class Steinhardt(_PairCompute):
             xlabel=xlabel,
             ylabel=r"Number of particles",
             ax=ax,
-            legend_labels=legend_labels,
+            legend_labels=plot_legend_labels,
         )
 
     def _repr_png_(self) -> bytes | None:

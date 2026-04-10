@@ -114,7 +114,7 @@ class CorrelationFunction(_SpatialHistogram1D):
             self._preprocess_arguments(system, query_points, neighbors)
         )
 
-        self.is_complex = (
+        self.is_complex = bool(
             self.is_complex
             or np.any(np.iscomplex(values))
             or np.any(np.iscomplex(query_values))
