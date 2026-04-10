@@ -293,14 +293,20 @@ class TestRAD(FilterTest):
         sys = freud.data.make_random_system(L, N, seed=2)
         filt = self.get_filter_object()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=rf"^array\.shape= \({N - 1},\); expected shape = \({N}\)$",
+        ):
             filt.compute(
                 sys, dict(r_max=4.0, exclude_ii=True), points_radii=np.ones(N - 1)
             )
 
         bad_points_radii = np.ones(N)
         bad_points_radii[0] = 0
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"^points_radii must contain only values greater than 0\.$",
+        ):
             filt.compute(
                 sys,
                 dict(r_max=4.0, exclude_ii=True),
@@ -309,7 +315,10 @@ class TestRAD(FilterTest):
 
         bad_query_radii = np.ones(N)
         bad_query_radii[1] = np.nan
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match=r"^query_points_radii must contain only finite values\.$",
+        ):
             filt.compute(
                 sys,
                 dict(r_max=4.0, exclude_ii=True),
