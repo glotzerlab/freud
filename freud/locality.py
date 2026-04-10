@@ -45,8 +45,6 @@ else:
     msg_mpl = "Plotting requires matplotlib."
 
 ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
-NeighborQueryDict = dict[str, object]
-
 
 class _CPPNPoint(Protocol):
     def getQueryPointIdx(self) -> int: ...
@@ -575,7 +573,7 @@ class NeighborQuery:
         return np.asarray(self._points)
 
     def query(
-        self, query_points: ArrayLike, query_args: NeighborQueryDict
+        self, query_points: ArrayLike, query_args: dict[str, object]
     ) -> NeighborQueryResult:
         r"""Query for nearest neighbors of the provided point.
 
@@ -1006,7 +1004,7 @@ def _make_default_nq(neighbor_query: object) -> NeighborQuery:
 
 def _make_default_nlist(
     system: object,
-    neighbors: NeighborList | NeighborQueryDict,
+    neighbors: NeighborList | dict[str, object],
     query_points: ArrayLike | None = None,
 ) -> NeighborList:
     r"""Helper function to return a neighbor list object if is given, or to
@@ -1120,7 +1118,7 @@ class _PairCompute(_Compute):
         self,
         system: object,
         query_points: ArrayLike | None = None,
-        neighbors: NeighborList | NeighborQueryDict | None = None,
+        neighbors: NeighborList | dict[str, object] | None = None,
     ) -> tuple[
         NeighborQuery,
         NeighborList,
@@ -1164,7 +1162,7 @@ class _PairCompute(_Compute):
 
     def _resolve_neighbors(
         self,
-        neighbors: NeighborList | NeighborQueryDict | None,
+        neighbors: NeighborList | dict[str, object] | None,
         query_points: ArrayLike | None = None,
     ) -> tuple[NeighborList, _QueryArgs]:
         if type(neighbors) is NeighborList:
@@ -1192,7 +1190,7 @@ class _PairCompute(_Compute):
         return nlist, qargs
 
     @property
-    def default_query_args(self) -> NeighborQueryDict:
+    def default_query_args(self) -> dict[str, object]:
         """No default query arguments."""
         raise NotImplementedError(
             NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__)
@@ -1211,7 +1209,7 @@ class _SpatialHistogram(_PairCompute):
     _cpp_obj: _CPPSpatialHistogram
 
     @property
-    def default_query_args(self) -> NeighborQueryDict:
+    def default_query_args(self) -> dict[str, object]:
         """The default query arguments are
         :code:`{'mode': 'ball', 'r_max': self.r_max}`."""
         return dict(mode="ball", r_max=self.r_max)
@@ -1515,7 +1513,7 @@ class Filter(_PairCompute):
         self,
         system: object,
         query_points: ArrayLike | None = None,
-        neighbors: NeighborList | NeighborQueryDict | None = None,
+        neighbors: NeighborList | dict[str, object] | None = None,
     ) -> tuple[
         NeighborQuery,
         NeighborList,
@@ -1532,7 +1530,7 @@ class Filter(_PairCompute):
     def compute(
         self,
         system: object,
-        neighbors: NeighborList | NeighborQueryDict | None = None,
+        neighbors: NeighborList | dict[str, object] | None = None,
         query_points: ArrayLike | None = None,
     ) -> Filter:
         r"""Filter a :class:`.Neighborlist`.
