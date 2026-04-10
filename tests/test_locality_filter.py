@@ -142,9 +142,18 @@ class TestRAD(FilterTest):
         return freud.locality.FilterRAD(allow_incomplete_shell, terminate_after_blocked)
 
     def compute_python_neighborlist(
-        self, box, points, r_max, terminate_after_blocked=True
+        self,
+        box,
+        points,
+        r_max,
+        terminate_after_blocked=True,
+        points_radii=None,
+        query_points_radii=None,
     ):
         """Compute the RAD neighborlist in python."""
+        if points_radii is None:
+            points_radii = np.ones(points.shape[0], dtype=np.float32)
+
         nlist = super().compute_python_neighborlist(
             box, points, r_max, terminate_after_blocked
         )
@@ -167,7 +176,9 @@ class TestRAD(FilterTest):
                     v2 = box.wrap(points[i] - points[k])
                     coz = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
                     # if true add to the list
-                    if 1 / np.dot(v1, v1) < (coz / np.dot(v2, v2)):
+                    if (points_radii[j] ** 2 / np.dot(v1, v1)) < (
+                        points_radii[k] ** 2 * coz / np.dot(v2, v2)
+                    ):
                         is_a_good_neighbour = False
                         break
                 if is_a_good_neighbour:
@@ -244,6 +255,75 @@ class TestRAD(FilterTest):
         npt.assert_allclose(sol.distances, distances)
         npt.assert_allclose(sol.point_indices, point_indices)
         npt.assert_allclose(sol.query_point_indices, query_point_indices)
+
+    @pytest.mark.parametrize("terminate_after_blocked", [False, True])
+    def test_random_system_with_radii(self, terminate_after_blocked):
+        """Compare freud and pure Python implementations with per-point radii."""
+        N = 100
+        L = 10
+        r_max = 4.9
+
+        sys = freud.data.make_random_system(L, N, seed=1)
+        points_radii = np.linspace(0.75, 1.25, N)
+        query_points_radii = np.ones(N)
+        nlist_1 = self.compute_python_neighborlist(
+            *sys,
+            r_max,
+            terminate_after_blocked,
+            points_radii=points_radii,
+            query_points_radii=query_points_radii,
+        )
+        filt = self.get_filter_object(terminate_after_blocked=terminate_after_blocked)
+        filt.compute(
+            sys,
+            dict(r_max=r_max, exclude_ii=True),
+            points_radii=points_radii,
+            query_points_radii=query_points_radii,
+        )
+        nlist_2 = filt.filtered_nlist
+
+        npt.assert_allclose(nlist_1.distances, nlist_2.distances, rtol=5e-5)
+        npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
+        npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
+
+    def test_radii_validation(self):
+        """Validate shape and value checks for radii arrays."""
+        N = 20
+        L = 10
+        sys = freud.data.make_random_system(L, N, seed=2)
+        filt = self.get_filter_object()
+
+        with pytest.raises(
+            ValueError,
+            match=rf"^array\.shape= \({N - 1},\); expected shape = \({N}\)$",
+        ):
+            filt.compute(
+                sys, dict(r_max=4.0, exclude_ii=True), points_radii=np.ones(N - 1)
+            )
+
+        bad_points_radii = np.ones(N)
+        bad_points_radii[0] = 0
+        with pytest.raises(
+            ValueError,
+            match=r"^points_radii must contain only values greater than 0\.$",
+        ):
+            filt.compute(
+                sys,
+                dict(r_max=4.0, exclude_ii=True),
+                points_radii=bad_points_radii,
+            )
+
+        bad_query_radii = np.ones(N)
+        bad_query_radii[1] = np.nan
+        with pytest.raises(
+            ValueError,
+            match=r"^query_points_radii must contain only finite values\.$",
+        ):
+            filt.compute(
+                sys,
+                dict(r_max=4.0, exclude_ii=True),
+                query_points_radii=bad_query_radii,
+            )
 
 
 class TestSANN(FilterTest):
