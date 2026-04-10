@@ -1431,15 +1431,13 @@ class FilterRAD(Filter):
                 If ``None``, an unfiltered neighborlist will be created such that
                 all pairs of particles are neighbors via :meth:`.NeighborList.all_pairs`
                 (Default value = ``None``).
-            query_points \
-                ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the unfiltered neighborlist. Uses
                 the system's points if :code:`None` (Default value = :code:`None`).
             points_radii ((:math:`N_{points}`,) :class:`numpy.ndarray`, optional):
                 Radii associated with points in ``system``. If :code:`None`,
                 all radii are set to 1 (Default value = :code:`None`).
-            query_points_radii \
-                ((:math:`N_{query\_points}`,) :class:`numpy.ndarray`, optional):
+            query_points_radii ((:math:`N_{query\_points}`,) :class:`numpy.ndarray`, optional):
                 Radii associated with ``query_points``. If :code:`None`, all
                 radii are set to 1 (Default value = :code:`None`).
         """
