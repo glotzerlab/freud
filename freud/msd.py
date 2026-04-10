@@ -18,7 +18,7 @@ import numpy.typing as npt
 import freud.box
 import freud.parallel
 import freud.util
-from freud._typing import ArrayLike, FloatArray
+from freud._typing import ArrayLike
 from freud.util import _Compute
 
 if TYPE_CHECKING:
@@ -66,7 +66,7 @@ except ImportError:
         logger.info("Using NumPy for FFTs")
 
 
-def _autocorrelation(x: FloatArray) -> npt.NDArray[np.floating]:
+def _autocorrelation(x: npt.NDArray[np.floating]) -> npt.NDArray[np.floating]:
     r"""Compute the autocorrelation of a sequence"""
     N = x.shape[0]
     F = fft(x, n=2 * N, axis=0)
@@ -167,7 +167,7 @@ class MSD(_Compute):
         else:
             self._box = None
 
-        self._particle_msd: list[FloatArray] = []
+        self._particle_msd: list[npt.NDArray[np.floating]] = []
 
         if mode not in ["window", "direct"]:
             msg = "Invalid mode"

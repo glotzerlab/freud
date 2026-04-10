@@ -50,7 +50,7 @@ import rowan
 import freud._pmft
 import freud.locality
 import freud.util
-from freud._typing import ArrayLike, FloatArray, ScalarLike
+from freud._typing import ArrayLike, ScalarLike
 from freud.locality import _SpatialHistogram
 from freud.util import _Compute
 
@@ -65,7 +65,7 @@ else:
 
 
 def _quat_to_z_angle(
-    orientations: FloatArray, num_points: int
+    orientations: npt.NDArray[np.floating], num_points: int
 ) -> npt.NDArray[np.floating]:
     """If orientations are quaternions, convert them to angles.
 

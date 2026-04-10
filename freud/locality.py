@@ -19,7 +19,7 @@ import numpy.typing as npt
 import freud._locality
 import freud.box
 import freud.util
-from freud._typing import ArrayLike, FloatArray, ScalarLike
+from freud._typing import ArrayLike, ScalarLike
 from freud._util import (  # noqa F401
     ManagedArray_double,
     ManagedArray_float,
@@ -127,7 +127,7 @@ class _CPPFilter(Protocol):
     def compute(
         self,
         query: _CPPNeighborQuery,
-        query_points: FloatArray,
+        query_points: npt.NDArray[np.floating],
         nlist: _CPPNeighborList,
         qargs: object,
     ) -> None: ...
@@ -180,7 +180,7 @@ class _Hoomd2Snapshot(Protocol):
 
 
 class _OvitoCell(Protocol):
-    matrix: FloatArray
+    matrix: npt.NDArray[np.floating]
     is2D: bool  # noqa: N815 - external API naming
 
 
@@ -422,7 +422,7 @@ class NeighborQuery:
     """
 
     _cpp_obj: _CPPNeighborQuery
-    _points: FloatArray
+    _points: npt.NDArray[np.floating]
 
     def __init__(self) -> None:
         msg = (

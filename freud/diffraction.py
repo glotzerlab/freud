@@ -26,7 +26,7 @@ import scipy.ndimage
 import freud._diffraction
 import freud.locality
 import freud.util
-from freud._typing import ArrayLike, FloatArray, ScalarLike
+from freud._typing import ArrayLike, ScalarLike
 from freud.util import _Compute
 
 if TYPE_CHECKING:
@@ -616,7 +616,7 @@ class DiffractionPattern(_Compute):
         self._frame_counter = 0
 
     def _calc_proj(
-        self, view_orientation: FloatArray, box: freud.box.Box
+        self, view_orientation: npt.NDArray[np.floating], box: freud.box.Box
     ) -> npt.NDArray[np.floating]:
         """Calculate the inverse shear matrix from finding the projected box
         vectors whose area of parallogram is the largest.
@@ -657,7 +657,11 @@ class DiffractionPattern(_Compute):
         return np.linalg.inv(shear)
 
     def _transform(
-        self, img: FloatArray, box: freud.box.Box, inv_shear: FloatArray, zoom: float
+        self,
+        img: npt.NDArray[np.floating],
+        box: freud.box.Box,
+        inv_shear: npt.NDArray[np.floating],
+        zoom: float,
     ) -> npt.NDArray[np.floating]:
         """Zoom, shear, and scale diffraction intensities.
 

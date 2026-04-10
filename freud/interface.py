@@ -12,7 +12,7 @@ import numpy as np
 import numpy.typing as npt
 
 import freud.locality
-from freud._typing import ArrayLike, IntArray
+from freud._typing import ArrayLike
 from freud.locality import _make_default_nlist, _PairCompute
 from freud.util import _Compute
 
@@ -20,8 +20,8 @@ from freud.util import _Compute
 class Interface(_PairCompute):
     r"""Measures the interface between two sets of points."""
 
-    _point_ids: IntArray
-    _query_point_ids: IntArray
+    _point_ids: npt.NDArray[np.integer]
+    _query_point_ids: npt.NDArray[np.integer]
 
     def __init__(self) -> None:
         self._point_ids = np.empty(0, dtype=np.uint32)

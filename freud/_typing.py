@@ -12,7 +12,3 @@ import numpy.typing as npt
 ArrayLike: TypeAlias = npt.ArrayLike
 ShapeLike: TypeAlias = Sequence[int | None]
 ScalarLike: TypeAlias = int | float | np.integer | np.floating
-
-FloatArray: TypeAlias = npt.NDArray[np.floating]
-IntArray: TypeAlias = npt.NDArray[np.integer]
-BoolArray: TypeAlias = npt.NDArray[np.bool_]
