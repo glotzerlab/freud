@@ -778,7 +778,7 @@ class SolidLiquid(_PairCompute):
         return self._cpp_obj.getNormalizeQ()
 
     @_Compute._computed_property
-    def cluster_idx(self) -> npt.NDArray[np.floating]:
+    def cluster_idx(self) -> npt.NDArray[np.integer]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
         Solid-like cluster indices for each particle."""
         return self._cpp_obj.getClusterIdx().toNumpyArray()
@@ -798,7 +798,7 @@ class SolidLiquid(_PairCompute):
         return self._cpp_obj.getQlm().toNumpyArray()
 
     @_Compute._computed_property
-    def cluster_sizes(self) -> npt.NDArray[np.floating]:
+    def cluster_sizes(self) -> npt.NDArray[np.integer]:
         """:math:`(N_{clusters}, )` :class:`np.ndarray`: The sizes of all
         clusters."""
         return self._cpp_obj.getClusterSizes().toNumpyArray()
@@ -815,7 +815,7 @@ class SolidLiquid(_PairCompute):
         return freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
 
     @_Compute._computed_property
-    def num_connections(self) -> npt.NDArray[np.floating]:
+    def num_connections(self) -> npt.NDArray[np.integer]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
         number of solid-like bonds for each particle."""
         return self._cpp_obj.getNumberOfConnections().toNumpyArray()

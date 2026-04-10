@@ -96,7 +96,7 @@ class Cluster(_PairCompute):
         return self._cpp_obj.getNumClusters()
 
     @_Compute._computed_property
-    def cluster_idx(self) -> npt.NDArray[np.floating]:
+    def cluster_idx(self) -> npt.NDArray[np.integer]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: The cluster index for
         each point."""
         return self._cpp_obj.getClusterIdx().toNumpyArray()

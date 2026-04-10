@@ -960,7 +960,7 @@ class EnvironmentMotifMatch(_MatchEnv):
         return self
 
     @_Compute._computed_property
-    def matches(self) -> npt.NDArray[np.floating]:
+    def matches(self) -> npt.NDArray[np.bool_]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: A boolean array indicating
         whether each point matches the motif."""
         # NOTE: Numpy stores bools as a byte each, so this cast should be free
