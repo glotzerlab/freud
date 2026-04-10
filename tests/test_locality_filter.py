@@ -258,7 +258,7 @@ class TestRAD(FilterTest):
 
     @pytest.mark.parametrize("terminate_after_blocked", [False, True])
     def test_random_system_with_radii(self, terminate_after_blocked):
-        """Compare freud and pure python implementations with per-point radii."""
+        """Compare freud and pure Python implementations with per-point radii."""
         N = 100
         L = 10
         r_max = 4.9
