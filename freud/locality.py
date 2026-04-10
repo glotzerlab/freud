@@ -1646,6 +1646,11 @@ class FilterRAD(Filter):
         We recommend using unfiltered neighborlists in which no particles are their
         own neighbor.
 
+    Note:
+        Optional per-particle radii can be supplied through
+        :meth:`~.FilterRAD.compute` using the ``points_radii`` and
+        ``query_points_radii`` arguments.
+
     Args:
         allow_incomplete_shell (bool):
             Whether particles with incomplete neighbor shells are allowed in the
@@ -1666,3 +1671,73 @@ class FilterRAD(Filter):
         self._cpp_obj = freud._locality.FilterRAD(
             allow_incomplete_shell, terminate_after_blocked
         )
+
+    def compute(
+        self,
+        system,
+        neighbors=None,
+        query_points=None,
+        points_radii=None,
+        query_points_radii=None,
+    ):
+        r"""Filter a :class:`.Neighborlist` with optional per-particle radii.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList` of neighbor pairs to use for the
+                unfiltered neighbor list, or a dictionary of `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`__.
+                If ``None``, an unfiltered neighborlist will be created such that
+                all pairs of particles are neighbors via :meth:`.NeighborList.all_pairs`
+                (Default value = ``None``).
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the unfiltered neighborlist. Uses
+                the system's points if :code:`None` (Default value = :code:`None`).
+            points_radii ((:math:`N_{points}`,) :class:`numpy.ndarray`, optional):
+                Radii associated with points in ``system``. If :code:`None`,
+                all radii are set to 1 (Default value = :code:`None`).
+            query_points_radii ((:math:`N_{query\_points}`,) :class:`numpy.ndarray`, optional):
+                Radii associated with ``query_points``. If :code:`None`, all
+                radii are set to 1 (Default value = :code:`None`).
+        """  # noqa E501
+        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
+
+        if points_radii is None:
+            points_radii = np.ones(nq.points.shape[0], dtype=np.float32)
+        points_radii = freud.util._convert_array(
+            points_radii, shape=(nq.points.shape[0],)
+        )
+
+        if query_points_radii is None:
+            query_points_radii = np.ones(num_query_points, dtype=np.float32)
+        query_points_radii = freud.util._convert_array(
+            query_points_radii, shape=(num_query_points,)
+        )
+
+        if not np.all(np.isfinite(points_radii)):
+            msg = "points_radii must contain only finite values."
+            raise ValueError(msg)
+        if not np.all(points_radii > 0):
+            msg = "points_radii must contain only values greater than 0."
+            raise ValueError(msg)
+        if not np.all(np.isfinite(query_points_radii)):
+            msg = "query_points_radii must contain only finite values."
+            raise ValueError(msg)
+        if not np.all(query_points_radii > 0):
+            msg = "query_points_radii must contain only values greater than 0."
+            raise ValueError(msg)
+
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            query_points,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+            points_radii,
+            query_points_radii,
+        )
+        return self

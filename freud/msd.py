@@ -247,8 +247,9 @@ class MSD(_Compute):
 
             self._particle_msd.append(S1 - 2 * S2)
         elif self.mode == "direct":
+            diff = positions - positions[[0], :, :]
             self._particle_msd.append(
-                np.linalg.norm(positions - positions[[0], :, :], axis=-1) ** 2
+                np.einsum("ijk, ijk -> ij", diff, diff)  # Dot product along last axis
             )
 
         return self
