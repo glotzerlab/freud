@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: true
       - name: Create Python Environment
-        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # v0.9.4
+        uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           pixi-version: v0.54.1
           cache: false
@@ -41,7 +41,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: prek
-      uses: glotzerlab/workflows/prek@204dc7c0f82720090703712694b7cab761aacaa0 # 0.13.0
+      uses: j178/prek-action@53276d8b0d10f8b6672aa85b4588c6921d0370cc # v2.0.1
+      with:
+        prek-version: '0.3.8'
 
   # This job is used to provide a single requirement for branch merge conditions.
   tests_complete:

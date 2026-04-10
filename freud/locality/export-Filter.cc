@@ -30,7 +30,22 @@ void compute(const std::shared_ptr<Filter>& filter, std::shared_ptr<NeighborQuer
 {
     const auto num_query_points = query_points.shape(0);
     const auto* query_points_data = (const vec3<float>*) query_points.data();
-    filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs);
+    filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs, nullptr,
+                    nullptr);
+}
+
+void compute_rad(const std::shared_ptr<FilterRAD>& filter, std::shared_ptr<NeighborQuery> nq,
+                 const nb_array<const float, nb::shape<-1, 3>>& query_points,
+                 std::shared_ptr<NeighborList> nlist, const QueryArgs& qargs,
+                 const nb_array<const float, nb::shape<-1>>& points_radii,
+                 const nb_array<const float, nb::shape<-1>>& query_points_radii)
+{
+    const auto num_query_points = query_points.shape(0);
+    const auto* query_points_data = (const vec3<float>*) query_points.data();
+    const auto* points_radii_data = points_radii.data();
+    const auto* query_points_radii_data = query_points_radii.data();
+    filter->compute(std::move(nq), query_points_data, num_query_points, std::move(nlist), qargs,
+                    points_radii_data, query_points_radii_data);
 }
 
 }; // namespace wrap
@@ -48,7 +63,10 @@ void export_Filter(nb::module_& module)
 
 void export_FilterRAD(nb::module_& module)
 {
-    nb::class_<FilterRAD, Filter>(module, "FilterRAD").def(nb::init<bool, bool>());
+    nb::class_<FilterRAD, Filter>(module, "FilterRAD")
+        .def(nb::init<bool, bool>())
+        .def("compute", &wrap::compute_rad, nb::arg("nq"), nb::arg("query_points"), nb::arg("nlist").none(),
+             nb::arg("qargs"), nb::arg("points_radii"), nb::arg("query_points_radii"));
 }
 
 void export_FilterSANN(nb::module_& module)

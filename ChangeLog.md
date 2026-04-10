@@ -7,8 +7,18 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## Next release
 
+### Added
+* Support for `StaticStructureFactorDirect` in 2D.
+* `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
+* Support for RAD filtering in systems with particles of different sizes.
+
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
+* Unit tests pass with scipy 1.17 installed (#1413).
+
+### Changed
+
+* MSD with `mode=="direct"` is now slightly faster (#1414).
 
 ## 3.5.0 -- 2025-10-08
 

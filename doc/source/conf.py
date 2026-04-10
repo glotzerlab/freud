@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-#
 # freud documentation build configuration file, created by
 # sphinx-quickstart on Fri Aug 28 11:39:18 2015.
 #

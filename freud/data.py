@@ -196,6 +196,21 @@ class UnitCell:
         return self.box.dimensions
 
     @classmethod
+    def hcp(cls) -> UnitCell:
+        """Create a hexagonal close-packed (hcp) unit cell.
+
+        Returns:
+            :class:`~.UnitCell`: A hexagonal close-packed unit cell.
+        """
+        fractions = np.array(
+            [[1.0 / 3.0, 2.0 / 3.0, 1.0 / 4.0], [2.0 / 3.0, 1.0 / 3.0, 3.0 / 4.0]]
+        )
+        box = freud.Box.from_box_lengths_and_angles(
+            1, 1, np.sqrt(8 / 3), *np.deg2rad([90, 90, 120.0])
+        )
+        return cls(box, fractions)
+
+    @classmethod
     def fcc(cls) -> UnitCell:
         """Create a face-centered cubic (fcc) unit cell.
 
@@ -236,6 +251,55 @@ class UnitCell:
         return cls([1, 1], fractions)
 
     @classmethod
+    def rectangular(
+        cls,
+        aspect: int | float | np.integer | np.floating = 2.0,
+        centered: bool = False,
+    ) -> UnitCell:
+        """Create a simple or centered rectangular unit cell with aspect :math:`b / a`.
+
+        Args:
+            aspect (float):
+                The ratio of the lattice parameter :math:`b` to :math:`a`.
+                (Default value = :code:`2.0`).
+            centered (bool): If true, add an additional basis point at
+                :code:`[0.5, 0.5, 0.5]` (Default value = :code:`False`).
+
+        Returns:
+            :class:`~.UnitCell`: A rectangular unit cell.
+        """
+        fractions = np.array([[0, 0, 0], *([] if not centered else [[0.5, 0.5, 0.0]])])
+        return cls([1, aspect], fractions)
+
+    @classmethod
+    def oblique(
+        cls,
+        aspect: int | float | np.integer | np.floating = 1.0,
+        theta: int | float | np.integer | np.floating = 45.0,
+    ) -> UnitCell:
+        r"""Create an oblique unit cell with aspect :math:`b/a` and angle :math:`\theta`
+
+        Args:
+            aspect (float):
+                The ratio of the lattice parameter :math:`b` to :math:`a`.
+                (Default value = :code:`1.0`).
+            theta (float):
+                The angle between lattice vectors :math:`a` and :math:`b`, in degrees.
+                Must be in the range :math:`0\degree < \theta < 180\degree`.
+                (Default value = :code:`45.0`).
+
+        Returns:
+            :class:`~.UnitCell`: An oblique unit cell.
+        """
+        fractions = np.array([[0.0, 0.0, 0.0]])
+        return cls(
+            freud.Box.from_box_lengths_and_angles(
+                1, aspect, 0, np.pi / 2, np.pi / 2, np.deg2rad(theta)
+            ),
+            fractions,
+        )
+
+    @classmethod
     def hex(cls) -> UnitCell:
         """Create a hexagonal unit cell.
 
@@ -243,6 +307,23 @@ class UnitCell:
             :class:`~.UnitCell`: A hexagonal unit cell.
         """
         fractions = np.array([[0, 0, 0], [0.5, 0.5, 0]])
+        return cls([1, np.sqrt(3)], fractions)
+
+    @classmethod
+    def graphene(cls) -> UnitCell:
+        """Create a graphene (hexagonal honeycomb) unit cell.
+
+        Returns:
+            :class:`~.UnitCell`: A hexagonal honeycomb unit cell.
+        """
+        fractions = np.array(
+            [
+                [0, 0, 0],
+                [0, 1 / 3, 0],
+                [1 / 2, 5 / 6, 0],
+                [1 / 2, 1 / 2, 0],
+            ]
+        )
         return cls([1, np.sqrt(3)], fractions)
 
     @classmethod
