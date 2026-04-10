@@ -1440,7 +1440,7 @@ class FilterRAD(Filter):
             query_points_radii ((:math:`N_{query\_points}`,) :class:`numpy.ndarray`, optional):
                 Radii associated with ``query_points``. If :code:`None`, all
                 radii are set to 1 (Default value = :code:`None`).
-        """
+        """  # noqa E501
         nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
             system, query_points, neighbors
         )
