@@ -430,6 +430,7 @@ class TestBox:
         box1_nonperiodic = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box1_nonperiodic.periodic = [False, False, False]
         assert box1 != box1_nonperiodic
+        assert box1.__eq__(3) is False
         assert box1 != 3
         assert 3 != box1
 

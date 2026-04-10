@@ -13,7 +13,7 @@ import logging
 import warnings
 from collections.abc import Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Protocol, Self
+from typing import TYPE_CHECKING, Protocol
 
 import numpy as np
 import numpy.typing as npt
@@ -184,8 +184,8 @@ class Box:  # noqa: PLW1641
     def yz(self, value: ScalarLike) -> None:
         self._cpp_obj.setTiltFactorYZ(value)
 
-    def __eq__(self, other: Self) -> bool:
-        if type(other) is not freud.box.Box:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Box):
             return False
         return (
             self.Lx == other.Lx
