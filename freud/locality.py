@@ -11,7 +11,7 @@ from __future__ import annotations
 import inspect
 from collections.abc import Iterator, Mapping, Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Literal, Protocol, TypeAlias, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -117,6 +117,15 @@ class _CPPModeEnum(Protocol):
     name: str
 
 
+_SystemTuple: TypeAlias = tuple[object, ArrayLike]
+
+
+class _NeighborQueryConstructor(Protocol):
+    def __call__(
+        self, box: freud.box.BoxLike, points: ArrayLike
+    ) -> NeighborQuery: ...
+
+
 class _CPPVoronoi(Protocol):
     def compute(self, query: _CPPNeighborQuery) -> None: ...
     def getPolytopes(self) -> Sequence[Sequence[Sequence[float]]]: ...
@@ -142,7 +151,7 @@ class _MDATimestep(Protocol):
 
 
 class _ConfigurationLike(Protocol):
-    box: ArrayLike
+    box: freud.box.BoxLike
     dimensions: int
 
 
@@ -156,7 +165,7 @@ class _SnapshotLike(Protocol):
 
 
 class _GarnettFrame(Protocol):
-    box: object
+    box: freud.box.BoxLike
     positions: ArrayLike
 
 
@@ -195,7 +204,7 @@ class _OvitoCollection(Protocol):
 
 
 class _SystemWithBoxPoints(Protocol):
-    box: object
+    box: freud.box.BoxLike
     points: ArrayLike
 
 
@@ -253,7 +262,9 @@ class _QueryArgs:
     @classmethod
     def from_dict(cls, mapping: Mapping[str, object]) -> _QueryArgs:
         """Create _QueryArgs from mapping."""
-        return cls(**mapping)
+        qargs = cls()
+        qargs.update(mapping)
+        return qargs
 
     @property
     def mode(self) -> Literal["ball", "nearest"] | None:
@@ -483,6 +494,8 @@ class NeighborQuery:
         if isinstance(system, cls):
             return system
 
+        system_tuple: _SystemTuple | None = None
+
         # MDAnalysis compatibility
         # base namespace for mdanalysis<2.3.0
         # timestep namespace for mdanalysis>=2.3.0
@@ -492,7 +505,10 @@ class NeighborQuery:
             "MDAnalysis.coordinates.timestep.Timestep",
         ):
             mda_timestep = cast(_MDATimestep, system)
-            system = (mda_timestep.triclinic_dimensions, mda_timestep.positions)
+            system_tuple = (
+                mda_timestep.triclinic_dimensions,
+                mda_timestep.positions,
+            )
 
         # GSD and HOOMD-blue 3 snapshot compatibility
         elif _match_class_path(
@@ -504,7 +520,7 @@ class NeighborQuery:
             box = np.array(snap.configuration.box)
             if snap.configuration.dimensions == 2:
                 box[[2, 4, 5]] = 0
-            system = (box, snap.particles.position)
+            system_tuple = (box, snap.particles.position)
 
         # garnett compatibility (garnett >=0.5)
         elif _match_class_path(system, "garnett.trajectory.Frame"):
@@ -515,7 +531,7 @@ class NeighborQuery:
             except AttributeError:
                 # garnett < 0.7
                 position = garnett_frame.positions
-            system = (garnett_frame.box, position)
+            system_tuple = (garnett_frame.box, position)
 
         # OVITO compatibility
         elif _match_class_path(
@@ -529,7 +545,7 @@ class NeighborQuery:
                 ovito_collection.cell.matrix[:, :3],
                 dimensions=2 if ovito_collection.cell.is2D else 3,
             )
-            system = (box, ovito_collection.particles.positions)
+            system_tuple = (box, ovito_collection.particles.positions)
 
         # HOOMD-blue 2 snapshot compatibility
         elif (
@@ -548,19 +564,24 @@ class NeighborQuery:
                 )
             else:
                 box = hoomd2_snapshot.box
-            system = (box, hoomd2_snapshot.particles.position)
+            system_tuple = (box, hoomd2_snapshot.particles.position)
 
         # Duck type systems with attributes into a (box, points) tuple
         elif hasattr(system, "box") and hasattr(system, "points"):
             box_points = cast(_SystemWithBoxPoints, system)
-            system = (box_points.box, box_points.points)
+            system_tuple = (box_points.box, box_points.points)
+
+        if system_tuple is None:
+            system_tuple = cast(_SystemTuple, system)
+        box, points = system_tuple
 
         if cls == NeighborQuery:
             # If called from this abstract parent class, always make
             # :class:`~._RawPoints`.
-            return _RawPoints(*system)
+            return _RawPoints(cast(freud.box.BoxLike, box), points)
         # Otherwise, use the current class.
-        return cls(*system)
+        constructor = cast(_NeighborQueryConstructor, cls)
+        return constructor(cast(freud.box.BoxLike, box), points)
 
     @property
     def box(self) -> freud.box.Box:
@@ -626,7 +647,8 @@ class NeighborQuery:
         """
         if not _HAS_MPL:
             raise ImportError(msg_mpl)
-        return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)  # noqa: B026 - it works
+        plot_kwargs = {"ax": ax, "title": title, **kwargs}
+        return freud.plot.system_plot(self, *args, **plot_kwargs)
 
 
 class NeighborList:
@@ -779,9 +801,9 @@ class NeighborList:
         if query_points is None:
             query_points = points
 
-        points = freud.util._convert_array(points, shape=points.shape, dtype=np.float32)
+        points = freud.util._convert_array(np.atleast_2d(points), shape=(None, 3))
         query_points = freud.util._convert_array(
-            query_points, shape=query_points.shape, dtype=np.float32
+            np.atleast_2d(query_points), shape=(None, 3)
         )
 
         result = cls()
@@ -792,17 +814,19 @@ class NeighborList:
         return result
 
     _cpp_obj: _CPPNeighborList | None
+    _compute: _Compute | None
 
     def __init__(self, _null: bool = False) -> None:
+        self._compute = None
         self._cpp_obj = None if _null else freud._locality.NeighborList()
 
     def get_ptr(self) -> _CPPNeighborList:
         r"""Returns a pointer to the raw C++ object we are wrapping."""
-        return self._cpp_obj
+        return cast(_CPPNeighborList, self._cpp_obj)
 
     def copy_c(self, other: NeighborList) -> None:
         r"""Copies the contents of other NeighborList into this object."""
-        self._cpp_obj.copy(other._cpp_obj)
+        self.get_ptr().copy(other.get_ptr())
 
     def copy(self, other: NeighborList | None = None) -> NeighborList:
         r"""Create a copy. If other is given, copy its contents into this
@@ -825,7 +849,7 @@ class NeighborList:
         self, key: int | slice | tuple[int | slice, ...]
     ) -> npt.NDArray[np.integer]:
         r"""Access the bond array by index or slice."""
-        return self._cpp_obj.getNeighbors().toNumpyArray()[key]
+        return self.get_ptr().getNeighbors().toNumpyArray()[key]
 
     @property
     def query_point_indices(self) -> npt.NDArray[np.integer]:
@@ -847,35 +871,35 @@ class NeighborList:
     def weights(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{bonds}`) :class:`np.ndarray`: The weights for each bond.
         By default, bonds have a weight of 1."""
-        return self._cpp_obj.getWeights().toNumpyArray()
+        return self.get_ptr().getWeights().toNumpyArray()
 
     @property
     def distances(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{bonds}`) :class:`np.ndarray`: The distances for each
         bond."""
-        return self._cpp_obj.getDistances().toNumpyArray()
+        return self.get_ptr().getDistances().toNumpyArray()
 
     @property
     def vectors(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{bonds}`, 3) :class:`np.ndarray`: The vectors for each
         bond."""
-        return self._cpp_obj.getVectors().toNumpyArray()
+        return self.get_ptr().getVectors().toNumpyArray()
 
     @property
     def segments(self) -> npt.NDArray[np.integer]:
         """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A segment array
         indicating the first bond index for each query point."""
-        return self._cpp_obj.getSegments().toNumpyArray()
+        return self.get_ptr().getSegments().toNumpyArray()
 
     @property
     def neighbor_counts(self) -> npt.NDArray[np.integer]:
         """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A neighbor count
         array indicating the number of neighbors for each query point."""
-        return self._cpp_obj.getCounts().toNumpyArray()
+        return self.get_ptr().getCounts().toNumpyArray()
 
     def __len__(self) -> int:
         r"""Returns the number of bonds stored in this object."""
-        return self._cpp_obj.getNumBonds()
+        return self.get_ptr().getNumBonds()
 
     @property
     def num_query_points(self) -> int:
@@ -883,7 +907,7 @@ class NeighborList:
 
         All query point indices are less than this value.
         """
-        return self._cpp_obj.getNumQueryPoints()
+        return self.get_ptr().getNumQueryPoints()
 
     @property
     def num_points(self) -> int:
@@ -891,7 +915,7 @@ class NeighborList:
 
         All point indices are less than this value.
         """
-        return self._cpp_obj.getNumPoints()
+        return self.get_ptr().getNumPoints()
 
     def find_first_index(self, i: int) -> int:
         r"""Returns the lowest bond index corresponding to a query particle
@@ -900,7 +924,7 @@ class NeighborList:
         Args:
             i (unsigned int): The particle index.
         """
-        return self._cpp_obj.find_first_index(i)
+        return self.get_ptr().find_first_index(i)
 
     def filter(self, filt: ArrayLike) -> NeighborList:
         r"""Removes bonds that satisfy a boolean criterion.
@@ -918,7 +942,7 @@ class NeighborList:
             nlist.filter(types[nlist.query_point_indices] != types[nlist.point_indices])
         """  # E501
         filt = np.ascontiguousarray(filt, dtype=bool)
-        self._cpp_obj.filter(filt)
+        self.get_ptr().filter(filt)
         return self
 
     def filter_r(self, r_max: ScalarLike, r_min: ScalarLike = 0) -> NeighborList:
@@ -931,7 +955,7 @@ class NeighborList:
                 Minimum bond distance in the resulting neighbor list
                 (Default value = :code:`0`).
         """
-        self._cpp_obj.filter_r(r_max, r_min)
+        self.get_ptr().filter_r(r_max, r_min)
         return self
 
     def sort(self, by_distance: bool = False) -> NeighborList:
@@ -945,7 +969,7 @@ class NeighborList:
                 ``query_point_index``, then ``point_index``, then ``distance``
                 (Default value = ``False``).
         """
-        self._cpp_obj.sort(by_distance)
+        self.get_ptr().sort(by_distance)
         return self
 
 
@@ -996,16 +1020,17 @@ def _make_default_nq(neighbor_query: object) -> NeighborQuery:
             :class:`_RawPoints` built from an inferred :code:`box` and
             :code:`points`.
     """
-    if not isinstance(neighbor_query, NeighborQuery):
-        nq = _RawPoints(*neighbor_query)
-    else:
-        nq = neighbor_query
-    return nq
+    if isinstance(neighbor_query, NeighborQuery):
+        return neighbor_query
+
+    system_tuple = cast(_SystemTuple, neighbor_query)
+    box, points = system_tuple
+    return _RawPoints(cast(freud.box.BoxLike, box), points)
 
 
 def _make_default_nlist(
     system: object,
-    neighbors: NeighborList | dict[str, object],
+    neighbors: NeighborList | dict[str, object] | None,
     query_points: ArrayLike | None = None,
 ) -> NeighborList:
     r"""Helper function to return a neighbor list object if is given, or to
@@ -1029,9 +1054,12 @@ def _make_default_nlist(
         :class:`freud.locality.NeighborList`:
             The neighbor list.
     """
-    if type(neighbors) is NeighborList:
+    if isinstance(neighbors, NeighborList):
         return neighbors
-    query_args = neighbors.copy()
+    if neighbors is None:
+        query_args: dict[str, object] = {}
+    else:
+        query_args = neighbors.copy()
     query_args.setdefault("exclude_ii", query_points is None)
     nq = _make_default_nq(system)
     qp = query_points if query_points is not None else nq.points
@@ -1042,7 +1070,7 @@ class _RawPoints(NeighborQuery):
     r"""Class containing :class:`~.box.Box` and points with no spatial data
     structures for accelerating neighbor queries."""
 
-    def __init__(self, box: freud.box.Box | ArrayLike, points: ArrayLike) -> None:
+    def __init__(self, box: freud.box.BoxLike, points: ArrayLike) -> None:
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
         self._points = freud.util._convert_array(
@@ -1064,7 +1092,7 @@ class AABBQuery(NeighborQuery):
             The points to use to build the tree.
     """
 
-    def __init__(self, box: freud.box.Box | ArrayLike, points: ArrayLike) -> None:
+    def __init__(self, box: freud.box.BoxLike, points: ArrayLike) -> None:
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
         self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
@@ -1090,7 +1118,7 @@ class LinkCell(NeighborQuery):
 
     def __init__(
         self,
-        box: freud.box.Box | ArrayLike,
+        box: freud.box.BoxLike,
         points: ArrayLike,
         cell_width: ScalarLike = 0,
     ) -> None:
@@ -1283,12 +1311,14 @@ class _SpatialHistogram1D(_SpatialHistogram):
     @property
     def bounds(self) -> tuple[float, float]:
         """tuple: A tuple indicating upper and lower bounds of the histogram."""
-        return self._cpp_obj.getBounds()[0]
+        bounds = self._cpp_obj.getBounds()
+        return bounds if isinstance(bounds, tuple) else bounds[0]
 
     @property
     def nbins(self) -> int:
         """int: The number of bins in the histogram."""
-        return self._cpp_obj.getAxisSizes()[0]
+        axis_sizes = self._cpp_obj.getAxisSizes()
+        return axis_sizes if isinstance(axis_sizes, int) else axis_sizes[0]
 
 
 class PeriodicBuffer(_Compute):
@@ -1327,11 +1357,12 @@ class PeriodicBuffer(_Compute):
         if np.ndim(buffer) == 0:
             # catches more cases than np.isscalar
             buffer_vec = [buffer, buffer, buffer]
-        elif len(buffer) == 3:
-            buffer_vec = [buffer[0], buffer[1], buffer[2]]
         else:
-            msg = "buffer must be a scalar or have length 3."
-            raise ValueError(msg)
+            buffer_values = cast(Sequence[ScalarLike], buffer)
+            if len(buffer_values) != 3:
+                msg = "buffer must be a scalar or have length 3."
+                raise ValueError(msg)
+            buffer_vec = [buffer_values[0], buffer_values[1], buffer_values[2]]
 
         self._cpp_obj.compute(nq._cpp_obj, buffer_vec, images, include_input_points)
         return self
@@ -1555,7 +1586,12 @@ class Filter(_PairCompute):
             system, query_points, neighbors
         )
 
-        self._cpp_obj.compute(nq._cpp_obj, query_points, nlist._cpp_obj, qargs._cpp_obj)
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            query_points,
+            cast(_CPPNeighborList, nlist._cpp_obj),
+            qargs._cpp_obj,
+        )
         return self
 
     @_Compute._computed_property
