@@ -63,7 +63,9 @@ class _BoxLikeMapping(_BoxLikeMappingRequired, total=False):
 
 
 _BoxLikeSequence: TypeAlias = Sequence[ScalarLike] | Sequence[Sequence[ScalarLike]]
-BoxLike: TypeAlias = "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping | _BoxLikeAttributes"
+BoxLike: TypeAlias = (
+    "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping | _BoxLikeAttributes"
+)
 _BoxInput: TypeAlias = BoxLike
 
 

@@ -121,9 +121,7 @@ _SystemTuple: TypeAlias = tuple[object, ArrayLike]
 
 
 class _NeighborQueryConstructor(Protocol):
-    def __call__(
-        self, box: freud.box.BoxLike, points: ArrayLike
-    ) -> NeighborQuery: ...
+    def __call__(self, box: freud.box.BoxLike, points: ArrayLike) -> NeighborQuery: ...
 
 
 class _CPPVoronoi(Protocol):
