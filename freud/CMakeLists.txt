@@ -256,11 +256,14 @@ set(python_files
     plot.py
     util.py)
 
+set(package_data_files
+    py.typed)
+
 copy_files_to_build("${python_files}" "freud" "*.py")
 
 # install
 if(SKBUILD)
-  install(FILES ${python_files} DESTINATION freud)
+  install(FILES ${python_files} ${package_data_files} DESTINATION freud)
   install(TARGETS _box DESTINATION freud)
   install(TARGETS _cluster DESTINATION freud)
   install(TARGETS _density DESTINATION freud)
