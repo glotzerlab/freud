@@ -773,6 +773,8 @@ class DiffractionPattern(_Compute):
         if view_orientation is None:
             view_orientation = np.array([1.0, 0.0, 0.0, 0.0])
         view_orientation = freud.util._convert_array(view_orientation, (4,), np.double)
+        zoom = float(zoom)
+        peak_width = float(peak_width)
 
         # Compute the box projection matrix
         inv_shear = self._calc_proj(view_orientation, neighbor_query.box)
