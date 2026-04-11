@@ -21,6 +21,7 @@ import numpy.typing as npt
 import parsnip
 
 import freud
+import freud.util
 from freud._typing import ArrayLike, ScalarLike
 
 
@@ -42,12 +43,14 @@ class UnitCell:
     """
 
     def __init__(
-        self, box: freud.box.Box | ArrayLike, basis_positions: ArrayLike | None = None
+        self, box: freud.box.BoxLike, basis_positions: ArrayLike | None = None
     ) -> None:
         if basis_positions is None:
             basis_positions = [[0, 0, 0]]
         self._box = freud.box.Box.from_box(box)
-        self._basis_positions = basis_positions
+        self._basis_positions = freud.util._convert_array(
+            np.atleast_2d(basis_positions), shape=(None, 3)
+        )
 
     def generate_system(
         self,
@@ -155,7 +158,9 @@ class UnitCell:
             rs = np.random.RandomState(seed)
             mean = [0] * 3
             var = sigma_noise * sigma_noise
-            cov = np.diag([var, var, var if self.dimensions == 3 else 0])
+            cov = np.diag(
+                np.asarray([var, var, var if self.dimensions == 3 else 0], dtype=float)
+            )
             positions += rs.multivariate_normal(mean, cov, size=positions.shape[:-1])
 
         positions = box.wrap(positions)
