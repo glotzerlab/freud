@@ -40,8 +40,9 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -90,6 +91,16 @@ def _quat_to_z_angle(
             )
             raise ValueError(msg)
     return orientations
+
+
+def _as_bin_list(nbins: list[int] | int) -> list[int]:
+    return [nbins] if isinstance(nbins, int) else nbins
+
+
+def _as_bound_list(
+    bounds: list[tuple[float, float]] | tuple[float, float],
+) -> list[tuple[float, float]]:
+    return [bounds] if isinstance(bounds, tuple) else bounds
 
 
 def _gen_angle_array(
@@ -152,11 +163,12 @@ class PMFTR12(_PMFT):
             num_bins_t2)`.
     """
 
-    def __init__(self, r_max: ScalarLike, bins: int | tuple[int, int, int]) -> None:
+    def __init__(self, r_max: ScalarLike, bins: int | Sequence[int]) -> None:
         try:
-            n_r, n_t1, n_t2 = bins
+            n_r, n_t1, n_t2 = cast(Sequence[int], bins)
         except TypeError:
-            n_r = n_t1 = n_t2 = bins
+            scalar_bins = cast(int, bins)
+            n_r = n_t1 = n_t2 = scalar_bins
         self._cpp_obj = freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
         self.r_max = r_max
 
@@ -227,10 +239,11 @@ class PMFTR12(_PMFT):
         return self
 
     def __repr__(self) -> str:
+        nbins = _as_bin_list(self.nbins)
         return ("freud.pmft.{cls}(r_max={r_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             r_max=self.r_max,
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
         )
 
 
@@ -254,12 +267,13 @@ class PMFTXYT(_PMFT):
     """
 
     def __init__(
-        self, x_max: ScalarLike, y_max: ScalarLike, bins: int | tuple[int, int, int]
+        self, x_max: ScalarLike, y_max: ScalarLike, bins: int | Sequence[int]
     ) -> None:
         try:
-            n_x, n_y, n_t = bins
+            n_x, n_y, n_t = cast(Sequence[int], bins)
         except TypeError:
-            n_x = n_y = n_t = bins
+            scalar_bins = cast(int, bins)
+            n_x = n_y = n_t = scalar_bins
 
         self._cpp_obj = freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
         self.r_max = np.sqrt(x_max**2 + y_max**2)
@@ -331,12 +345,13 @@ class PMFTXYT(_PMFT):
         return self
 
     def __repr__(self) -> str:
-        bounds = self.bounds
+        bounds = _as_bound_list(self.bounds)
+        nbins = _as_bin_list(self.nbins)
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             x_max=bounds[0][1],
             y_max=bounds[1][1],
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
         )
 
 
@@ -364,12 +379,13 @@ class PMFTXY(_PMFT):
     """
 
     def __init__(
-        self, x_max: ScalarLike, y_max: ScalarLike, bins: int | tuple[int, int]
+        self, x_max: ScalarLike, y_max: ScalarLike, bins: int | Sequence[int]
     ) -> None:
         try:
-            n_x, n_y = bins
+            n_x, n_y = cast(Sequence[int], bins)
         except TypeError:
-            n_x = n_y = bins
+            scalar_bins = cast(int, bins)
+            n_x = n_y = scalar_bins
 
         self._cpp_obj = freud._pmft.PMFTXY(x_max, y_max, n_x, n_y)
         self.r_max = np.sqrt(x_max**2 + y_max**2)
@@ -443,12 +459,13 @@ class PMFTXY(_PMFT):
         return np.squeeze(super().bin_counts)
 
     def __repr__(self) -> str:
-        bounds = self.bounds
+        bounds = _as_bound_list(self.bounds)
+        nbins = _as_bin_list(self.nbins)
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             x_max=bounds[0][1],
             y_max=bounds[1][1],
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
         )
 
     def _repr_png_(self) -> bytes | None:
@@ -504,15 +521,16 @@ class PMFTXYZ(_PMFT):
         x_max: ScalarLike,
         y_max: ScalarLike,
         z_max: ScalarLike,
-        bins: int | tuple[int, int, int],
+        bins: int | Sequence[int],
         shiftvec: ArrayLike | None = None,
     ) -> None:
         if shiftvec is None:
             shiftvec = [0, 0, 0]
         try:
-            n_x, n_y, n_z = bins
+            n_x, n_y, n_z = cast(Sequence[int], bins)
         except TypeError:
-            n_x = n_y = n_z = bins
+            scalar_bins = cast(int, bins)
+            n_x = n_y = n_z = scalar_bins
 
         self._cpp_obj = freud._pmft.PMFTXYZ(
             x_max,
@@ -603,7 +621,8 @@ class PMFTXYZ(_PMFT):
         return self
 
     def __repr__(self) -> str:
-        bounds = self.bounds
+        bounds = _as_bound_list(self.bounds)
+        nbins = _as_bin_list(self.nbins)
         return (
             "freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
             "z_max={z_max}, bins=({bins}), "
@@ -613,6 +632,6 @@ class PMFTXYZ(_PMFT):
             x_max=bounds[0][1],
             y_max=bounds[1][1],
             z_max=bounds[2][1],
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
             shiftvec=self.shiftvec.tolist(),
         )
