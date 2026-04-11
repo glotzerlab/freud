@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -44,34 +44,48 @@ try:
     # Note that currently these functions are defined to match only the parts
     # of the numpy/scipy API that are actually used below. There is no promise
     # that other aspects of the API will be preserved.
-    def fft(x, n, axis):
+    def _fft(x: Any, n: int, axis: int) -> Any:
         a = pyfftw.empty_aligned(x.shape, "complex64")
         a[:] = x
         fft_object = pyfftw.builders.fft(a, n=n, axis=axis)
         return fft_object()
 
-    def ifft(x, axis):
+    def _ifft(x: Any, axis: int) -> Any:
         a = pyfftw.empty_aligned(x.shape, "complex64")
         a[:] = x
         fft_object = pyfftw.builders.ifft(a, axis=axis)
         return fft_object()
 except ImportError:
     try:
-        from scipy.fftpack import fft, ifft
+        from scipy.fftpack import fft as _scipy_fft
+        from scipy.fftpack import ifft as _scipy_ifft
 
         logger.info("Using SciPy's fftpack for FFTs")
+
+        def _fft(x: Any, n: int, axis: int) -> Any:
+            return _scipy_fft(x, n=n, axis=axis)
+
+        def _ifft(x: Any, axis: int) -> Any:
+            return _scipy_ifft(x, axis=axis)
     except ImportError:
-        from numpy.fft import fft, ifft
+        from numpy.fft import fft as _numpy_fft
+        from numpy.fft import ifft as _numpy_ifft
 
         logger.info("Using NumPy for FFTs")
+
+        def _fft(x: Any, n: int, axis: int) -> Any:
+            return _numpy_fft(x, n=n, axis=axis)
+
+        def _ifft(x: Any, axis: int) -> Any:
+            return _numpy_ifft(x, axis=axis)
 
 
 def _autocorrelation(x: npt.NDArray[np.floating]) -> npt.NDArray[np.floating]:
     r"""Compute the autocorrelation of a sequence"""
     N = x.shape[0]
-    F = fft(x, n=2 * N, axis=0)
+    F = _fft(x, n=2 * N, axis=0)
     PSD = F * F.conjugate()
-    res = ifft(PSD, axis=0)
+    res = _ifft(PSD, axis=0)
     res = (res[:N]).real
     n = np.arange(1, N + 1)[::-1]  # N to 1
     return res / n[:, np.newaxis]
@@ -162,6 +176,7 @@ class MSD(_Compute):
         box: freud.box.Box | ArrayLike | None = None,
         mode: Literal["window", "direct"] = "window",
     ) -> None:
+        self._box: freud.box.Box | None
         if box is not None:
             self._box = freud.util._convert_box(box)
         else:
