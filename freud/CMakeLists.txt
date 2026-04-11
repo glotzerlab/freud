@@ -256,8 +256,7 @@ set(python_files
     plot.py
     util.py)
 
-set(package_data_files
-    py.typed)
+set(package_data_files py.typed)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
