@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from functools import wraps
-from typing import Literal, TypeAlias, TypeVar
+from typing import Literal, TypeAlias, TypeVar, overload
 
 import numpy as np
 import numpy.typing as npt
@@ -29,6 +29,19 @@ RequirementFlag: TypeAlias = Literal[
     "O",
     "OWNDATA",
 ]
+
+
+def _as_concrete_shape(shape: ShapeLike | None) -> tuple[int, ...] | None:
+    if shape is None:
+        return None
+
+    concrete_shape = []
+    for dim in shape:
+        if dim is None:
+            msg = "shape must be fully specified when initializing a new array."
+            raise ValueError(msg)
+        concrete_shape.append(dim)
+    return tuple(concrete_shape)
 
 
 class _Compute:
@@ -105,13 +118,63 @@ class _Compute:
         return repr(self)
 
 
+@overload
+def _convert_array(
+    array: ArrayLike | None,
+    shape: ShapeLike | None = None,
+    dtype: type[np.float32] | np.dtype[np.float32] = np.float32,
+    requirements: Sequence[RequirementFlag] = ("C",),
+    allow_copy: bool = True,
+) -> npt.NDArray[np.float32]: ...
+
+
+@overload
+def _convert_array(
+    array: ArrayLike | None,
+    shape: ShapeLike | None = None,
+    dtype: type[np.float64] | np.dtype[np.float64] = ...,
+    requirements: Sequence[RequirementFlag] = ("C",),
+    allow_copy: bool = True,
+) -> npt.NDArray[np.float64]: ...
+
+
+@overload
+def _convert_array(
+    array: ArrayLike | None,
+    shape: ShapeLike | None = None,
+    dtype: type[np.int32] | np.dtype[np.int32] = ...,
+    requirements: Sequence[RequirementFlag] = ("C",),
+    allow_copy: bool = True,
+) -> npt.NDArray[np.int32]: ...
+
+
+@overload
+def _convert_array(
+    array: ArrayLike | None,
+    shape: ShapeLike | None = None,
+    dtype: type[np.uint32] | np.dtype[np.uint32] = ...,
+    requirements: Sequence[RequirementFlag] = ("C",),
+    allow_copy: bool = True,
+) -> npt.NDArray[np.uint32]: ...
+
+
+@overload
+def _convert_array(
+    array: ArrayLike | None,
+    shape: ShapeLike | None = None,
+    dtype: type[bool] | type[np.bool_] | np.dtype[np.bool_] = ...,
+    requirements: Sequence[RequirementFlag] = ("C",),
+    allow_copy: bool = True,
+) -> npt.NDArray[np.bool_]: ...
+
+
 def _convert_array(
     array: ArrayLike | None,
     shape: ShapeLike | None = None,
     dtype: npt.DTypeLike = np.float32,
     requirements: Sequence[RequirementFlag] = ("C",),
     allow_copy: bool = True,
-) -> npt.NDArray[np.generic | np.floating]:
+) -> npt.NDArray[np.generic]:
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -136,7 +199,11 @@ def _convert_array(
         :class:`numpy.ndarray`: Array.
     """
     if array is None:
-        return np.empty(shape, dtype=dtype)
+        concrete_shape = _as_concrete_shape(shape)
+        if concrete_shape is None:
+            msg = "shape must be provided when initializing a new array."
+            raise ValueError(msg)
+        return np.empty(concrete_shape, dtype=dtype)
 
     array = np.asarray(array)
     return_arr = np.require(array, dtype=dtype, requirements=requirements)
@@ -168,7 +235,7 @@ def _convert_array(
 
 
 def _convert_box(
-    box: object | ArrayLike, dimensions: int | None = None
+    box: freud.box.BoxLike, dimensions: int | None = None
 ) -> freud.box.Box:
     """Function which takes a box-like object and attempts to convert it to
     :class:`freud.box.Box`. Existing :class:`freud.box.Box` objects are
