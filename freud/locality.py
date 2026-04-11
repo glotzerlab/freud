@@ -1707,12 +1707,12 @@ class FilterRAD(Filter):
 
     def compute(
         self,
-        system,
-        neighbors=None,
-        query_points=None,
-        points_radii=None,
-        query_points_radii=None,
-    ):
+        system: object,
+        neighbors: NeighborList | dict[str, object] | None = None,
+        query_points: ArrayLike | None = None,
+        points_radii: ArrayLike | None = None,
+        query_points_radii: ArrayLike | None = None,
+    ) -> Filter:
         r"""Filter a :class:`.Neighborlist` with optional per-particle radii.
 
         Args:
