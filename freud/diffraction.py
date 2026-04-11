@@ -762,9 +762,11 @@ class DiffractionPattern(_Compute):
             self._diffraction = np.zeros((self.output_size, self.output_size))
             self._frame_counter = 0
 
-        system = freud.locality.NeighborQuery.from_system(system)
+        neighbor_query: freud.locality.NeighborQuery = (
+            freud.locality.NeighborQuery.from_system(system)
+        )
 
-        if not system.box.cubic:
+        if not neighbor_query.box.cubic:
             msg = "freud.diffraction.DiffractionPattern only supports cubic boxes"
             raise ValueError(msg)
 
@@ -773,10 +775,10 @@ class DiffractionPattern(_Compute):
         view_orientation = freud.util._convert_array(view_orientation, (4,), np.double)
 
         # Compute the box projection matrix
-        inv_shear = self._calc_proj(view_orientation, system.box)
+        inv_shear = self._calc_proj(view_orientation, neighbor_query.box)
 
         # Rotate points by the view quaternion and shear by the box projection
-        xy = rowan.rotate(view_orientation, system.points)[:, 0:2]
+        xy = rowan.rotate(view_orientation, neighbor_query.points)[:, 0:2]
         xy = xy @ inv_shear.T
 
         # Normalize weights s.t. S(0) = N
@@ -806,9 +808,9 @@ class DiffractionPattern(_Compute):
 
         # Transform the image (scale, shear, zoom) and normalize S(k) by the
         # number of points
-        self._N_points = len(system.points)
+        self._N_points = len(neighbor_query.points)
         diffraction_frame = (
-            self._transform(diffraction_frame, system.box, inv_shear, zoom)
+            self._transform(diffraction_frame, neighbor_query.box, inv_shear, zoom)
             / self._N_points
         )
 
@@ -829,7 +831,7 @@ class DiffractionPattern(_Compute):
 
         # Cache the view orientation and box matrix scale factor for
         # lazy evaluation of k-values and k-vectors
-        self._box_matrix_scale_factor = np.max(system.box.to_matrix())
+        self._box_matrix_scale_factor = float(np.max(neighbor_query.box.to_matrix()))
         self._view_orientation = view_orientation
         self._k_scale_factor = (
             2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
@@ -914,8 +916,8 @@ class DiffractionPattern(_Compute):
         if vmax is None:
             vmax = 0.7 * self.N_points
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
-        cmap = matplotlib.colormaps[cmap]
-        image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
+        colormap = matplotlib.colormaps[cmap]
+        image = colormap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 
     def plot(
