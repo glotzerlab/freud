@@ -14,6 +14,8 @@ a future release.
 
 from __future__ import annotations
 
+from typing import cast
+
 import numpy as np
 import numpy.typing as npt
 import parsnip
@@ -114,10 +116,11 @@ class UnitCell:
 
         """
         try:
-            nx, ny, nz = num_replicas
+            nx, ny, nz = cast(tuple[int, int, int], num_replicas)
         except TypeError:
-            nx = ny = num_replicas
-            nz = 1 if self.box.is2D else num_replicas
+            scalar_replicas = cast(int, num_replicas)
+            nx = ny = scalar_replicas
+            nz = 1 if self.box.is2D else scalar_replicas
 
         if not all(int(n) == n and n > 0 for n in (nx, ny, nz)):
             msg = "The number of replicas must be a positive integer in each dimension."
