@@ -9,11 +9,10 @@ wrapping vectors outside the box back into it.
 
 from __future__ import annotations
 
-import logging
 import warnings
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, TypeAlias, TypedDict, TypeGuard, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -31,8 +30,6 @@ if _HAS_MPL:
 else:
     msg_mpl = "Plotting requires matplotlib."
 
-logger = logging.getLogger(__name__)
-
 
 class _CPPBox(Protocol):
     def getLx(self) -> float: ...
@@ -45,6 +42,33 @@ class _CPPBox(Protocol):
     def getPeriodicX(self) -> bool: ...
     def getPeriodicY(self) -> bool: ...
     def getPeriodicZ(self) -> bool: ...
+
+
+class _BoxLikeAttributes(Protocol):
+    Lx: ScalarLike
+    Ly: ScalarLike
+
+
+class _BoxLikeMappingRequired(TypedDict):
+    Lx: ScalarLike
+    Ly: ScalarLike
+
+
+class _BoxLikeMapping(_BoxLikeMappingRequired, total=False):
+    Lz: ScalarLike
+    xy: ScalarLike
+    xz: ScalarLike
+    yz: ScalarLike
+    dimensions: int
+
+
+_BoxLikeSequence: TypeAlias = Sequence[ScalarLike] | Sequence[Sequence[ScalarLike]]
+BoxLike: TypeAlias = "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping | _BoxLikeAttributes"
+_BoxInput: TypeAlias = BoxLike
+
+
+def _has_box_lengths(box: object) -> TypeGuard[_BoxLikeAttributes]:
+    return hasattr(box, "Lx") and hasattr(box, "Ly")
 
 
 class Box:  # noqa: PLW1641
@@ -116,19 +140,20 @@ class Box:  # noqa: PLW1641
     @L.setter
     def L(self, value: ScalarLike | Sequence[ScalarLike]) -> None:
         try:
-            if len(value) != 3:
+            values = cast(Sequence[ScalarLike], value)
+            if len(values) != 3:
                 msg = "setL must be called with a scalar or a list of length 3."
                 raise ValueError(msg)
         except TypeError:
-            # Will fail if object has no length
-            value = (value, value, value)
+            scalar_value = cast(ScalarLike, value)
+            values = (scalar_value, scalar_value, scalar_value)
 
-        if self.is2D and value[2] != 0:
+        if self.is2D and values[2] != 0:
             warnings.warn(
                 "Specifying z-dimensions in a 2-dimensional box has no effect!",
                 stacklevel=2,
             )
-        self._cpp_obj.setL(value[0], value[1], value[2])
+        self._cpp_obj.setL(values[0], values[1], values[2])
 
     @property
     def Lx(self) -> float:
@@ -617,12 +642,14 @@ class Box:  # noqa: PLW1641
 
     @periodic.setter
     def periodic(self, periodic: bool | Sequence[bool]) -> None:
-        # Allow passing a single value
         try:
-            self._cpp_obj.setPeriodic(periodic[0], periodic[1], periodic[2])
+            periodic_values = cast(Sequence[bool], periodic)
+            self._cpp_obj.setPeriodic(
+                periodic_values[0], periodic_values[1], periodic_values[2]
+            )
         except TypeError:
-            # Allow single value to be passed for all directions
-            self._cpp_obj.setPeriodic(periodic, periodic, periodic)
+            scalar_periodic = cast(bool, periodic)
+            self._cpp_obj.setPeriodic(scalar_periodic, scalar_periodic, scalar_periodic)
 
     @property
     def periodic_x(self) -> bool:
@@ -735,7 +762,14 @@ class Box:  # noqa: PLW1641
         a3 = [self.Lz * self.xz, self.Lz * self.yz, self.Lz]
         L2 = np.linalg.norm(a2)
         L3 = np.linalg.norm(a3)
-        return (L1, L2, L3, alpha, beta, gamma)
+        return (
+            float(L1),
+            float(L2),
+            float(L3),
+            float(alpha),
+            float(beta),
+            float(gamma),
+        )
 
     def __repr__(self) -> str:
         return (
@@ -796,19 +830,11 @@ class Box:  # noqa: PLW1641
             raise ImportError(msg_mpl)
         if image is None:
             image = [0, 0, 0]
-        return freud.plot.box_plot(
-            self,
-            title=title,
-            ax=ax,
-            image=image,
-            *args,  # noqa: B026 - it works
-            **kwargs,
-        )
+        plot_kwargs = {"title": title, "ax": ax, "image": image, **kwargs}
+        return freud.plot.box_plot(self, *args, **plot_kwargs)
 
     @classmethod
-    def from_box(
-        cls: type[Box], box: object | ArrayLike, dimensions: int | None = None
-    ) -> Box:
+    def from_box(cls: type[Box], box: BoxLike, dimensions: int | None = None) -> Box:
         r"""Initialize a Box instance from a box-like object.
 
         Args:
@@ -843,58 +869,70 @@ class Box:  # noqa: PLW1641
         Returns:
             :class:`freud.box.Box`: The resulting box object.
         """
-        if np.asarray(box).shape == (3, 3):
+        box_array = np.asarray(box)
+        if box_array.shape == (3, 3):
             # Handles 3x3 matrices
-            return cls.from_matrix(box, dimensions=dimensions)
-        try:
-            # Handles freud.box.Box and objects with attributes
+            return cls.from_matrix(box_array, dimensions=dimensions)
+
+        if _has_box_lengths(box):
+            # Handles freud.box.Box and objects with attributes.
             Lx = box.Lx
             Ly = box.Ly
             Lz = getattr(box, "Lz", 0)
             xy = getattr(box, "xy", 0)
             xz = getattr(box, "xz", 0)
             yz = getattr(box, "yz", 0)
+            box_dimensions = cast(int | None, getattr(box, "dimensions", None))
             if dimensions is None:
-                dimensions = getattr(box, "dimensions", None)
-            elif dimensions != getattr(box, "dimensions", dimensions):
+                dimensions = box_dimensions
+            elif box_dimensions is not None and dimensions != box_dimensions:
                 msg = (
                     "The provided dimensions argument conflicts with the "
                     "dimensions attribute of the provided box object."
                 )
                 raise ValueError(msg)
-        except AttributeError:
+
+        elif isinstance(box, Mapping):
+            box_mapping = cast(_BoxLikeMapping, box)
             try:
                 # Handle dictionary-like
-                Lx = box["Lx"]
-                Ly = box["Ly"]
-                Lz = box.get("Lz", 0)
-                xy = box.get("xy", 0)
-                xz = box.get("xz", 0)
-                yz = box.get("yz", 0)
+                Lx = box_mapping["Lx"]
+                Ly = box_mapping["Ly"]
+                Lz = box_mapping.get("Lz", 0)
+                xy = box_mapping.get("xy", 0)
+                xz = box_mapping.get("xz", 0)
+                yz = box_mapping.get("yz", 0)
+                box_dimensions = box_mapping.get("dimensions", None)
                 if dimensions is None:
-                    dimensions = box.get("dimensions", None)
-                elif dimensions != box.get("dimensions", dimensions):
+                    dimensions = box_dimensions
+                elif box_dimensions is not None and dimensions != box_dimensions:
                     msg = (
                         "The provided dimensions argument conflicts with "
                         "the dimensions attribute of the provided box "
                         "object."
                     )
                     raise ValueError(msg)
-            except (IndexError, KeyError, TypeError) as exc:
-                if len(box) not in {2, 3, 6}:
-                    msg = (
-                        "List-like objects must have length 2, 3, or 6 to be "
-                        "converted to freud.box.Box."
-                    )
-                    raise ValueError(msg) from exc
-                # Handle list-like
-                Lx = box[0]
-                Ly = box[1]
-                Lz = box[2] if len(box) > 2 else 0
-                xy, xz, yz = box[3:6] if len(box) == 6 else (0, 0, 0)
-        except:
-            logger.debug("Supplied box cannot be converted to type freud.box.Box.")
-            raise
+            except KeyError as exc:
+                msg = "Dictionary-like objects must contain at least 'Lx' and 'Ly'."
+                raise ValueError(msg) from exc
+
+        else:
+            flat_box = box_array.ravel()
+            if box_array.ndim != 1 or len(flat_box) not in {2, 3, 6}:
+                msg = (
+                    "List-like objects must have length 2, 3, or 6 to be "
+                    "converted to freud.box.Box."
+                )
+                raise ValueError(msg)
+            # Handle list-like
+            Lx = cast(ScalarLike, flat_box[0])
+            Ly = cast(ScalarLike, flat_box[1])
+            Lz = cast(ScalarLike, flat_box[2]) if len(flat_box) > 2 else 0
+            xy, xz, yz = (
+                tuple(cast(Sequence[ScalarLike], flat_box[3:6]))
+                if len(flat_box) == 6
+                else (0, 0, 0)
+            )
 
         # Infer dimensions if not provided.
         if dimensions is None:
