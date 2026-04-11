@@ -13,7 +13,7 @@ from __future__ import annotations
 import collections.abc
 import warnings
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import TYPE_CHECKING, ClassVar, Literal, TypeAlias
 
 import numpy as np
 import numpy.typing as npt
@@ -275,7 +275,7 @@ class BondOrder(_SpatialHistogram):
             (Default value = :code:`'bod'`).
     """
 
-    known_modes = {
+    known_modes: ClassVar[dict[str, object]] = {
         "bod": freud._environment.bod,
         "lbod": freud._environment.lbod,
         "obcd": freud._environment.obcd,
@@ -434,7 +434,7 @@ class LocalDescriptors(_PairCompute):
             environments (Default value = :code:`'neighborhood'`).
     """
 
-    known_modes = {
+    known_modes: ClassVar[dict[str, object]] = {
         "neighborhood": freud._environment.LocalNeighborhood,
         "global": freud._environment.Global,
         "particle_local": freud._environment.ParticleLocal,
