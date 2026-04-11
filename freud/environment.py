@@ -389,9 +389,12 @@ class BondOrder(_SpatialHistogram):
         return freud.box.BoxFromCPP(self._cpp_obj.getBox())
 
     def __repr__(self) -> str:
+        nbins = self.nbins
+        if isinstance(nbins, int):
+            nbins = [nbins]
         return "freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
             cls=type(self).__name__,
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
             mode=self.mode,
         )
 
