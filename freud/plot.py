@@ -1,9 +1,13 @@
 # Copyright (c) 2010-2026 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+from __future__ import annotations
+
 import io
 import warnings
+from collections.abc import Sequence
 from importlib.util import find_spec
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -24,6 +28,10 @@ if _HAS_MPL:
 else:
     msg = "matplotlib must be installed for freud.plot. "
     raise ImportError(msg)
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from matplotlib.collections import PathCollection
 
 
 def _ax_to_bytes(ax):
@@ -71,7 +79,14 @@ def _set_3d_axes_equal(ax, limits=None):
     return ax
 
 
-def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
+def box_plot(
+    box: freud.box.BoxLike,
+    title: str | None = None,
+    ax: Axes | None = None,
+    image: Sequence[int] | None = None,
+    *args: Any,
+    **kwargs: Any,
+) -> Axes:
     """Helper function to plot a :class:`~.box.Box` object.
 
     Args:
@@ -157,7 +172,13 @@ def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
     return ax
 
 
-def system_plot(system, title=None, ax=None, *args, **kwargs):
+def system_plot(
+    system: object,
+    title: str | None = None,
+    ax: Axes | None = None,
+    *args: Any,
+    **kwargs: Any,
+) -> tuple[Axes, PathCollection]:
     """Helper function to plot a system object.
 
     Args:
@@ -207,7 +228,14 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
     return ax, sc
 
 
-def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
+def bar_plot(
+    x: Sequence[Any],
+    height: Sequence[float],
+    title: str | None = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    ax: Axes | None = None,
+) -> Axes:
     """Helper function to draw a bar graph.
 
     Args:
@@ -236,7 +264,12 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
     return ax
 
 
-def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
+def clusters_plot(
+    keys: Sequence[Any],
+    freqs: Sequence[int],
+    num_clusters_to_plot: int = 10,
+    ax: Axes | None = None,
+) -> Axes:
     """Helper function to plot most frequent clusters in a bar graph.
 
     Args:
@@ -267,7 +300,14 @@ def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
     )
 
 
-def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
+def line_plot(
+    x: Sequence[float],
+    y: Sequence[float],
+    title: str | None = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    ax: Axes | None = None,
+) -> Axes:
     """Helper function to draw a line graph.
 
     Args:
@@ -295,8 +335,13 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
 
 
 def histogram_plot(
-    values, title=None, xlabel=None, ylabel=None, ax=None, legend_labels=None
-):
+    values: Sequence[float],
+    title: str | None = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    ax: Axes | None = None,
+    legend_labels: Sequence[str] | None = None,
+) -> Axes:
     """Helper function to draw a histogram graph.
 
     Args:
@@ -324,7 +369,11 @@ def histogram_plot(
     return ax
 
 
-def pmft_plot(pmft, ax=None, cmap="viridis"):
+def pmft_plot(
+    pmft: Any,
+    ax: Axes | None = None,
+    cmap: str = "viridis",
+) -> Axes:
     """Helper function to draw 2D PMFT diagram.
 
     Args:
@@ -375,7 +424,11 @@ def pmft_plot(pmft, ax=None, cmap="viridis"):
     return ax
 
 
-def density_plot(density, box, ax=None):
+def density_plot(
+    density: np.ndarray,
+    box: freud.box.Box,
+    ax: Axes | None = None,
+) -> Axes:
     r"""Helper function to plot density diagram.
 
     Args:
@@ -415,7 +468,13 @@ def density_plot(density, box, ax=None):
     return ax
 
 
-def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
+def voronoi_plot(
+    voronoi: Any,
+    box: freud.box.Box,
+    ax: Axes | None = None,
+    color_by: str | None = None,
+    cmap: str | None = None,
+) -> Axes:
     """Helper function to draw 2D Voronoi diagram.
 
     Args:
@@ -508,8 +567,14 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
 
 
 def diffraction_plot(
-    diffraction, k_values, N_points, ax=None, cmap="afmhot", vmin=None, vmax=None
-):
+    diffraction: np.ndarray,
+    k_values: np.ndarray,
+    N_points: int,
+    ax: Axes | None = None,
+    cmap: str = "afmhot",
+    vmin: float | None = None,
+    vmax: float | None = None,
+) -> Axes:
     """Helper function to plot diffraction pattern.
 
     Args:

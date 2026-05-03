@@ -7,14 +7,22 @@ natively supports periodicity by providing the fundamental features for
 wrapping vectors outside the box back into it.
 """
 
-import logging
+from __future__ import annotations
+
 import warnings
+from collections.abc import Mapping, Sequence
 from importlib.util import find_spec
+from typing import TYPE_CHECKING, Protocol, TypeAlias, TypedDict, TypeGuard, cast
 
 import numpy as np
+import numpy.typing as npt
 
 import freud._box
 import freud.util
+from freud._typing import ArrayLike, ScalarLike
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
@@ -22,7 +30,47 @@ if _HAS_MPL:
 else:
     msg_mpl = "Plotting requires matplotlib."
 
-logger = logging.getLogger(__name__)
+
+class _CPPBox(Protocol):
+    def getLx(self) -> float: ...
+    def getLy(self) -> float: ...
+    def getLz(self) -> float: ...
+    def getTiltFactorXY(self) -> float: ...
+    def getTiltFactorXZ(self) -> float: ...
+    def getTiltFactorYZ(self) -> float: ...
+    def is2D(self) -> bool: ...
+    def getPeriodicX(self) -> bool: ...
+    def getPeriodicY(self) -> bool: ...
+    def getPeriodicZ(self) -> bool: ...
+
+
+class _BoxLikeAttributes(Protocol):
+    Lx: ScalarLike
+    Ly: ScalarLike
+
+
+class _BoxLikeMappingRequired(TypedDict):
+    Lx: ScalarLike
+    Ly: ScalarLike
+
+
+class _BoxLikeMapping(_BoxLikeMappingRequired, total=False):
+    Lz: ScalarLike
+    xy: ScalarLike
+    xz: ScalarLike
+    yz: ScalarLike
+    dimensions: int
+
+
+_BoxLikeSequence: TypeAlias = Sequence[ScalarLike] | Sequence[Sequence[ScalarLike]]
+BoxLike: TypeAlias = (
+    "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping | _BoxLikeAttributes"
+)
+_BoxInput: TypeAlias = BoxLike
+
+
+def _has_box_lengths(box: object) -> TypeGuard[_BoxLikeAttributes]:
+    return hasattr(box, "Lx") and hasattr(box, "Ly")
 
 
 class Box:  # noqa: PLW1641
@@ -55,7 +103,16 @@ class Box:  # noqa: PLW1641
             if :code:`None`. (Default value = :code:`None`)
     """  # noqa: E501
 
-    def __init__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
+    def __init__(
+        self,
+        Lx: ScalarLike,
+        Ly: ScalarLike,
+        Lz: ScalarLike = 0,
+        xy: ScalarLike = 0,
+        xz: ScalarLike = 0,
+        yz: ScalarLike = 0,
+        is2D: bool | None = None,
+    ) -> None:
         if is2D is None:
             is2D = Lz == 0
         if is2D:
@@ -75,7 +132,7 @@ class Box:  # noqa: PLW1641
         )
 
     @property
-    def L(self):
+    def L(self) -> npt.NDArray[np.floating]:
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         box lengths along x, y, and z."""
         return np.asarray(
@@ -83,78 +140,79 @@ class Box:  # noqa: PLW1641
         )
 
     @L.setter
-    def L(self, value):
+    def L(self, value: ScalarLike | Sequence[ScalarLike]) -> None:
         try:
-            if len(value) != 3:
+            values = cast(Sequence[ScalarLike], value)
+            if len(values) != 3:
                 msg = "setL must be called with a scalar or a list of length 3."
                 raise ValueError(msg)
         except TypeError:
-            # Will fail if object has no length
-            value = (value, value, value)
+            scalar_value = cast(ScalarLike, value)
+            values = (scalar_value, scalar_value, scalar_value)
 
-        if self.is2D and value[2] != 0:
+        if self.is2D and values[2] != 0:
             warnings.warn(
                 "Specifying z-dimensions in a 2-dimensional box has no effect!",
                 stacklevel=2,
             )
-        self._cpp_obj.setL(value[0], value[1], value[2])
+        self._cpp_obj.setL(values[0], values[1], values[2])
 
     @property
-    def Lx(self):
+    def Lx(self) -> float:
         """float: Get or set the x-dimension length."""
         return self._cpp_obj.getLx()
 
     @Lx.setter
-    def Lx(self, value):
+    def Lx(self, value: ScalarLike) -> None:
         self.L = [value, self.Ly, self.Lz]
 
     @property
-    def Ly(self):
+    def Ly(self) -> float:
         """float: Get or set the y-dimension length."""
         return self._cpp_obj.getLy()
 
     @Ly.setter
-    def Ly(self, value):
+    def Ly(self, value: ScalarLike) -> None:
         self.L = [self.Lx, value, self.Lz]
 
     @property
-    def Lz(self):
+    def Lz(self) -> float:
         """float: Get or set the z-dimension length."""
         return self._cpp_obj.getLz()
 
     @Lz.setter
-    def Lz(self, value):
+    def Lz(self, value: ScalarLike) -> None:
         self.L = [self.Lx, self.Ly, value]
 
     @property
-    def xy(self):
+    def xy(self) -> float:
         """float: Get or set the xy tilt factor."""
         return self._cpp_obj.getTiltFactorXY()
 
     @xy.setter
-    def xy(self, value):
+    def xy(self, value: ScalarLike) -> None:
         self._cpp_obj.setTiltFactorXY(value)
 
     @property
-    def xz(self):
+    def xz(self) -> float:
         """float: Get or set the xz tilt factor."""
         return self._cpp_obj.getTiltFactorXZ()
 
     @xz.setter
-    def xz(self, value):
+    def xz(self, value: ScalarLike) -> None:
         self._cpp_obj.setTiltFactorXZ(value)
 
     @property
-    def yz(self):
+    def yz(self) -> float:
         """float: Get or set the yz tilt factor."""
         return self._cpp_obj.getTiltFactorYZ()
 
     @yz.setter
-    def yz(self, value):
+    def yz(self, value: ScalarLike) -> None:
         self._cpp_obj.setTiltFactorYZ(value)
 
-    def __eq__(self, other):
-        if type(other) is not freud.box.Box:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Box):
             return False
         return (
             self.Lx == other.Lx
@@ -170,33 +228,35 @@ class Box:  # noqa: PLW1641
         )
 
     @property
-    def dimensions(self):
+    def dimensions(self) -> int:
         """int: Get or set the number of dimensions (2 or 3)."""
         return 2 if self.is2D else 3
 
     @dimensions.setter
-    def dimensions(self, value):
+    def dimensions(self, value: int) -> None:
         assert value in (2, 3)
         self._cpp_obj.set2D(bool(value == 2))
 
     @property
-    def is2D(self):
+    def is2D(self) -> bool:
         """bool: Whether the box is 2D."""
         return self._cpp_obj.is2D()
 
     @property
-    def L_inv(self):
+    def L_inv(self) -> npt.NDArray[np.floating]:
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: The inverse box
         lengths."""
         result = self._cpp_obj.getLinv()
         return np.asarray(result)
 
     @property
-    def volume(self):
+    def volume(self) -> float:
         """float: The box volume (area in 2D)."""
         return self._cpp_obj.getVolume()
 
-    def make_absolute(self, fractional_coordinates, out=None):
+    def make_absolute(
+        self, fractional_coordinates: ArrayLike, out: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Convert fractional coordinates into absolute coordinates.
 
         Args:
@@ -223,7 +283,9 @@ class Box:  # noqa: PLW1641
 
         return np.squeeze(out) if flatten else out
 
-    def make_fractional(self, absolute_coordinates, out=None):
+    def make_fractional(
+        self, absolute_coordinates: ArrayLike, out: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Convert absolute coordinates into fractional coordinates.
 
         Args:
@@ -249,7 +311,7 @@ class Box:  # noqa: PLW1641
 
         return np.squeeze(out) if flatten else out
 
-    def get_images(self, vecs):
+    def get_images(self, vecs: ArrayLike) -> npt.NDArray[np.integer]:
         r"""Returns the images corresponding to unwrapped vectors.
 
         Args:
@@ -270,7 +332,7 @@ class Box:  # noqa: PLW1641
 
         return np.squeeze(images) if flatten else images
 
-    def get_box_vector(self, i):
+    def get_box_vector(self, i: int) -> npt.NDArray[np.floating]:
         r"""Get the box vector with index :math:`i`.
 
         Args:
@@ -285,24 +347,26 @@ class Box:  # noqa: PLW1641
         return self.to_matrix()[:, i]
 
     @property
-    def v1(self):
+    def v1(self) -> npt.NDArray[np.floating]:
         """:math:`(3, )` :class:`np.ndarray`: The first box vector
         :math:`(L_x, 0, 0)`."""
         return self.get_box_vector(0)
 
     @property
-    def v2(self):
+    def v2(self) -> npt.NDArray[np.floating]:
         r""":math:`(3, )` :class:`np.ndarray`: The second box vector
         :math:`(xy \times L_y, L_y, 0)`."""
         return self.get_box_vector(1)
 
     @property
-    def v3(self):
+    def v3(self) -> npt.NDArray[np.floating]:
         r""":math:`(3, )` :class:`np.ndarray`: The third box vector
         :math:`(xz \times L_z, yz \times L_z, L_z)`."""
         return self.get_box_vector(2)
 
-    def wrap(self, vecs, out=None):
+    def wrap(
+        self, vecs: ArrayLike, out: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
@@ -332,7 +396,9 @@ class Box:  # noqa: PLW1641
 
         return np.squeeze(out) if flatten else out
 
-    def unwrap(self, vecs, imgs, out=None):
+    def unwrap(
+        self, vecs: ArrayLike, imgs: ArrayLike, out: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Unwrap an array of vectors inside the box back into real space,
         using an array of image indices that determine how many times to unwrap
         in each dimension.
@@ -367,7 +433,9 @@ class Box:  # noqa: PLW1641
 
         return np.squeeze(out) if flatten else out
 
-    def center_of_mass(self, vecs, masses=None):
+    def center_of_mass(
+        self, vecs: ArrayLike, masses: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Compute center of mass of an array of vectors, using periodic boundaries.
 
         This calculation accounts for periodic images. `This Wikipedia page
@@ -406,7 +474,9 @@ class Box:  # noqa: PLW1641
         result = self._cpp_obj.centerOfMass(vecs, masses)
         return np.asarray(result)
 
-    def center(self, vecs, masses=None):
+    def center(
+        self, vecs: ArrayLike, masses: ArrayLike | None = None
+    ) -> npt.NDArray[np.floating]:
         r"""Subtract center of mass from an array of vectors, using periodic boundaries.
 
         This calculation accounts for periodic images. `This Wikipedia page
@@ -445,7 +515,9 @@ class Box:  # noqa: PLW1641
         self._cpp_obj.center(vecs, masses)
         return vecs
 
-    def compute_distances(self, query_points, points):
+    def compute_distances(
+        self, query_points: ArrayLike, points: ArrayLike
+    ) -> npt.NDArray[np.floating]:
         r"""Calculate distances between two sets of points, using periodic boundaries.
 
         Distances are calculated row-wise, i.e. ``distances[i]`` is the
@@ -472,7 +544,9 @@ class Box:  # noqa: PLW1641
         self._cpp_obj.computeDistances(query_points, points, distances)
         return distances
 
-    def compute_all_distances(self, query_points, points):
+    def compute_all_distances(
+        self, query_points: ArrayLike, points: ArrayLike
+    ) -> npt.NDArray[np.floating]:
         r"""Calculate distances between all pairs of query points and points, using periodic boundaries.
 
         Distances are calculated pairwise, i.e. ``distances[i, j]`` is the
@@ -495,13 +569,15 @@ class Box:  # noqa: PLW1641
 
         n_query_points = query_points.shape[0]
         n_points = points.shape[0]
-        distances = np.empty([n_query_points, n_points], dtype=np.float32)
+        distances: npt.NDArray[np.floating] = np.empty(
+            [n_query_points, n_points], dtype=np.float32
+        )
 
         self._cpp_obj.computeAllDistances(query_points, points, distances)
 
         return distances
 
-    def contains(self, points):
+    def contains(self, points: ArrayLike) -> npt.NDArray[np.bool_]:
         r"""Compute a boolean array (mask) corresponding to point membership in a box.
 
         This calculation computes particle membership based on conventions
@@ -541,7 +617,7 @@ class Box:  # noqa: PLW1641
         return contains_mask
 
     @property
-    def cubic(self):
+    def cubic(self) -> bool:
         """bool: Whether the box is a cube."""
         return (
             not self.is2D
@@ -555,7 +631,7 @@ class Box:  # noqa: PLW1641
         )
 
     @property
-    def periodic(self):
+    def periodic(self) -> npt.NDArray[np.bool_]:
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         periodicity of the box in each dimension."""
         return np.asarray(
@@ -567,42 +643,44 @@ class Box:  # noqa: PLW1641
         )
 
     @periodic.setter
-    def periodic(self, periodic):
-        # Allow passing a single value
+    def periodic(self, periodic: bool | Sequence[bool]) -> None:
         try:
-            self._cpp_obj.setPeriodic(periodic[0], periodic[1], periodic[2])
+            periodic_values = cast(Sequence[bool], periodic)
+            self._cpp_obj.setPeriodic(
+                periodic_values[0], periodic_values[1], periodic_values[2]
+            )
         except TypeError:
-            # Allow single value to be passed for all directions
-            self._cpp_obj.setPeriodic(periodic, periodic, periodic)
+            scalar_periodic = cast(bool, periodic)
+            self._cpp_obj.setPeriodic(scalar_periodic, scalar_periodic, scalar_periodic)
 
     @property
-    def periodic_x(self):
+    def periodic_x(self) -> bool:
         """bool: Get or set the periodicity of the box in x."""
         return self._cpp_obj.getPeriodicX()
 
     @periodic_x.setter
-    def periodic_x(self, periodic):
+    def periodic_x(self, periodic: bool) -> None:
         self._cpp_obj.setPeriodicX(periodic)
 
     @property
-    def periodic_y(self):
+    def periodic_y(self) -> bool:
         """bool: Get or set the periodicity of the box in y."""
         return self._cpp_obj.getPeriodicY()
 
     @periodic_y.setter
-    def periodic_y(self, periodic):
+    def periodic_y(self, periodic: bool) -> None:
         self._cpp_obj.setPeriodicY(periodic)
 
     @property
-    def periodic_z(self):
+    def periodic_z(self) -> bool:
         """bool: Get or set the periodicity of the box in z."""
         return self._cpp_obj.getPeriodicZ()
 
     @periodic_z.setter
-    def periodic_z(self, periodic):
+    def periodic_z(self, periodic: bool) -> None:
         self._cpp_obj.setPeriodicZ(periodic)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, float | int]:
         r"""Return box as dictionary.
 
         Example::
@@ -625,7 +703,7 @@ class Box:  # noqa: PLW1641
             "dimensions": self.dimensions,
         }
 
-    def to_matrix(self):
+    def to_matrix(self) -> npt.NDArray[np.floating]:
         r"""Returns the box matrix (3x3).
 
         Example::
@@ -647,7 +725,7 @@ class Box:  # noqa: PLW1641
             ]
         )
 
-    def to_box_params(self):
+    def to_box_params(self) -> tuple[float, float, float, float, float, float]:
         r"""Returns the box lengths and tilt factors as a flat (6,) tuple.
 
         The output from this method can be saved as a `GSD box <https://gsd.readthedocs.io/en/stable/schema-hoomd.html#chunk-configuration-box>`_.
@@ -665,7 +743,9 @@ class Box:  # noqa: PLW1641
         """
         return (self.Lx, self.Ly, self.Lz, self.xy, self.xz, self.yz)
 
-    def to_box_lengths_and_angles(self):
+    def to_box_lengths_and_angles(
+        self,
+    ) -> tuple[float, float, float, float, float, float]:
         r"""Return the box lengths and angles.
 
         Returns:
@@ -684,9 +764,16 @@ class Box:  # noqa: PLW1641
         a3 = [self.Lz * self.xz, self.Lz * self.yz, self.Lz]
         L2 = np.linalg.norm(a2)
         L3 = np.linalg.norm(a3)
-        return (L1, L2, L3, alpha, beta, gamma)
+        return (
+            float(L1),
+            float(L2),
+            float(L3),
+            float(alpha),
+            float(beta),
+            float(gamma),
+        )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.box.{type(self).__name__}"
             f"(Lx={self.Lx}, Ly={self.Ly}, Lz={self.Lz}, "
@@ -694,10 +781,10 @@ class Box:  # noqa: PLW1641
             f"is2D={self.is2D})"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
-    def __mul__(self, scale):
+    def __mul__(self, scale: ScalarLike) -> Box:
         if scale > 0:
             return self.__class__(
                 Lx=self.Lx * scale,
@@ -711,10 +798,17 @@ class Box:  # noqa: PLW1641
         msg = "Box can only be multiplied by positive values."
         raise ValueError(msg)
 
-    def __rmul__(self, scale):
+    def __rmul__(self, scale: ScalarLike) -> Box:
         return self * scale
 
-    def plot(self, title=None, ax=None, image=None, *args, **kwargs):
+    def plot(
+        self,
+        title: str | None = None,
+        ax: Axes | None = None,
+        image: Sequence[int] | None = None,
+        *args: object,
+        **kwargs: object,
+    ) -> Axes:
         """Plot a :class:`~.box.Box` object.
 
         Args:
@@ -738,17 +832,11 @@ class Box:  # noqa: PLW1641
             raise ImportError(msg_mpl)
         if image is None:
             image = [0, 0, 0]
-        return freud.plot.box_plot(
-            self,
-            title=title,
-            ax=ax,
-            image=image,
-            *args,  # noqa: B026 - it works
-            **kwargs,
-        )
+        plot_kwargs = {"title": title, "ax": ax, "image": image, **kwargs}
+        return freud.plot.box_plot(self, *args, **plot_kwargs)
 
     @classmethod
-    def from_box(cls, box, dimensions=None):
+    def from_box(cls: type[Box], box: BoxLike, dimensions: int | None = None) -> Box:
         r"""Initialize a Box instance from a box-like object.
 
         Args:
@@ -783,58 +871,70 @@ class Box:  # noqa: PLW1641
         Returns:
             :class:`freud.box.Box`: The resulting box object.
         """
-        if np.asarray(box).shape == (3, 3):
+        box_array = np.asarray(box)
+        if box_array.shape == (3, 3):
             # Handles 3x3 matrices
-            return cls.from_matrix(box, dimensions=dimensions)
-        try:
-            # Handles freud.box.Box and objects with attributes
+            return cls.from_matrix(box_array, dimensions=dimensions)
+
+        if _has_box_lengths(box):
+            # Handles freud.box.Box and objects with attributes.
             Lx = box.Lx
             Ly = box.Ly
             Lz = getattr(box, "Lz", 0)
             xy = getattr(box, "xy", 0)
             xz = getattr(box, "xz", 0)
             yz = getattr(box, "yz", 0)
+            box_dimensions = cast(int | None, getattr(box, "dimensions", None))
             if dimensions is None:
-                dimensions = getattr(box, "dimensions", None)
-            elif dimensions != getattr(box, "dimensions", dimensions):
+                dimensions = box_dimensions
+            elif box_dimensions is not None and dimensions != box_dimensions:
                 msg = (
                     "The provided dimensions argument conflicts with the "
                     "dimensions attribute of the provided box object."
                 )
                 raise ValueError(msg)
-        except AttributeError:
+
+        elif isinstance(box, Mapping):
+            box_mapping = cast(_BoxLikeMapping, box)
             try:
                 # Handle dictionary-like
-                Lx = box["Lx"]
-                Ly = box["Ly"]
-                Lz = box.get("Lz", 0)
-                xy = box.get("xy", 0)
-                xz = box.get("xz", 0)
-                yz = box.get("yz", 0)
+                Lx = box_mapping["Lx"]
+                Ly = box_mapping["Ly"]
+                Lz = box_mapping.get("Lz", 0)
+                xy = box_mapping.get("xy", 0)
+                xz = box_mapping.get("xz", 0)
+                yz = box_mapping.get("yz", 0)
+                box_dimensions = box_mapping.get("dimensions", None)
                 if dimensions is None:
-                    dimensions = box.get("dimensions", None)
-                elif dimensions != box.get("dimensions", dimensions):
+                    dimensions = box_dimensions
+                elif box_dimensions is not None and dimensions != box_dimensions:
                     msg = (
                         "The provided dimensions argument conflicts with "
                         "the dimensions attribute of the provided box "
                         "object."
                     )
                     raise ValueError(msg)
-            except (IndexError, KeyError, TypeError) as exc:
-                if len(box) not in {2, 3, 6}:
-                    msg = (
-                        "List-like objects must have length 2, 3, or 6 to be "
-                        "converted to freud.box.Box."
-                    )
-                    raise ValueError(msg) from exc
-                # Handle list-like
-                Lx = box[0]
-                Ly = box[1]
-                Lz = box[2] if len(box) > 2 else 0
-                xy, xz, yz = box[3:6] if len(box) == 6 else (0, 0, 0)
-        except:
-            logger.debug("Supplied box cannot be converted to type freud.box.Box.")
-            raise
+            except KeyError as exc:
+                msg = "Dictionary-like objects must contain at least 'Lx' and 'Ly'."
+                raise ValueError(msg) from exc
+
+        else:
+            flat_box = box_array.ravel()
+            if box_array.ndim != 1 or len(flat_box) not in {2, 3, 6}:
+                msg = (
+                    "List-like objects must have length 2, 3, or 6 to be "
+                    "converted to freud.box.Box."
+                )
+                raise ValueError(msg)
+            # Handle list-like
+            Lx = cast(ScalarLike, flat_box[0])
+            Ly = cast(ScalarLike, flat_box[1])
+            Lz = cast(ScalarLike, flat_box[2]) if len(flat_box) > 2 else 0
+            xy, xz, yz = (
+                tuple(cast(Sequence[ScalarLike], flat_box[3:6]))
+                if len(flat_box) == 6
+                else (0, 0, 0)
+            )
 
         # Infer dimensions if not provided.
         if dimensions is None:
@@ -843,7 +943,9 @@ class Box:  # noqa: PLW1641
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
-    def from_matrix(cls, box_matrix, dimensions=None):
+    def from_matrix(
+        cls: type[Box], box_matrix: ArrayLike, dimensions: int | None = None
+    ) -> Box:
         r"""Initialize a Box instance from a box matrix.
 
         For more information and the source for this code, see:
@@ -882,7 +984,7 @@ class Box:  # noqa: PLW1641
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
-    def cube(cls, L=None):
+    def cube(cls: type[Box], L: ScalarLike | None = None) -> Box:
         r"""Construct a cubic box with equal lengths.
 
         Args:
@@ -900,7 +1002,7 @@ class Box:  # noqa: PLW1641
         return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
 
     @classmethod
-    def square(cls, L=None):
+    def square(cls: type[Box], L: ScalarLike | None = None) -> Box:
         r"""Construct a 2-dimensional (square) box with equal lengths.
 
         Args:
@@ -919,15 +1021,15 @@ class Box:  # noqa: PLW1641
 
     @classmethod
     def from_box_lengths_and_angles(
-        cls,
-        L1,
-        L2,
-        L3,
-        alpha,
-        beta,
-        gamma,
-        dimensions=None,
-    ):
+        cls: type[Box],
+        L1: ScalarLike,
+        L2: ScalarLike,
+        L3: ScalarLike,
+        alpha: ScalarLike,
+        beta: ScalarLike,
+        gamma: ScalarLike,
+        dimensions: int | None = None,
+    ) -> Box:
         r"""Construct a box from lengths and angles (in radians).
 
         All the angles provided must be between 0 and :math:`\pi`.
@@ -978,7 +1080,7 @@ class Box:  # noqa: PLW1641
         return cls.from_matrix(np.array([a1, a2, a3]).T, dimensions=dimensions)
 
 
-def BoxFromCPP(cppbox):
+def BoxFromCPP(cppbox: _CPPBox) -> Box:
     b = Box(
         cppbox.getLx(),
         cppbox.getLy(),

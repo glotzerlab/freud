@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 * Support for `StaticStructureFactorDirect` in 2D.
 * `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
 * Support for RAD filtering in systems with particles of different sizes.
+* Added Python type hints across Python modules.
 
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
