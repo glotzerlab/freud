@@ -50,33 +50,33 @@ void Nematic::compute(const vec3<float>* orientations, unsigned int n)
     m_nematic_tensor_local->reset();
 
     // calculate per-particle tensor
+    float* const pt_base = m_particle_tensor->data();
     util::forLoopWrapper(0, n, [&](size_t begin, size_t end) {
+        float* nt = m_nematic_tensor_local->local().data();
         for (size_t i = begin; i < end; ++i)
         {
             // get the orientation of the particle and normalize it
             auto u_i = orientations[i];
             u_i = u_i / std::sqrt(dot(u_i, u_i));
 
-            util::ManagedArray<float> Q_ab({3, 3});
+            float Q_ab[9];
 
-            Q_ab(0, 0) = 1.5F * u_i.x * u_i.x - 0.5F;
-            Q_ab(0, 1) = 1.5F * u_i.x * u_i.y;
-            Q_ab(0, 2) = 1.5F * u_i.x * u_i.z;
-            Q_ab(1, 0) = 1.5F * u_i.y * u_i.x;
-            Q_ab(1, 1) = 1.5F * u_i.y * u_i.y - 0.5F;
-            Q_ab(1, 2) = 1.5F * u_i.y * u_i.z;
-            Q_ab(2, 0) = 1.5F * u_i.z * u_i.x;
-            Q_ab(2, 1) = 1.5F * u_i.z * u_i.y;
-            Q_ab(2, 2) = 1.5F * u_i.z * u_i.z - 0.5F;
+            Q_ab[0] = (1.5F * u_i.x * u_i.x) - 0.5F;
+            Q_ab[1] = 1.5F * u_i.x * u_i.y;
+            Q_ab[2] = 1.5F * u_i.x * u_i.z;
+            Q_ab[3] = 1.5F * u_i.y * u_i.x;
+            Q_ab[4] = (1.5F * u_i.y * u_i.y) - 0.5F;
+            Q_ab[5] = 1.5F * u_i.y * u_i.z;
+            Q_ab[6] = 1.5F * u_i.z * u_i.x;
+            Q_ab[7] = 1.5F * u_i.z * u_i.y;
+            Q_ab[8] = (1.5F * u_i.z * u_i.z) - 0.5F;
 
             // Set the values. The nematic tensor is reduced later.
-            for (unsigned int j = 0; j < 3; j++)
+            float* pt = pt_base + (i * 9);
+            for (int j = 0; j < 9; j++)
             {
-                for (unsigned int k = 0; k < 3; k++)
-                {
-                    (*m_particle_tensor)(i, j, k) += Q_ab(j, k);
-                    m_nematic_tensor_local->local()(j, k) += Q_ab(j, k);
-                }
+                pt[j] = Q_ab[j];
+                nt[j] += Q_ab[j];
             }
         }
     });
@@ -86,9 +86,11 @@ void Nematic::compute(const vec3<float>* orientations, unsigned int n)
     m_nematic_tensor_local->reduceInto(*m_nematic_tensor);
 
     // Normalize by the number of particles
-    for (unsigned int i = 0; i < m_nematic_tensor->size(); ++i)
+    const float inv_n = 1.0F / static_cast<float>(m_n);
+    float* nt_data = m_nematic_tensor->data();
+    for (unsigned int i = 0; i < 9; ++i)
     {
-        (*m_nematic_tensor)[i] /= static_cast<float>(m_n);
+        nt_data[i] *= inv_n;
     }
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
