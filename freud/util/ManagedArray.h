@@ -4,6 +4,7 @@
 #ifndef MANAGED_ARRAY_H
 #define MANAGED_ARRAY_H
 
+#include <array>
 #include <cstring>
 #include <functional>
 #include <numeric>
@@ -164,52 +165,39 @@ public:
     //! Implementation of variadic indexing function.
     template<typename... Ints> T& operator()(Ints... indices)
     {
-        return (*this)(buildIndex(indices...));
+        static_assert(sizeof...(Ints) > 0, "operator() requires at least one index");
+        return (*this)(buildIndexArray(indices...));
     }
 
     //! Constant implementation of variadic indexing function.
     template<typename... Ints> const T& operator()(Ints... indices) const
     {
-        return (*this)(buildIndex(indices...));
+        static_assert(sizeof...(Ints) > 0, "operator() requires at least one index");
+        return (*this)(buildIndexArray(indices...));
     }
 
     //! Core function for multidimensional indexing.
-    /*! All the other convenience functions for indexing ultimately call this
-     * function (or the const version below), which operates on a vector of
-     * indexes.
-     *
-     * Note that the logic in getIndex is intentionally inlined here for
-     * performance reasons. Although unimportant in most cases, operator() can
-     * become a performance bottleneck when used in highly performance critical
-     * code paths.
-     */
-    T& operator()(const std::vector<size_t>& indices)
+    template<size_t N> T& operator()(const std::array<size_t, N>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
+        for (size_t i = N; i > 0; --i)
         {
-            idx += indices[i] * cur_prod;
-            cur_prod *= m_shape[i];
+            idx += indices[i - 1] * cur_prod;
+            cur_prod *= m_shape[i - 1];
         }
         return (*this)[idx];
     }
 
     //! Const version of core function for multidimensional indexing.
-    const T& operator()(const std::vector<size_t>& indices) const
+    template<size_t N> const T& operator()(const std::array<size_t, N>& indices) const
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
+        for (size_t i = N; i > 0; --i)
         {
-            idx += indices[i] * cur_prod;
-            cur_prod *= m_shape[i];
+            idx += indices[i - 1] * cur_prod;
+            cur_prod *= m_shape[i - 1];
         }
         return (*this)[idx];
     }
@@ -304,27 +292,11 @@ public:
     }
 
 private:
-    //! The base case for building up the index.
-    /*! These argument building functions are templated on two types, one that
-    std::vector<size_t> m_shape; //!< Shape of array.
-     *  encapsulates the current object being operated on and the other being
-    size_t m_size;               //!< number of array elements.
-     *  the list of remaining arguments. Since users may provide both signed and
-     *  unsigned ints to the function, we perform the appropriate check on each
-     *  Int object. The second function is used for template recursion in
-     *  unwrapping the list of arguments.
-     */
-    template<typename Int> static std::vector<size_t> buildIndex(Int index)
+    //! Build an index array from variadic arguments using pack expansion.
+    template<typename... Ints>
+    static auto buildIndexArray(Ints... indices) -> std::array<size_t, sizeof...(Ints)>
     {
-        return {static_cast<size_t>(index)};
-    }
-
-    //! The recursive case for building up the index (see above).
-    template<typename Int, typename... Ints> static std::vector<size_t> buildIndex(Int index, Ints... indices)
-    {
-        std::vector<size_t> tmp = buildIndex(indices...);
-        tmp.insert(tmp.begin(), static_cast<size_t>(index));
-        return tmp;
+        return {{static_cast<size_t>(indices)...}};
     }
 
     std::vector<T> m_data;       //!< array data.
