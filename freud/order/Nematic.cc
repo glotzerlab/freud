@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2026 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <memory>
@@ -59,7 +60,7 @@ void Nematic::compute(const vec3<float>* orientations, unsigned int n)
             auto u_i = orientations[i];
             u_i = u_i / std::sqrt(dot(u_i, u_i));
 
-            float Q_ab[9];
+            std::array<float, 9> Q_ab;
 
             Q_ab[0] = (1.5F * u_i.x * u_i.x) - 0.5F;
             Q_ab[1] = 1.5F * u_i.x * u_i.y;
