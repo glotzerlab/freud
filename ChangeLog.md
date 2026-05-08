@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 ### Changed
 
 * MSD with `mode=="direct"` is now slightly faster (#1414).
+* Nematic order parameter is now ~40x faster. (#1428)
 
 ## 3.5.0 -- 2025-10-08
 
