@@ -202,32 +202,6 @@ public:
         return (*this)[idx];
     }
 
-    //! Core function for multidimensional indexing (vector overload, kept for compatibility).
-    T& operator()(const std::vector<size_t>& indices)
-    {
-        size_t cur_prod = 1;
-        size_t idx = 0;
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
-        {
-            idx += indices[i] * cur_prod;
-            cur_prod *= m_shape[i];
-        }
-        return (*this)[idx];
-    }
-
-    //! Const version of core function for multidimensional indexing (vector overload).
-    const T& operator()(const std::vector<size_t>& indices) const
-    {
-        size_t cur_prod = 1;
-        size_t idx = 0;
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
-        {
-            idx += indices[i] * cur_prod;
-            cur_prod *= m_shape[i];
-        }
-        return (*this)[idx];
-    }
-
     //! Get the multi-index corresponding to a single regular index.
     /*! This function is provided as an external utility in the event that
      * index generation is necessary without an actual array.
