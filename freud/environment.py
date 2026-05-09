@@ -8,16 +8,21 @@ and orientations of particles in the local neighborhood of a given particle to
 characterize the particle environment.
 """
 
+from __future__ import annotations
+
 import collections.abc
 import warnings
 from importlib.util import find_spec
+from typing import TYPE_CHECKING, ClassVar, Literal, TypeAlias
 
 import numpy as np
+import numpy.typing as npt
 
 import freud._environment
 import freud.box
 import freud.locality
 import freud.util
+from freud._typing import ArrayLike, ScalarLike
 from freud._util import (  # noqa F401
     ManagedArray_double,
     ManagedArray_float,
@@ -31,29 +36,34 @@ from freud._util import (  # noqa F401
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.locality import _Compute, _PairCompute, _SpatialHistogram
 
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import freud.plot
 else:
     msg_mpl = "Plotting requires matplotlib."
 
+NeighborArg: TypeAlias = freud.locality.NeighborList | dict[str, object] | None
+
 
 class AngularSeparationNeighbor(_PairCompute):
     r"""Calculates the minimum angles of separation between orientations and
     query orientations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._environment.AngularSeparationNeighbor()
 
     def compute(
         self,
-        system,
-        orientations,
-        query_points=None,
-        query_orientations=None,
-        equiv_orientations=((1, 0, 0, 0),),
-        neighbors=None,
-    ):
+        system: object,
+        orientations: ArrayLike,
+        query_points: ArrayLike | None = None,
+        query_orientations: ArrayLike | None = None,
+        equiv_orientations: ArrayLike = ((1, 0, 0, 0),),
+        neighbors: NeighborArg = None,
+    ) -> AngularSeparationNeighbor:
         r"""Calculates the minimum angles of separation between :code:`orientations`
         and :code:`query_orientations`, checking for underlying symmetry as encoded
         in :code:`equiv_orientations`. The result is stored in the :code:`neighbor_angles`
@@ -123,17 +133,17 @@ class AngularSeparationNeighbor(_PairCompute):
         return self
 
     @_Compute._computed_property
-    def angles(self):
+    def angles(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: The
         neighbor angles in radians. The angles are stored in the order of the
         neighborlist object."""
         return self._cpp_obj.getAngles().toNumpyArray()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.environment.{type(self).__name__}()"
 
     @_Compute._computed_property
-    def nlist(self):
+    def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
         nlist = freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
@@ -145,12 +155,15 @@ class AngularSeparationGlobal(_Compute):
     r"""Calculates the minimum angles of separation between orientations and
     global orientations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._environment.AngularSeparationGlobal()
 
     def compute(
-        self, global_orientations, orientations, equiv_orientations=((1, 0, 0, 0),)
-    ):
+        self,
+        global_orientations: ArrayLike,
+        orientations: ArrayLike,
+        equiv_orientations: ArrayLike = ((1, 0, 0, 0),),
+    ) -> AngularSeparationGlobal:
         r"""Calculates the minimum angles of separation between
         :code:`global_orientations` and :code:`orientations`, checking for
         underlying symmetry as encoded in :code:`equiv_orientations`. The
@@ -184,12 +197,12 @@ class AngularSeparationGlobal(_Compute):
         return self
 
     @_Compute._computed_property
-    def angles(self):
+    def angles(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{orientations}, N_{global\\_orientations}\\right)` :class:`numpy.ndarray`:
         The global angles in radians."""  # noqa: E501
         return self._cpp_obj.getAngles().toNumpyArray()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.environment.{type(self).__name__}()"
 
 
@@ -262,14 +275,14 @@ class BondOrder(_SpatialHistogram):
             (Default value = :code:`'bod'`).
     """
 
-    known_modes = {
+    known_modes: ClassVar[dict[str, object]] = {
         "bod": freud._environment.bod,
         "lbod": freud._environment.lbod,
         "obcd": freud._environment.obcd,
         "oocd": freud._environment.oocd,
     }
 
-    def __init__(self, bins, mode="bod"):
+    def __init__(self, bins: int | tuple[int, int], mode: str = "bod") -> None:
         if isinstance(bins, collections.abc.Sequence):
             n_bins_theta, n_bins_phi = bins
         else:
@@ -284,7 +297,7 @@ class BondOrder(_SpatialHistogram):
         self._cpp_obj = freud._environment.BondOrder(n_bins_theta, n_bins_phi, l_mode)
 
     @property
-    def default_query_args(self):
+    def default_query_args(self) -> dict[str, object]:
         """No default query arguments."""
         # Must override the generic histogram's defaults.
         raise NotImplementedError(
@@ -293,13 +306,13 @@ class BondOrder(_SpatialHistogram):
 
     def compute(
         self,
-        system,
-        orientations=None,
-        query_points=None,
-        query_orientations=None,
-        neighbors=None,
-        reset=True,
-    ):
+        system: object,
+        orientations: ArrayLike | None = None,
+        query_points: ArrayLike | None = None,
+        query_orientations: ArrayLike | None = None,
+        neighbors: NeighborArg = None,
+        reset: bool = True,
+    ) -> BondOrder:
         r"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -366,24 +379,27 @@ class BondOrder(_SpatialHistogram):
         return self
 
     @_Compute._computed_property
-    def bond_order(self):
+    def bond_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
         return self._cpp_obj.getBondOrder().toNumpyArray()
 
     @_Compute._computed_property
-    def box(self):
+    def box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: Box used in the calculation."""
         return freud.box.BoxFromCPP(self._cpp_obj.getBox())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        nbins = self.nbins
+        if isinstance(nbins, int):
+            nbins = [nbins]
         return "freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
             cls=type(self).__name__,
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
             mode=self.mode,
         )
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         """str: Bond order mode."""
         return self._cpp_obj.getMode().name
 
@@ -418,13 +434,18 @@ class LocalDescriptors(_PairCompute):
             environments (Default value = :code:`'neighborhood'`).
     """
 
-    known_modes = {
+    known_modes: ClassVar[dict[str, object]] = {
         "neighborhood": freud._environment.LocalNeighborhood,
         "global": freud._environment.Global,
         "particle_local": freud._environment.ParticleLocal,
     }
 
-    def __init__(self, l_max, negative_m=True, mode="neighborhood"):
+    def __init__(
+        self,
+        l_max: int,
+        negative_m: bool = True,
+        mode: Literal["neighborhood", "global", "particle_local"] = "neighborhood",
+    ) -> None:
         try:
             l_mode = self.known_modes[mode]
         except KeyError:
@@ -435,12 +456,12 @@ class LocalDescriptors(_PairCompute):
 
     def compute(
         self,
-        system,
-        query_points=None,
-        orientations=None,
-        neighbors=None,
-        max_num_neighbors=0,
-    ):
+        system: object,
+        query_points: ArrayLike | None = None,
+        orientations: ArrayLike | None = None,
+        neighbors: NeighborArg = None,
+        max_num_neighbors: int = 0,
+    ) -> LocalDescriptors:
         r"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
@@ -495,7 +516,7 @@ class LocalDescriptors(_PairCompute):
         return self
 
     @_Compute._computed_property
-    def nlist(self):
+    def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
         nlist = freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
@@ -503,13 +524,13 @@ class LocalDescriptors(_PairCompute):
         return nlist
 
     @_Compute._computed_property
-    def sph(self):
+    def sph(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`
         :class:`numpy.ndarray`: The last computed spherical harmonic array."""
         return self._cpp_obj.getSph().toNumpyArray()
 
     @_Compute._computed_property
-    def num_sphs(self):
+    def num_sphs(self) -> int:
         """unsigned int: The last number of spherical harmonics computed. This
         is equal to the number of bonds in the last computation, which is at
         most the number of :code:`points` multiplied by the lower of the
@@ -519,19 +540,19 @@ class LocalDescriptors(_PairCompute):
         return self._cpp_obj.getNSphs()
 
     @property
-    def l_max(self):
+    def l_max(self) -> int:
         """unsigned int: The maximum spherical harmonic :math:`l` calculated
         for."""
         return self._cpp_obj.getLMax()
 
     @property
-    def negative_m(self):
+    def negative_m(self) -> bool:
         """bool: True if we also calculated :math:`Y_{lm}` for negative
         :math:`m`."""
         return self._cpp_obj.getNegativeM()
 
     @property
-    def mode(self):
+    def mode(self) -> str | None:
         """str: Orientation mode to use for environments, either
         :code:`'neighborhood'` to use the orientation of the local
         neighborhood, :code:`'particle_local'` to use the given particle
@@ -542,14 +563,19 @@ class LocalDescriptors(_PairCompute):
                 return key
         return None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"freud.environment.{type(self).__name__}(l_max={self.l_max}, "
             f"negative_m={self.negative_m}, mode='{self.mode}')"
         )
 
 
-def _minimize_RMSD(box, ref_points, points, registration=False):
+def _minimize_RMSD(
+    box: freud.box.Box | ArrayLike,
+    ref_points: ArrayLike,
+    points: ArrayLike,
+    registration: bool = False,
+) -> list[float | npt.NDArray[np.floating] | object]:
     r"""Get the somewhat-optimal RMSD between the set of vectors ref_points
     and the set of vectors points.
 
@@ -592,7 +618,13 @@ def _minimize_RMSD(box, ref_points, points, registration=False):
     return [min_rmsd, np.asarray(points), results_map]
 
 
-def _is_similar_motif(box, ref_points, points, threshold, registration=False):
+def _is_similar_motif(
+    box: freud.box.Box | ArrayLike,
+    ref_points: ArrayLike,
+    points: ArrayLike,
+    threshold: ScalarLike,
+    registration: bool = False,
+) -> list[npt.NDArray[np.floating] | object]:
     r"""Test if the motif provided by ref_points is similar to the motif
     provided by points.
 
@@ -645,18 +677,18 @@ def _is_similar_motif(box, ref_points, points, threshold, registration=False):
 class _MatchEnv(_PairCompute):
     r"""Parent for environment matching methods."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: object, **kwargs: object) -> None:
         # Abstract class
         self._cpp_obj = freud._environment.MatchEnv()
 
     @_Compute._computed_property
-    def point_environments(self):
+    def point_environments(self) -> list[npt.NDArray[np.floating]]:
         """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
         list[:class:`numpy.ndarray`]: All environments for all points."""
         envs = self._cpp_obj.getPointEnvironments()
         return [np.asarray(env) for env in envs]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.environment.{type(self).__name__}()"
 
 
@@ -665,17 +697,17 @@ class EnvironmentCluster(_MatchEnv):
     or not, using various shape matching metrics defined in :cite:`Teich2019`.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._environment.EnvironmentCluster()
 
     def compute(
         self,
-        system,
-        threshold,
-        cluster_neighbors=None,
-        env_neighbors=None,
-        registration=False,
-    ):
+        system: object,
+        threshold: ScalarLike,
+        cluster_neighbors: NeighborArg = None,
+        env_neighbors: NeighborArg = None,
+        registration: bool = False,
+    ) -> EnvironmentCluster:
         r"""Determine clusters of particles with matching environments.
 
         An environment is defined by the bond vectors between a particle and its
@@ -803,24 +835,24 @@ class EnvironmentCluster(_MatchEnv):
         return self
 
     @_Compute._computed_property
-    def cluster_idx(self):
+    def cluster_idx(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
         per-particle index indicating cluster membership."""
         return self._cpp_obj.getClusters().toNumpyArray()
 
     @_Compute._computed_property
-    def num_clusters(self):
+    def num_clusters(self) -> int:
         """unsigned int: The number of clusters."""
         return self._cpp_obj.getNumClusters()
 
     @_Compute._computed_property
-    def cluster_environments(self):
+    def cluster_environments(self) -> list[npt.NDArray[np.floating]]:
         """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
         list[:class:`numpy.ndarray`]: The environments for all clusters."""
         envs = self._cpp_obj.getClusterEnvironments()
         return [np.asarray(env) for env in envs]
 
-    def plot(self, ax=None):
+    def plot(self, ax: Axes | None = None) -> Axes | None:
         """Plot cluster distribution.
 
         Args:
@@ -842,7 +874,7 @@ class EnvironmentCluster(_MatchEnv):
                 values, counts, num_clusters_to_plot=10, ax=ax
             )
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
@@ -860,10 +892,17 @@ class EnvironmentMotifMatch(_MatchEnv):
     the matching criterion.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._environment.EnvironmentMotifMatch()
 
-    def compute(self, system, motif, threshold, env_neighbors=None, registration=False):
+    def compute(
+        self,
+        system: object,
+        motif: ArrayLike,
+        threshold: ScalarLike,
+        env_neighbors: NeighborArg = None,
+        registration: bool = False,
+    ) -> EnvironmentMotifMatch:
         r"""Determine which particles have local environments
             matching the given environment motif.
 
@@ -924,7 +963,7 @@ class EnvironmentMotifMatch(_MatchEnv):
         return self
 
     @_Compute._computed_property
-    def matches(self):
+    def matches(self) -> npt.NDArray[np.bool_]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: A boolean array indicating
         whether each point matches the motif."""
         # NOTE: Numpy stores bools as a byte each, so this cast should be free
@@ -945,10 +984,16 @@ class _EnvironmentRMSDMinimizer(_MatchEnv):
     enforced (but we could add a warning to the compute...).
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._environment.EnvironmentRMSDMinimizer()
 
-    def compute(self, system, motif, neighbors=None, registration=False):
+    def compute(
+        self,
+        system: object,
+        motif: ArrayLike,
+        neighbors: NeighborArg = None,
+        registration: bool = False,
+    ) -> _EnvironmentRMSDMinimizer:
         r"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
@@ -988,7 +1033,7 @@ class _EnvironmentRMSDMinimizer(_MatchEnv):
         return self
 
     @_Compute._computed_property
-    def rmsds(self):
+    def rmsds(self) -> npt.NDArray[np.floating]:
         """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
         found for each point's environment."""
         return self._cpp_obj.getRMSDs().toNumpyArray()
@@ -1000,18 +1045,18 @@ class LocalBondProjection(_PairCompute):
     local reference frame.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cpp_obj = freud._environment.LocalBondProjection()
 
     def compute(
         self,
-        system,
-        orientations,
-        proj_vecs,
-        query_points=None,
-        equiv_orientations=((1, 0, 0, 0),),
-        neighbors=None,
-    ):
+        system: object,
+        orientations: ArrayLike,
+        proj_vecs: ArrayLike,
+        query_points: ArrayLike | None = None,
+        equiv_orientations: ArrayLike = ((1, 0, 0, 0),),
+        neighbors: NeighborArg = None,
+    ) -> LocalBondProjection:
         r"""Calculates the maximal projections of nearest neighbor bonds
         (between :code:`points` and :code:`query_points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
@@ -1074,7 +1119,7 @@ class LocalBondProjection(_PairCompute):
         return self
 
     @_Compute._computed_property
-    def nlist(self):
+    def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
         nlist = freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
@@ -1082,19 +1127,19 @@ class LocalBondProjection(_PairCompute):
         return nlist
 
     @_Compute._computed_property
-    def projections(self):
+    def projections(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
         The projection of each bond between query particles and their neighbors
         onto each of the projection vectors."""  # noqa: E501
         return self._cpp_obj.getProjections().toNumpyArray()
 
     @_Compute._computed_property
-    def normed_projections(self):
+    def normed_projections(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
         The projection of each bond between query particles and their neighbors
         onto each of the projection vectors, normalized by the length of the
         bond."""  # noqa: E501
         return self._cpp_obj.getNormedProjections().toNumpyArray()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"freud.environment.{type(self).__name__}()"

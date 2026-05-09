@@ -7,12 +7,14 @@ freud, determining how many threads the TBB-enabled parts of freud will use.
 freud uses all available threads for parallelization unless directed otherwise.
 """
 
+from types import TracebackType
+
 import freud._parallel
 
 _num_threads = 0
 
 
-def get_num_threads():
+def get_num_threads() -> int:
     r"""Get the number of threads for parallel computation.
 
     Returns:
@@ -21,7 +23,7 @@ def get_num_threads():
     return _num_threads
 
 
-def set_num_threads(nthreads=None):
+def set_num_threads(nthreads: int | None = None) -> None:
     r"""Set the number of threads for parallel computation.
 
     Args:
@@ -47,13 +49,18 @@ class NumThreads:
             (Default value = :code:`None`).
     """
 
-    def __init__(self, N=None):
+    def __init__(self, N: int | None = None) -> None:
         self.restore_N = _num_threads
         self.N = N
 
-    def __enter__(self):
+    def __enter__(self) -> "NumThreads":
         set_num_threads(self.N)
         return self
 
-    def __exit__(self, *args):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         set_num_threads(self.restore_N)
