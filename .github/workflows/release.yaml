@@ -107,7 +107,7 @@ jobs:
           python-version: "3.14"
 
       - name: Set up Python environment
-        uses: glotzerlab/workflows/setup-uv@204dc7c0f82720090703712694b7cab761aacaa0 # 0.13.0
+        uses: glotzerlab/workflows/setup-uv@00c67cb577c36bdc2570845fc62d1a30e3383012 # 0.14.0
 
       - name: Build sdist
         run: uv build --sdist --out-dir dist/ .
