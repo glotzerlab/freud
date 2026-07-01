@@ -226,7 +226,7 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
     if ax is None:
         fig = plt.figure()
         ax = fig.subplots()
-
+    
     ax.bar(x=x, height=height)
     ax.set_title(title)
     ax.set_xlabel(xlabel)
