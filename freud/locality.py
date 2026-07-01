@@ -285,7 +285,6 @@ class NeighborQuery:
         * :class:`MDAnalysis.coordinates.timestep.Timestep`
         * :class:`gsd.hoomd.Snapshot`
         * :class:`gsd.hoomd.Frame`
-        * :class:`garnett.trajectory.Frame`
         * :class:`ovito.data.DataCollection`
         * :class:`hoomd.Snapshot`
 
@@ -333,16 +332,6 @@ class NeighborQuery:
             if system.configuration.dimensions == 2:
                 box[[2, 4, 5]] = 0
             system = (box, system.particles.position)
-
-        # garnett compatibility (garnett >=0.5)
-        elif _match_class_path(system, "garnett.trajectory.Frame"):
-            try:
-                # garnett >= 0.7
-                position = system.position
-            except AttributeError:
-                # garnett < 0.7
-                position = system.positions
-            system = (system.box, position)
 
         # OVITO compatibility
         elif _match_class_path(
