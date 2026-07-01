@@ -41,7 +41,7 @@ class TestPlotting:
         assert len(bp2.get_xticklabels()) == len(x)
         
         plt.savefig("plot2.png")
-
+        
         #Test with no default plot settings
         bp3 = freud.plot.bar_plot(x, height, title=title, xlabel=xlabel, ylabel=ylabel)
         assert bp3.xaxis and bp3.yaxis != None
@@ -52,6 +52,19 @@ class TestPlotting:
         assert len(bp3.get_xticklabels()) == len(x)
         plt.savefig("plot3.png")
 
+        #Test with ax created but still default plotting settings
+        fig = plt.figure()
+        ax = fig.subplots()
+        
+        bp4 = freud.plot.bar_plot(x, height, ax=ax)
+        assert bp4.xaxis and bp4.yaxis != None
+        assert len(bp4.get_title()) == 0
+        assert len(bp4.get_xlabel()) == 0
+        assert len(bp4.get_ylabel()) == 0
+        assert bp4.get_xticks().all() == x.all()
+        assert len(bp4.get_xticklabels()) == len(x)
+        
+        plt.savefig("plot4.png")
 
 test = TestPlotting()
 test.test_bar_plot()
