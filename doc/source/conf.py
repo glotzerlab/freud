@@ -329,7 +329,6 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org", None),
     "hoomd": ("https://hoomd-blue.readthedocs.io/en/stable/", None),
     "gsd": ("https://gsd.readthedocs.io/en/stable/", None),
-    "garnett": ("https://garnett.readthedocs.io/en/stable/", None),
     "MDAnalysis": ("https://docs.mdanalysis.org/stable", None),
     "ovito": ("https://www.ovito.org/docs/current/python/", None),
     "pytest": ("https://docs.pytest.org/en/stable", None),
