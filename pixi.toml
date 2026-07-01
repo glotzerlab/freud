@@ -27,6 +27,12 @@ sympy = "*"
 uv = "*"
 sphinx-inline-tabs = "*"
 bump-my-version = "*"
+sphinx = "*"
+nbsphinx = "*"
+furo = "*"
+jupyter_sphinx = "*"
+sphinxcontrib-bibtex = "*"
+sphinx-copybutton = "*"
 
 [feature.py312.dependencies]
 python = "3.12.*"
