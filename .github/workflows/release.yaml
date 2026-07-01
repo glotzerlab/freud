@@ -66,23 +66,13 @@ jobs:
           oldest_sympy: '1.10'
 
     steps:
-      - name: Activate Visual Studio
-        uses: TheMrMilchmann/setup-msvc-dev@79dac248aac9d0059f86eae9d8b5bfab4e95e97c # v4.0.0
-        if: ${{ matrix.os.base == 'windows' }}
-        with:
-          arch: x64
-    
-      - name: Set generator
-        if: ${{ matrix.os.base == 'windows' }}
-        run: echo "CMAKE_GENERATOR=Visual Studio 17 2022" >> $GITHUB_ENV
-
       - name: checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55 # v4.1.0
+        uses: pypa/cibuildwheel@f03ac7617d6cff873ccf24cc0d567ef5ba5a9e6d # v4.0.0
         env:
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
