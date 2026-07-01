@@ -66,7 +66,13 @@ jobs:
           oldest_sympy: '1.10'
 
     steps:
-      - name: "Set generator"
+      - name: Activate Visual Studio
+        uses: TheMrMilchmann/setup-msvc-dev@79dac248aac9d0059f86eae9d8b5bfab4e95e97c # v4.0.0
+        if: ${{ matrix.os.base == 'windows' }}
+        with:
+          arch: x64
+    
+      - name: Set generator
         if: ${{ matrix.os.base == 'windows' }}
         run: echo "CMAKE_GENERATOR=Visual Studio 17 2022" >> $GITHUB_ENV
 
