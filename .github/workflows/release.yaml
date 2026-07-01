@@ -42,7 +42,7 @@ jobs:
           version: 24.04-arm
           arch: 'aarch64'
         - base: windows
-          version: 2025
+          version: 2025-vs2026
           arch: 'amd64'
         - base: macos
           version: 15
@@ -70,6 +70,8 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: "recursive"
+
+      - run: nmake -?
 
       - name: Build wheels
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55 # v4.1.0
