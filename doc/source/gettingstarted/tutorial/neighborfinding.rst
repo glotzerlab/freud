@@ -44,6 +44,13 @@ Note that much more detail on this topic is available in the :ref:`querying` top
 For our demonstration, we will make use of the :class:`freud.locality.AABBQuery` class, which implements one fast method for periodic neighbor finding.
 The primary mode of interfacing with this class (and other neighbor finding classes) is through the :meth:`query <freud.locality.AABBQuery>` interface.
 
+.. note::
+    Input validation is not performed automatically (meaning input points and query 
+    points must contain clean, numeric data). **Freud** operates on 
+    a "garbage in, garbage out" model, making it the user's responsibility to 
+    verify data integrity. Passing non-numeric data such as including ``np.nan`` 
+    in either the points or query points, will result in undefined output.
+
 .. code-block:: python
 
     import numpy as np

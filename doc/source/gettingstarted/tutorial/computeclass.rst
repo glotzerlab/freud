@@ -86,6 +86,13 @@ For example:
 Compute objects is that they can be used many times to calculate quantities, and the most recently calculated output can be accessed through the property.
 If you need to perform a series of calculations and save all the data, you can also easily do that:
 
+.. note::
+    Input validation is not performed automatically (meaning input points and query 
+    points must contain clean, numeric data). **Freud** operates on 
+    a "garbage in, garbage out" model, making it the user's responsibility to 
+    verify data integrity. Passing non-numeric data such as including ``np.nan`` 
+    in either the points or query points, will result in undefined output.
+
 .. code-block:: python
 
     # Recall that lists of length 2 automatically convert to 2D freud boxes.
