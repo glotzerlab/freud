@@ -93,6 +93,13 @@ Nearest Neighbor Asymmetry
 There is one important but easily overlooked detail associated with using query arguments with mode ``'nearest'``.
 Consider a simple example of three points on the x-axis located at -1, 0, and 2 (and assume the box is of dimensions :math:`(100, 100, 100)`, i.e. sufficiently large that periodicity plays no role):
 
+.. note::
+    Input validation is not performed automatically (meaning input points and query 
+    points must contain clean, numeric data). **Freud** operates on 
+    a "garbage in, garbage out" model, making it the user's responsibility to 
+    verify data integrity. Passing non-numeric data such as including ``np.nan`` 
+    in either the points or query points, will result in undefined output.
+
 .. code-block:: python
 
     box = [100, 100, 100]
