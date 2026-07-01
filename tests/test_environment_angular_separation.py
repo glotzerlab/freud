@@ -55,7 +55,7 @@ class TestAngularSeparationGlobal:
                 npt.assert_allclose(ang.angles[i][j], np.pi / 16, atol=1e-6)
 
     def test_compute_defaults(self):
-        #Check that the default call to compute returns the correct angle
+        # Check that the default call to compute returns the correct angle
         global_ors = np.array([[1, 0, 0, 0]], dtype=np.float32)
         ors = np.array([[1, 0, 0, 0], [-1, 0, 0, 0], [0, 1, 0, 0], [0, -1, 0, 0]])
 
@@ -66,8 +66,6 @@ class TestAngularSeparationGlobal:
                 npt.assert_allclose(ang.angles[i][0], 0, atol=1e-6)
             else:
                 npt.assert_allclose(ang.angles[i][0], np.pi, atol=1e-6)
-                
-
 
     def test_nlist_lifetime(self):
         def _get_nlist(sys):
