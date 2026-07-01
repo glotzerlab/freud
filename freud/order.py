@@ -889,7 +889,7 @@ class ContinuousCoordination(_PairCompute):
     r"""Computes the continuous local coordination number.
 
     The :class:`ContinuousCoordination` class implements extensions of the Voronoi
-    discrete coordination number to the real numbers. The formulas for the
+    discrete coordination number to the real numbers :cite:`Butler:2024`. The formulas for the
     various implementations are:
 
     Power:
