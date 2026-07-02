@@ -16,6 +16,13 @@ Perhaps the most powerful method users have at their disposal for speeding up ca
 As one example, consider using **freud** to calculate multiple neighbor-based quantities for the same set of data points.
 It is important to recognize that internally, each time such a calculation is performed using a ``(box, points)`` :class:`tuple`, the compute class is internally rebuilding a neighbor-finding accelerator such a :class:`freud.locality.AABBQuery` object and then using it to find neighbors:
 
+.. note::
+    Input validation is not performed automatically (meaning input points and query 
+    points must contain clean, numeric data). **Freud** operates on 
+    a "garbage in, garbage out" model, making it the user's responsibility to 
+    verify data integrity. Passing non-numeric data such as including ``np.nan`` 
+    in either the points or query points, will result in undefined output.
+
 .. code-block:: python
 
     # Behind the scenes, freud is essentially running

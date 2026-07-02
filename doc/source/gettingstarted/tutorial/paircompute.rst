@@ -51,6 +51,12 @@ Binary Systems
 Imagine that instead of a single set of points, we actually had two different types of points and we were interested in finding the density of one set of points in the vicinity of the other.
 In that case, we could modify the above calculation as follows:
 
+.. note::
+    Input validation is not performed automatically (meaning input points and query 
+    points must contain clean, numeric data). **Freud** operates on 
+    a "garbage in, garbage out" model, making it the user's responsibility to 
+    verify data integrity. Passing non-numeric data such as including ``np.nan`` 
+    in either the points or query points, will result in undefined output.
 
 .. code-block:: python
 
