@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
 * Unit tests pass with scipy 1.17 installed (#1413).
+* Input validation for orientations in `BondOrder.compute()` (#1444).
 
 ### Changed
 
