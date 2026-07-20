@@ -24,7 +24,7 @@ jobs:
       - name: Create Python Environment
         uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
-          pixi-version: v0.54.1
+          pixi-version: v0.69.0
           cache: false
           environments: py313
           activate-environment: true
