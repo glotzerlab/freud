@@ -68,6 +68,7 @@ def _set_3d_axes_equal(ax, limits=None):
     ax.set_xlim3d([origin[0] - radius, origin[0] + radius])
     ax.set_ylim3d([origin[1] - radius, origin[1] + radius])
     ax.set_zlim3d([origin[2] - radius, origin[2] + radius])
+    #ax.set_title????
     return ax
 
 
@@ -103,7 +104,7 @@ def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
             # This import registers the 3d projection
 
             ax = fig.add_subplot(111, projection="3d")
-
+   
     if box.is2D:
         # Draw 2D box
         corners = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]
@@ -117,6 +118,7 @@ def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
         ax.set_aspect("equal", "datalim")
         ax.set_xlabel("$x$")
         ax.set_ylabel("$y$")
+        ax.set_title(title)
     else:
         # Draw 3D box
         corners = np.array(
@@ -143,17 +145,18 @@ def box_plot(box, title=None, ax=None, image=None, *args, **kwargs):
         ]
         for path in paths:
             color = kwargs.pop("color", "k")
-            ax.plot(path[:, 0], path[:, 1], path[:, 2], color=color)
+            ax.plot(path[:, 0], path[:, 1], path[:, 2], color=color, title=title)
         ax.set_xlabel("$x$")
         ax.set_ylabel("$y$")
         ax.set_zlabel("$z$")
+        ax.set_title(title)
         limits = [
             [corners[0, 0], corners[-1, 0]],
             [corners[0, 1], corners[-1, 1]],
             [corners[0, 2], corners[-1, 2]],
         ]
         _set_3d_axes_equal(ax, limits)
-
+        
     return ax
 
 
@@ -182,11 +185,11 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
             ax = fig.add_subplot(111, projection="3d")
 
     if system.box.is2D:
-        box_plot(system.box, ax=ax)
+        box_plot(system.box, title=title, ax=ax)
         sc = ax.scatter(system.points[:, 0], system.points[:, 1], *args, **kwargs)
         ax.set_aspect("equal", "datalim")
     else:
-        box_plot(system.box, ax=ax)
+        box_plot(system.box, title=title, ax=ax)
         sc = ax.scatter(
             system.points[:, 0],
             system.points[:, 1],

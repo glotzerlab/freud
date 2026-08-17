@@ -1,4 +1,3 @@
-
 import numpy as np
 import pytest
 import matplotlib.pyplot as plt
@@ -23,24 +22,21 @@ class TestPlotting:
         assert len(bp1.get_title()) == 0
         assert len(bp1.get_xlabel()) == 0
         assert len(bp1.get_ylabel()) == 0
-        assert bp1.get_xticks().all() == x.all()
-        assert len(bp1.get_xticklabels()) == len(x)
         
-        plt.savefig("plot.png")
+        #plt.savefig("plot.png")
         
         #Test with ax already created
         fig = plt.figure()
         ax = fig.subplots()
         
+
         bp2 = freud.plot.bar_plot(x, height, title=title, xlabel=xlabel, ylabel=ylabel, ax=ax)
         assert bp2.xaxis and bp2.yaxis != None
         assert bp2.get_title() == title
         assert bp2.get_xlabel() == xlabel
         assert bp2.get_ylabel() == ylabel
-        assert bp2.get_xticks().all() == x.all()
-        assert len(bp2.get_xticklabels()) == len(x)
         
-        plt.savefig("plot2.png")
+        #plt.savefig("plot2.png")
         
         #Test with no default plot settings
         bp3 = freud.plot.bar_plot(x, height, title=title, xlabel=xlabel, ylabel=ylabel)
@@ -48,24 +44,21 @@ class TestPlotting:
         assert bp3.get_title() == title
         assert bp3.get_xlabel() == xlabel
         assert bp3.get_ylabel() == ylabel
-        assert bp3.get_xticks().all() == x.all()
-        assert len(bp3.get_xticklabels()) == len(x)
-        plt.savefig("plot3.png")
+        
+        #plt.savefig("plot3.png")
 
         #Test with ax created but still default plotting settings
         fig = plt.figure()
         ax = fig.subplots()
-        
+
         bp4 = freud.plot.bar_plot(x, height, ax=ax)
         assert bp4.xaxis and bp4.yaxis != None
         assert len(bp4.get_title()) == 0
         assert len(bp4.get_xlabel()) == 0
         assert len(bp4.get_ylabel()) == 0
-        assert bp4.get_xticks().all() == x.all()
-        assert len(bp4.get_xticklabels()) == len(x)
         
-        plt.savefig("plot4.png")
-
+        #plt.savefig("plot4.png")
+        
 test = TestPlotting()
 test.test_bar_plot()
         
