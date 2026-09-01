@@ -310,7 +310,8 @@ class BondOrder(_SpatialHistogram):
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
                 calculate bonds. Uses identity quaternions if :code:`None`
-                (Default value = :code:`None`).
+                (Default value = :code:`None`). Required if ``mode`` is not
+                "bod".
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`,
                           optional):
                 Query points used to calculate the correlation function.  Uses
@@ -332,6 +333,11 @@ class BondOrder(_SpatialHistogram):
                 the new computation; if False, will accumulate data (Default
                 value: True).
         """
+        if orientations is None and self._cpp_obj.getMode() != "bod":
+            raise ValueError(
+                "mode must be 'bod' when orientations are not provided."
+            )
+        
         if reset:
             self._reset()
 
