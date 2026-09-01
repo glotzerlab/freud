@@ -38,15 +38,25 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
     :code:`nan`.
 """
 
+from __future__ import annotations
+
+from collections.abc import Sequence
 from importlib.util import find_spec
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
+import numpy.typing as npt
 import rowan
 
 import freud._pmft
 import freud.locality
+import freud.util
+from freud._typing import ArrayLike, ScalarLike
 from freud.locality import _SpatialHistogram
 from freud.util import _Compute
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
@@ -55,7 +65,9 @@ else:
     msg_mpl = "Plotting requires matplotlib."
 
 
-def _quat_to_z_angle(orientations, num_points):
+def _quat_to_z_angle(
+    orientations: npt.NDArray[np.floating], num_points: int
+) -> npt.NDArray[np.floating]:
     """If orientations are quaternions, convert them to angles.
 
     For consistency with the boxes and points in freud, we require that
@@ -81,7 +93,19 @@ def _quat_to_z_angle(orientations, num_points):
     return orientations
 
 
-def _gen_angle_array(orientations, shape):
+def _as_bin_list(nbins: list[int] | int) -> list[int]:
+    return [nbins] if isinstance(nbins, int) else nbins
+
+
+def _as_bound_list(
+    bounds: list[tuple[float, float]] | tuple[float, float],
+) -> list[tuple[float, float]]:
+    return [bounds] if isinstance(bounds, tuple) else bounds
+
+
+def _gen_angle_array(
+    orientations: ArrayLike, shape: tuple[int, ...]
+) -> npt.NDArray[np.floating]:
     """Generates properly shaped, freud-compliant arrays of angles.
 
     This computation is specific to 2D calculations that require angles as
@@ -104,19 +128,19 @@ class _PMFT(_SpatialHistogram):
     performed in a particular coordinate system.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # abstract class
         pass
 
     @_Compute._computed_property
-    def pmft(self):
+    def pmft(self) -> npt.NDArray[np.floating]:
         """:class:`np.ndarray`: The discrete potential of mean force and
         torque."""
         with np.errstate(divide="ignore"):
             return -np.log(np.copy(self._pcf))
 
     @_Compute._computed_property
-    def _pcf(self):
+    def _pcf(self) -> npt.NDArray[np.floating]:
         """:class:`np.ndarray`: The discrete pair correlation function."""
         return self._cpp_obj.getPCF().toNumpyArray()
 
@@ -139,23 +163,24 @@ class PMFTR12(_PMFT):
             num_bins_t2)`.
     """
 
-    def __init__(self, r_max, bins):
+    def __init__(self, r_max: ScalarLike, bins: int | Sequence[int]) -> None:
         try:
-            n_r, n_t1, n_t2 = bins
+            n_r, n_t1, n_t2 = cast(Sequence[int], bins)
         except TypeError:
-            n_r = n_t1 = n_t2 = bins
+            scalar_bins = cast(int, bins)
+            n_r = n_t1 = n_t2 = scalar_bins
         self._cpp_obj = freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
         self.r_max = r_max
 
     def compute(
         self,
-        system,
-        orientations,
-        query_points=None,
-        query_orientations=None,
-        neighbors=None,
-        reset=True,
-    ):
+        system: object,
+        orientations: ArrayLike,
+        query_points: ArrayLike | None = None,
+        query_orientations: ArrayLike | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        reset: bool = True,
+    ) -> PMFTR12:
         r"""Calculates the PMFT.
 
         Args:
@@ -213,11 +238,12 @@ class PMFTR12(_PMFT):
         )
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        nbins = _as_bin_list(self.nbins)
         return ("freud.pmft.{cls}(r_max={r_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             r_max=self.r_max,
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
         )
 
 
@@ -240,24 +266,27 @@ class PMFTXYT(_PMFT):
             :code:`(num_bins_x, num_bins_y, num_bins_t)`.
     """
 
-    def __init__(self, x_max, y_max, bins):
+    def __init__(
+        self, x_max: ScalarLike, y_max: ScalarLike, bins: int | Sequence[int]
+    ) -> None:
         try:
-            n_x, n_y, n_t = bins
+            n_x, n_y, n_t = cast(Sequence[int], bins)
         except TypeError:
-            n_x = n_y = n_t = bins
+            scalar_bins = cast(int, bins)
+            n_x = n_y = n_t = scalar_bins
 
         self._cpp_obj = freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
         self.r_max = np.sqrt(x_max**2 + y_max**2)
 
     def compute(
         self,
-        system,
-        orientations,
-        query_points=None,
-        query_orientations=None,
-        neighbors=None,
-        reset=True,
-    ):
+        system: object,
+        orientations: ArrayLike,
+        query_points: ArrayLike | None = None,
+        query_orientations: ArrayLike | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        reset: bool = True,
+    ) -> PMFTXYT:
         r"""Calculates the PMFT.
 
         Args:
@@ -315,13 +344,14 @@ class PMFTXYT(_PMFT):
         )
         return self
 
-    def __repr__(self):
-        bounds = self.bounds
+    def __repr__(self) -> str:
+        bounds = _as_bound_list(self.bounds)
+        nbins = _as_bin_list(self.nbins)
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             x_max=bounds[0][1],
             y_max=bounds[1][1],
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
         )
 
 
@@ -348,18 +378,26 @@ class PMFTXY(_PMFT):
             :code:`(num_bins_x, num_bins_y)`.
     """
 
-    def __init__(self, x_max, y_max, bins):
+    def __init__(
+        self, x_max: ScalarLike, y_max: ScalarLike, bins: int | Sequence[int]
+    ) -> None:
         try:
-            n_x, n_y = bins
+            n_x, n_y = cast(Sequence[int], bins)
         except TypeError:
-            n_x = n_y = bins
+            scalar_bins = cast(int, bins)
+            n_x = n_y = scalar_bins
 
         self._cpp_obj = freud._pmft.PMFTXY(x_max, y_max, n_x, n_y)
         self.r_max = np.sqrt(x_max**2 + y_max**2)
 
     def compute(
-        self, system, query_orientations, query_points=None, neighbors=None, reset=True
-    ):
+        self,
+        system: object,
+        query_orientations: ArrayLike,
+        query_points: ArrayLike | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        reset: bool = True,
+    ) -> PMFTXY:
         r"""Calculates the PMFT.
 
         .. note::
@@ -413,29 +451,30 @@ class PMFTXY(_PMFT):
         return self
 
     @_Compute._computed_property
-    def bin_counts(self):
+    def bin_counts(self) -> npt.NDArray[np.floating]:
         """:class:`numpy.ndarray`: The bin counts in the histogram."""
         # Currently the parent function returns a 3D array that must be
         # squeezed due to the internal choices in the histogramming; this will
         # be fixed in future changes.
         return np.squeeze(super().bin_counts)
 
-    def __repr__(self):
-        bounds = self.bounds
+    def __repr__(self) -> str:
+        bounds = _as_bound_list(self.bounds)
+        nbins = _as_bin_list(self.nbins)
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             x_max=bounds[0][1],
             y_max=bounds[1][1],
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
         )
 
-    def _repr_png_(self):
+    def _repr_png_(self) -> bytes | None:
         try:
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
 
-    def plot(self, ax=None, cmap="viridis"):
+    def plot(self, ax: Axes | None = None, cmap: str = "viridis") -> Axes:
         """Plot PMFTXY.
 
         Args:
@@ -477,13 +516,21 @@ class PMFTXYZ(_PMFT):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
     """
 
-    def __init__(self, x_max, y_max, z_max, bins, shiftvec=None):
+    def __init__(
+        self,
+        x_max: ScalarLike,
+        y_max: ScalarLike,
+        z_max: ScalarLike,
+        bins: int | Sequence[int],
+        shiftvec: ArrayLike | None = None,
+    ) -> None:
         if shiftvec is None:
             shiftvec = [0, 0, 0]
         try:
-            n_x, n_y, n_z = bins
+            n_x, n_y, n_z = cast(Sequence[int], bins)
         except TypeError:
-            n_x = n_y = n_z = bins
+            scalar_bins = cast(int, bins)
+            n_x = n_y = n_z = scalar_bins
 
         self._cpp_obj = freud._pmft.PMFTXYZ(
             x_max,
@@ -498,13 +545,13 @@ class PMFTXYZ(_PMFT):
 
     def compute(
         self,
-        system,
-        query_orientations,
-        query_points=None,
-        equiv_orientations=None,
-        neighbors=None,
-        reset=True,
-    ):
+        system: object,
+        query_orientations: ArrayLike,
+        query_points: ArrayLike | None = None,
+        equiv_orientations: ArrayLike | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        reset: bool = True,
+    ) -> PMFTXYZ:
         r"""Calculates the PMFT.
 
         .. note::
@@ -573,8 +620,9 @@ class PMFTXYZ(_PMFT):
         )
         return self
 
-    def __repr__(self):
-        bounds = self.bounds
+    def __repr__(self) -> str:
+        bounds = _as_bound_list(self.bounds)
+        nbins = _as_bin_list(self.nbins)
         return (
             "freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
             "z_max={z_max}, bins=({bins}), "
@@ -584,6 +632,6 @@ class PMFTXYZ(_PMFT):
             x_max=bounds[0][1],
             y_max=bounds[1][1],
             z_max=bounds[2][1],
-            bins=", ".join([str(b) for b in self.nbins]),
+            bins=", ".join(str(b) for b in nbins),
             shiftvec=self.shiftvec.tolist(),
         )
