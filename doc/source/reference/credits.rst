@@ -45,6 +45,7 @@ The following people contributed to the development of freud:
 * Mayank Agrawal, University of Michigan
 * Melody Zhang, University of Michigan
 * Michael Stryk, University of Michigan
+* Michelle Thran, University of Michigan
 * Mike Henry, Boise State
 * Paul Dodd, University of Michigan
 * Pavel Buslaev
