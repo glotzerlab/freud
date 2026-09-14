@@ -330,14 +330,12 @@ void Steinhardt::aggregatewl(
                 const auto normalizationfactor = static_cast<float>(4.0 * M_PI / m_num_ms[l_index]);
                 const auto wigner3j_values = getWigner3j(l);
 
-                (*target)(i, l_index)
-                    = reduceWigner3j(&(*source_l)(i, 0), l, wigner3j_values);
+                (*target)(i, l_index) = reduceWigner3j(&(*source_l)(i, 0), l, wigner3j_values);
                 if (m_wl_normalize)
                 {
-                    const float normalization = std::sqrt(normalizationfactor)
-                        / (*normalization_source)(i, l_index);
-                    (*target)(i, l_index)
-                        *= normalization * normalization * normalization;
+                    const float normalization
+                        = std::sqrt(normalizationfactor) / (*normalization_source)(i, l_index);
+                    (*target)(i, l_index) *= normalization * normalization * normalization;
                 }
             }
         }
