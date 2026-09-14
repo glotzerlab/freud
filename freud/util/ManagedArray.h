@@ -16,6 +16,13 @@
     \brief Defines the standard array class to be used throughout freud.
 */
 
+//! Mark a function as cold (rarely executed) and block its inlining.
+#if defined(_MSC_VER)
+#define FREUD_COLD_NOINLINE [[msvc::noinline]]
+#else
+#define FREUD_COLD_NOINLINE __attribute__((cold, noinline))
+#endif
+
 namespace freud { namespace util {
 
 //! Class to handle the storage of all arrays of numerical data used in freud.
@@ -307,7 +314,7 @@ private:
     //!
     //! All of this __attribute__ hacking is needed to keep `operator[]` small enough to
     //! inline correctly.
-    [[noreturn]] __attribute__((cold, noinline)) void throwIndexError(size_t index) const
+    [[noreturn]] FREUD_COLD_NOINLINE void throwIndexError(size_t index) const
     {
         std::ostringstream msg;
         msg << "Attempted to access index " << index << " in an array of size " << m_size << std::endl;
