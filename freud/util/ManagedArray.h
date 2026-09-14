@@ -317,7 +317,7 @@ private:
     [[noreturn]] FREUD_COLD_NOINLINE void throwIndexError(size_t index) const
     {
         std::ostringstream msg;
-        msg << "Attempted to access index " << index << " in an array of size " << m_size << std::endl;
+        msg << "Attempted to access index " << index << " in an array of size " << m_size << '\n';
         throw std::invalid_argument(msg.str());
     }
 
