@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## Next release
 
+### Changed
+* Steinhardt-type order parameters are now slightly faster (#1465)
+
 ### Added
 * Support for `StaticStructureFactorDirect` in 2D.
 * `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
@@ -15,6 +18,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 ### Fixed
 * Access k points from `StaticStructureFactorDirect`.
 * Unit tests pass with scipy 1.17 installed (#1413).
+* ManagedArray accessors no longer allocate unnecessarily (#1465)
 
 ### Changed
 
