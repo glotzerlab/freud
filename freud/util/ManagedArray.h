@@ -4,6 +4,7 @@
 #ifndef MANAGED_ARRAY_H
 #define MANAGED_ARRAY_H
 
+#include <array>
 #include <cstring>
 #include <functional>
 #include <numeric>
@@ -111,11 +112,9 @@ public:
     //! Writeable index into array.
     T& operator[](size_t index)
     {
-        if (index >= size())
+        if (index >= m_size)
         {
-            std::ostringstream msg;
-            msg << "Attempted to access index " << index << " in an array of size " << size() << std::endl;
-            throw std::invalid_argument(msg.str());
+            throwIndexError(index);
         }
         return m_data[index];
     }
@@ -123,11 +122,9 @@ public:
     //! Read-only index into array.
     const T& operator[](size_t index) const
     {
-        if (index >= size())
+        if (index >= m_size)
         {
-            std::ostringstream msg;
-            msg << "Attempted to access index " << index << " in an array of size " << size() << std::endl;
-            throw std::invalid_argument(msg.str());
+            throwIndexError(index);
         }
         return m_data[index];
     }
@@ -164,13 +161,15 @@ public:
     //! Implementation of variadic indexing function.
     template<typename... Ints> T& operator()(Ints... indices)
     {
-        return (*this)(buildIndex(indices...));
+        static_assert(sizeof...(Ints) > 0, "At least one index is required.");
+        return (*this)[linearize(std::array<size_t, sizeof...(Ints)> {static_cast<size_t>(indices)...})];
     }
 
     //! Constant implementation of variadic indexing function.
     template<typename... Ints> const T& operator()(Ints... indices) const
     {
-        return (*this)(buildIndex(indices...));
+        static_assert(sizeof...(Ints) > 0, "At least one index is required.");
+        return (*this)[linearize(std::array<size_t, sizeof...(Ints)> {static_cast<size_t>(indices)...})];
     }
 
     //! Core function for multidimensional indexing.
@@ -304,27 +303,33 @@ public:
     }
 
 private:
-    //! The base case for building up the index.
-    /*! These argument building functions are templated on two types, one that
-    std::vector<size_t> m_shape; //!< Shape of array.
-     *  encapsulates the current object being operated on and the other being
-    size_t m_size;               //!< number of array elements.
-     *  the list of remaining arguments. Since users may provide both signed and
-     *  unsigned ints to the function, we perform the appropriate check on each
-     *  Int object. The second function is used for template recursion in
-     *  unwrapping the list of arguments.
-     */
-    template<typename Int> static std::vector<size_t> buildIndex(Int index)
+    //! Report an out-of-bounds access.
+    //!
+    //! All of this __attribute__ hacking is needed to keep `operator[]` small enough to
+    //! inline correctly.
+    [[noreturn]] __attribute__((cold, noinline)) void throwIndexError(size_t index) const
     {
-        return {static_cast<size_t>(index)};
+        std::ostringstream msg;
+        msg << "Attempted to access index " << index << " in an array of size " << m_size << std::endl;
+        throw std::invalid_argument(msg.str());
     }
 
-    //! The recursive case for building up the index (see above).
-    template<typename Int, typename... Ints> static std::vector<size_t> buildIndex(Int index, Ints... indices)
+    //! Compute the linear (row-major) index for per-dimension indices.
+    /*! In getting the linear index, we iterate over the indices in reverse
+     *  order to build up cur_prod because each subsequent axis contributes
+     *  less according to row-major ordering. The loop bound is a compile-time
+     *  constant, so it is fully unrolled for the small ranks used in freud.
+     */
+    template<size_t N> size_t linearize(const std::array<size_t, N>& indices) const
     {
-        std::vector<size_t> tmp = buildIndex(indices...);
-        tmp.insert(tmp.begin(), static_cast<size_t>(index));
-        return tmp;
+        size_t cur_prod = 1;
+        size_t idx = 0;
+        for (size_t i = N; i-- > 0;)
+        {
+            idx += indices[i] * cur_prod;
+            cur_prod *= m_shape[i];
+        }
+        return idx;
     }
 
     std::vector<T> m_data;       //!< array data.
