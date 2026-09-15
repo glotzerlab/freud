@@ -4,12 +4,12 @@
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <ostream>
 #include <stdexcept>
-#include <array>
 #include <utility>
 #include <vector>
 #ifdef __SSE2__
@@ -496,7 +496,6 @@ public:
 protected:
     std::vector<std::shared_ptr<Axis>> m_axes;     //!< The axes.
     std::shared_ptr<ManagedArray<T>> m_bin_counts; //!< Counts for each bin
-
 };
 
 }; }; // namespace freud::util
