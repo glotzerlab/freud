@@ -9,6 +9,7 @@
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <ostream>
 #include <stdexcept>
+#include <array>
 #include <utility>
 #include <vector>
 #ifdef __SSE2__
@@ -298,14 +299,32 @@ public:
     ~Histogram() = default;
 
     //! Bin value and update the histogram count.
-    template<typename... FloatsOrWeight> void operator()(FloatsOrWeight... values)
+    template<typename... Values> void operator()(Values... values)
     {
-        std::pair<std::vector<float>, Weight<T>> value_vector = getValueVector(values...);
-        size_t value_bin = bin(value_vector.first);
-        // Check for sentinel to avoid overflow.
+        if (sizeof...(values) != m_axes.size())
+        {
+            std::ostringstream msg;
+            msg << "This Histogram is " << m_axes.size() << "-dimensional, but " << sizeof...(values)
+                << " values were provided in bin" << '\n';
+            throw std::invalid_argument(msg.str());
+        }
+
+        const std::array<float, sizeof...(values)> value_array {static_cast<float>(values)...};
+        size_t value_bin = 0;
+        for (size_t i = 0; i < value_array.size(); ++i)
+        {
+            const size_t bin_i = m_axes[i]->bin(value_array[i]);
+            // Check for sentinel to avoid overflow.
+            if (bin_i == Axis::OVERFLOW_BIN)
+            {
+                value_bin = Axis::OVERFLOW_BIN;
+                break;
+            }
+            value_bin = value_bin * m_axes[i]->size() + bin_i;
+        }
         if (value_bin != Axis::OVERFLOW_BIN)
         {
-            (*m_bin_counts)[value_bin] += value_vector.second.value;
+            (*m_bin_counts)[value_bin] += 1;
         }
     }
 
@@ -324,7 +343,7 @@ public:
      *  are then combined into a single linear index using the underlying
      *  ManagedArray.
      */
-    size_t bin(std::vector<float> values) const
+    size_t bin(const std::vector<float>& values) const
     {
         if (values.size() != m_axes.size())
         {
@@ -478,43 +497,6 @@ protected:
     std::vector<std::shared_ptr<Axis>> m_axes;     //!< The axes.
     std::shared_ptr<ManagedArray<T>> m_bin_counts; //!< Counts for each bin
 
-    //! The base case for type float when constructing a vector of values provided to operator().
-    /*! This function and the accompanying recursive function below employ
-     * variadic templating to accept an arbitrary set of float values and
-     * construct a vector out of them.
-     */
-    std::pair<std::vector<float>, Weight<T>> getValueVector(float value) const
-    {
-        return {{value}, Weight<T>()};
-    }
-
-    //! The base case for type Weight when constructing a vector of values provided to operator().
-    /*! This function and the accompanying recursive function below employ
-     * variadic templating to accept an arbitrary set of float values and
-     * construct a vector out of them.
-     */
-    std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight) const
-    {
-        return {{}, weight};
-    }
-
-    //! The recursive case for constructing a vector of values (see base-case function docs).
-    template<typename... FloatsOrWeight>
-    std::pair<std::vector<float>, Weight<T>> getValueVector(float value, FloatsOrWeight... values) const
-    {
-        std::pair<std::vector<float>, Weight<T>> tmp = getValueVector(values...);
-        tmp.first.insert(tmp.first.begin(), value);
-        return tmp;
-    }
-
-    //! The recursive case for constructing a vector of values (see base-case function docs).
-    template<typename... FloatsOrWeight>
-    std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight, FloatsOrWeight... values) const
-    {
-        std::pair<std::vector<float>, Weight<T>> tmp = getValueVector(values...);
-        tmp.second = weight;
-        return tmp;
-    }
 };
 
 }; }; // namespace freud::util
