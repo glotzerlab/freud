@@ -7,9 +7,6 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## Next release
 
-### Changed
-* Steinhardt-type order parameters are now slightly faster (#1465)
-
 ### Added
 * Support for `StaticStructureFactorDirect` in 2D.
 * `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
@@ -24,6 +21,10 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 * MSD with `mode=="direct"` is now slightly faster (#1414).
 * Nematic order parameter is now ~40x faster. (#1428)
+* Steinhardt-type order parameters are now slightly faster (#1465)
+* `Histogram::operator()` no longer allocates per call (#1465)
+* `Histogram::operator()` no longer supports weight arguments: prefer `increment`
+  when accumulating non-unit values (#1465)
 
 ## 3.5.0 -- 2025-10-08
 
