@@ -51,7 +51,10 @@ class AngularSeparationNeighbor(_PairCompute):
         orientations,
         query_points=None,
         query_orientations=None,
-        equiv_orientations=((1, 0, 0, 0),),
+        equiv_orientations=(
+            (1, 0, 0, 0),
+            (-1, 0, 0, 0),
+        ),
         neighbors=None,
     ):
         r"""Calculates the minimum angles of separation between :code:`orientations`
@@ -84,7 +87,7 @@ class AngularSeparationNeighbor(_PairCompute):
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
                 share the same set of equivalent orientations.
-                (Default value = :code:`((1, 0, 0, 0),)`)
+                (Default value = :code:`((1, 0, 0, 0), (-1, 0, 0, 0),)`)
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -149,7 +152,13 @@ class AngularSeparationGlobal(_Compute):
         self._cpp_obj = freud._environment.AngularSeparationGlobal()
 
     def compute(
-        self, global_orientations, orientations, equiv_orientations=((1, 0, 0, 0),)
+        self,
+        global_orientations,
+        orientations,
+        equiv_orientations=(
+            (1, 0, 0, 0),
+            (-1, 0, 0, 0),
+        ),
     ):
         r"""Calculates the minimum angles of separation between
         :code:`global_orientations` and :code:`orientations`, checking for
@@ -169,7 +178,7 @@ class AngularSeparationGlobal(_Compute):
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
                 share the same set of equivalent orientations.
-                (Default value = :code:`((1, 0, 0, 0),)`)
+                (Default value = :code:`((1, 0, 0, 0), (-1, 0, 0, 0),)`)
         """  # noqa: E501
         equiv_orientations = np.asarray(equiv_orientations)
         global_orientations = freud.util._convert_array(
@@ -1009,7 +1018,10 @@ class LocalBondProjection(_PairCompute):
         orientations,
         proj_vecs,
         query_points=None,
-        equiv_orientations=((1, 0, 0, 0),),
+        equiv_orientations=(
+            (1, 0, 0, 0),
+            (-1, 0, 0, 0),
+        ),
         neighbors=None,
     ):
         r"""Calculates the maximal projections of nearest neighbor bonds
@@ -1042,7 +1054,7 @@ class LocalBondProjection(_PairCompute):
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
                 share the same set of equivalent orientations.
-                (Default value = :code:`((1, 0, 0, 0),)`)
+                (Default value = :code:`((1, 0, 0, 0), (-1, 0, 0, 0),)`)
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of

@@ -16,6 +16,7 @@ The following people contributed to the development of freud:
 * Bradley Dice, University of Michigan
 * Brandon Butler, University of Michigan
 * Bryan VanSaders, University of Michigan
+* Catherine La Riviere, University of Michigan
 * Carl Simon Adorf, University of Michigan
 * Carolyn Phillips, University of Michigan
 * Charlotte Zhao, University of Michigan
