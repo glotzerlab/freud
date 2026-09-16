@@ -39,6 +39,7 @@ The following people contributed to the development of freud:
 * Kate Jensen, University of Michigan
 * Kelly Wang, University of Michigan
 * Kody Takada, University of Michigan
+* Kristi Pepa, University of Michigan
 * M. Eric Irrgang, University of Michigan
 * Matthew Palathingal, University of Michigan
 * Matthew Spellings, University of Michigan
@@ -55,6 +56,7 @@ The following people contributed to the development of freud:
 * Rose Cersonsky, University of Michigan
 * Rubén Chaves
 * Ryan Marson, University of Michigan
+* Sumitava Kundu, University of Michigan
 * Suraj Kannur, University of Michigan
 * Tim Moore, University of Michigan
 * Tommy Waltmann, University of Michigan
