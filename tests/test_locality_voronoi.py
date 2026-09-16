@@ -10,6 +10,7 @@ import pytest
 from util import sort_rounded_xyz_array
 
 import freud
+import freud.plot
 
 matplotlib.use("agg")
 
@@ -411,4 +412,17 @@ class TestVoronoi:
         ).astype(np.float32)
         vor.compute((box, points))
         assert vor._repr_png_() is None
+        plt.close("all")
+
+    def test_plot(self):
+        box, points = freud.data.make_random_system(10, 16, is2D=True, seed=1)
+        vor = freud.locality.Voronoi().compute((box, points))
+
+        for color_by in (None, "sides", "area"):
+            for cmap in (None, "viridis", matplotlib.colormaps["plasma"]):
+                ax = freud.plot.voronoi_plot(vor, box, color_by=color_by, cmap=cmap)
+                assert ax is not None
+
+        with pytest.raises(RuntimeError):
+            freud.plot.voronoi_plot(vor, box, color_by="invalid")
         plt.close("all")
