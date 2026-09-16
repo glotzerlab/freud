@@ -334,10 +334,8 @@ class BondOrder(_SpatialHistogram):
                 value: True).
         """
         if orientations is None and self._cpp_obj.getMode() != "bod":
-            raise ValueError(
-                "mode must be 'bod' when orientations are not provided."
-            )
-        
+            raise ValueError("mode must be 'bod' when orientations are not provided.")
+
         if reset:
             self._reset()
 
