@@ -16,12 +16,14 @@ The format is based on [Keep a Changelog] and this project adheres to
 * Access k points from `StaticStructureFactorDirect`.
 * Unit tests pass with scipy 1.17 installed (#1413).
 * `voronoi_plot` works with matplotlib 3.11, which removed `matplotlib.cm.get_cmap` (#1455).
+* Input validation for orientations in `BondOrder.compute()` (#1444).
 
 ### Changed
 
 * MSD with `mode=="direct"` is now slightly faster (#1414).
 * Nematic order parameter is now ~40x faster. (#1428)
 * Removed garnett from documentation. (#1443)
+* Changed default equivalent orientations to include (-1,0,0,0) for `AngularSeparationNeighbor`, `AngularSeparationGlobal`, and `LocalBondProjection`(#1447)
 
 ## 3.5.0 -- 2025-10-08
 

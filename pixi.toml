@@ -27,6 +27,7 @@ sympy = "*"
 uv = "*"
 sphinx-inline-tabs = "*"
 bump-my-version = "*"
+prek = ">=0.5.3,<0.6"
 
 [feature.py312.dependencies]
 python = "3.12.*"
