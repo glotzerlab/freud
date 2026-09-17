@@ -16,6 +16,7 @@ The following people contributed to the development of freud:
 * Bradley Dice, University of Michigan
 * Brandon Butler, University of Michigan
 * Bryan VanSaders, University of Michigan
+* Catherine La Riviere, University of Michigan
 * Carl Simon Adorf, University of Michigan
 * Carolyn Phillips, University of Michigan
 * Charlotte Zhao, University of Michigan
@@ -38,6 +39,7 @@ The following people contributed to the development of freud:
 * Kate Jensen, University of Michigan
 * Kelly Wang, University of Michigan
 * Kody Takada, University of Michigan
+* Kristi Pepa, University of Michigan
 * M. Eric Irrgang, University of Michigan
 * Matthew Palathingal, University of Michigan
 * Matthew Spellings, University of Michigan
@@ -45,6 +47,7 @@ The following people contributed to the development of freud:
 * Mayank Agrawal, University of Michigan
 * Melody Zhang, University of Michigan
 * Michael Stryk, University of Michigan
+* Michelle Thran, University of Michigan
 * Mike Henry, Boise State
 * Paul Dodd, University of Michigan
 * Pavel Buslaev
@@ -53,6 +56,7 @@ The following people contributed to the development of freud:
 * Rose Cersonsky, University of Michigan
 * Rubén Chaves
 * Ryan Marson, University of Michigan
+* Sumitava Kundu, University of Michigan
 * Suraj Kannur, University of Michigan
 * Tim Moore, University of Michigan
 * Tommy Waltmann, University of Michigan

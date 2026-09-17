@@ -13,7 +13,6 @@ _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import matplotlib.colors
     import matplotlib.pyplot as plt
-    from matplotlib import cm
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.collections import PatchCollection
     from matplotlib.colorbar import Colorbar
@@ -475,7 +474,9 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
                 )
             cmap = "tab20"
 
-    cmap = cm.get_cmap(cmap, num_colors)
+    cmap = matplotlib.colormaps.get_cmap(cmap)
+    if num_colors is not None:
+        cmap = cmap.resampled(num_colors)
     bounds = np.arange(np.min(colors), np.max(colors) + 1)
 
     patch_collection.set_array(np.array(colors) - 0.5)
