@@ -317,7 +317,7 @@ class Hexatic(_PairCompute):
     def default_query_args(self):
         """The default query arguments are
         :code:`{'mode': 'nearest', 'num_neighbors': self.k}`."""
-        return dict(mode="nearest", num_neighbors=self.k)
+        return {"mode": "nearest", "num_neighbors": self.k}
 
     @_Compute._computed_property
     def particle_order(self):

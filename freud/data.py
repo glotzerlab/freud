@@ -11,6 +11,7 @@ functions that are useful for testing and examples.
 x), existing freud scripts may need to be updated. The API will be finalized in
 a future release.
 """
+from __future__ import annotations
 
 import numpy as np
 import parsnip
@@ -121,7 +122,7 @@ class UnitCell:
             msg = "The number of replicas in z must be 1 for a 2D unit cell."
             raise ValueError(msg)
 
-        if any([n > 1 for n in (nx, ny, nz)]):
+        if any(n > 1 for n in (nx, ny, nz)):
             pbuff = freud.locality.PeriodicBuffer()
             abs_positions = self.box.make_absolute(self.basis_positions)
             pbuff.compute(
@@ -247,7 +248,7 @@ class UnitCell:
     @classmethod
     def rectangular(
         cls,
-        aspect: int | float | np.integer | np.floating = 2.0,
+        aspect: float | np.integer | np.floating = 2.0,
         centered: bool = False,
     ):
         """Create a simple or centered rectangular unit cell with aspect :math:`b / a`.
@@ -268,8 +269,8 @@ class UnitCell:
     @classmethod
     def oblique(
         cls,
-        aspect: int | float | np.integer | np.floating = 1.0,
-        theta: int | float | np.integer | np.floating = 45.0,
+        aspect: float | np.integer | np.floating = 1.0,
+        theta: float | np.integer | np.floating = 45.0,
     ):
         r"""Create an oblique unit cell with aspect :math:`b/a` and angle :math:`\theta`
 

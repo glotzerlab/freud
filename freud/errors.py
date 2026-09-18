@@ -9,7 +9,6 @@
 class FreudDeprecationWarning(UserWarning):
     """Raised when a freud feature is pending deprecation."""
 
-    pass
 
 
 NO_DEFAULT_QUERY_ARGS_MESSAGE = (

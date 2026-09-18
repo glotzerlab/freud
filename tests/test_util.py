@@ -78,7 +78,7 @@ class TestCommon:
         assert box.dimensions == 3
 
     def test_convert_dict_box(self):
-        dict_box = dict(Lx=1, Ly=2, Lz=3, xy=4, xz=5, yz=6)
+        dict_box = {"Lx": 1, "Ly": 2, "Lz": 3, "xy": 4, "xz": 5, "yz": 6}
         box = freud.util._convert_box(dict_box)
         npt.assert_allclose(box.Lx, 1, rtol=1e-6, err_msg="LxFail")
         npt.assert_allclose(box.Ly, 2, rtol=1e-6, err_msg="LyFail")

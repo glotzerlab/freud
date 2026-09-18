@@ -52,12 +52,12 @@ def make_raw_query_nlist_test_set(
     aq = freud.locality.AABBQuery(box, points)
     if mode == "ball":
         nlist = aq.query(
-            query_points, dict(r_max=r_max, exclude_ii=exclude_ii)
+            query_points, {"r_max": r_max, "exclude_ii": exclude_ii}
         ).toNeighborList()
     if mode == "nearest":
         nlist = aq.query(
             query_points,
-            dict(num_neighbors=num_neighbors, exclude_ii=exclude_ii, r_guess=r_max),
+            {"num_neighbors": num_neighbors, "exclude_ii": exclude_ii, "r_guess": r_max},
         ).toNeighborList()
     test_set.append(((box, points), nlist))
     return test_set

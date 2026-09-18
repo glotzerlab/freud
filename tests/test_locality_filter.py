@@ -25,7 +25,6 @@ class FilterTest:
             ``terminate_after_blocked`` is unused when called with a class`.FilterSANN`
             object.
         """
-        pass
 
     def compute_python_neighborlist(
         self, box, points, r_max, terminate_after_blocked=True
@@ -42,7 +41,7 @@ class FilterTest:
         """
         aq = freud.locality.AABBQuery(box, points)
         return aq.query(
-            points, dict(mode="ball", r_max=r_max, exclude_ii=True)
+            points, {"mode": "ball", "r_max": r_max, "exclude_ii": True}
         ).toNeighborList(sort_by_distance=True)
 
     @pytest.mark.parametrize("allow_incomplete_shell", [True, False])
@@ -58,7 +57,7 @@ class FilterTest:
         filter_ = self.get_filter_object(
             allow_incomplete_shell, terminate_after_blocked
         )
-        filter_.compute(sys, dict(r_max=4.5))
+        filter_.compute(sys, {"r_max": 4.5})
         assert filter_.unfiltered_nlist is not None
         assert filter_.filtered_nlist is not None
 
@@ -69,7 +68,7 @@ class FilterTest:
         sys = freud.data.make_random_system(L, N, seed=1)
         filt = self.get_filter_object(allow_incomplete_shell=False)
         with pytest.raises(RuntimeError):
-            filt.compute(sys, dict(r_max=1.2, exclude_ii=True))
+            filt.compute(sys, {"r_max": 1.2, "exclude_ii": True})
 
     def test_no_query_args(self):
         """Test unfiltered nlist with default neighbors argument."""
@@ -98,7 +97,7 @@ class FilterTest:
         r_max = 1.49
         sys = uc.generate_system(N_reap)
         filt = self.get_filter_object(terminate_after_blocked=terminate_after_blocked)
-        filt.compute(sys, neighbors=dict(r_max=r_max, exclude_ii=True))
+        filt.compute(sys, neighbors={"r_max": r_max, "exclude_ii": True})
         num_neighbors_array = filt.filtered_nlist.neighbor_counts
         npt.assert_array_equal(
             num_neighbors_array,
@@ -115,7 +114,7 @@ class FilterTest:
         sys = freud.data.make_random_system(L, N, seed=1)
         nlist_1 = self.compute_python_neighborlist(*sys, r_max, terminate_after_blocked)
         filt = self.get_filter_object(terminate_after_blocked=terminate_after_blocked)
-        filt.compute(sys, dict(r_max=r_max, exclude_ii=True))
+        filt.compute(sys, {"r_max": r_max, "exclude_ii": True})
         nlist_2 = filt.filtered_nlist
 
         npt.assert_allclose(nlist_1.distances, nlist_2.distances, rtol=5e-5)
@@ -161,7 +160,7 @@ class TestRAD(FilterTest):
 
         list_of_neighs = []
         # loop over all particles
-        for i in range(0, len(points)):
+        for i in range(len(points)):
             # put closest neighbors in the list of valid neighbors
             i_neighbors = sorted_neighbors[sorted_neighbors[:, 0] == i, 1]
             list_of_neighs.append([i, i_neighbors[0]])
@@ -200,7 +199,7 @@ class TestRAD(FilterTest):
     def test_RAD_simple(self):
         """Assert RAD is correct when we compute the neighbors by hand."""
         r_max = 2.5
-        neighbors = dict(r_max=r_max, exclude_ii=True)
+        neighbors = {"r_max": r_max, "exclude_ii": True}
         points = np.asarray(
             [
                 [0.0, 0.0, 0.0],
@@ -276,7 +275,7 @@ class TestRAD(FilterTest):
         filt = self.get_filter_object(terminate_after_blocked=terminate_after_blocked)
         filt.compute(
             sys,
-            dict(r_max=r_max, exclude_ii=True),
+            {"r_max": r_max, "exclude_ii": True},
             points_radii=points_radii,
             query_points_radii=query_points_radii,
         )
@@ -298,7 +297,7 @@ class TestRAD(FilterTest):
             match=rf"^array\.shape= \({N - 1},\); expected shape = \({N}\)$",
         ):
             filt.compute(
-                sys, dict(r_max=4.0, exclude_ii=True), points_radii=np.ones(N - 1)
+                sys, {"r_max": 4.0, "exclude_ii": True}, points_radii=np.ones(N - 1)
             )
 
         bad_points_radii = np.ones(N)
@@ -309,7 +308,7 @@ class TestRAD(FilterTest):
         ):
             filt.compute(
                 sys,
-                dict(r_max=4.0, exclude_ii=True),
+                {"r_max": 4.0, "exclude_ii": True},
                 points_radii=bad_points_radii,
             )
 
@@ -321,7 +320,7 @@ class TestRAD(FilterTest):
         ):
             filt.compute(
                 sys,
-                dict(r_max=4.0, exclude_ii=True),
+                {"r_max": 4.0, "exclude_ii": True},
                 query_points_radii=bad_query_radii,
             )
 
@@ -354,7 +353,7 @@ class TestSANN(FilterTest):
         sorted_vecs = np.asarray(nlist.vectors)
         sol_id = []
         mask = np.zeros(len(nlist.distances), dtype=bool)
-        for i in range(0, len(points)):
+        for i in range(len(points)):
             m = 3
             i_dist = sorted_dist[nlist.query_point_indices == i]
             while (
@@ -381,7 +380,7 @@ class TestSANN(FilterTest):
         sorted by distance, while the unfiltered nlist is sorted by point index.
         """
         r_max = 1.5
-        neighbors = dict(r_max=r_max, exclude_ii=True)
+        neighbors = {"r_max": r_max, "exclude_ii": True}
         # generate FCC crystal
         points = np.asarray(
             [

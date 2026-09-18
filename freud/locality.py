@@ -964,15 +964,12 @@ class _PairCompute(_Compute):
             # The default_query_args property must raise a NotImplementedError
             # if no query arguments were passed in and the class has no
             # reasonable choice of defaults.
-            try:
-                query_args = (
-                    self.default_query_args if neighbors is None else neighbors.copy()
-                )
-                query_args.setdefault("exclude_ii", query_points is None)
-                qargs = _QueryArgs.from_dict(query_args)
-                nlist = NeighborList(_null=True)
-            except NotImplementedError:
-                raise
+            query_args = (
+                self.default_query_args if neighbors is None else neighbors.copy()
+            )
+            query_args.setdefault("exclude_ii", query_points is None)
+            qargs = _QueryArgs.from_dict(query_args)
+            nlist = NeighborList(_null=True)
         else:
             msg = (
                 "An invalid value was provided for neighbors, "
@@ -1002,7 +999,7 @@ class _SpatialHistogram(_PairCompute):
     def default_query_args(self):
         """The default query arguments are
         :code:`{'mode': 'ball', 'r_max': self.r_max}`."""
-        return dict(mode="ball", r_max=self.r_max)
+        return {"mode": "ball", "r_max": self.r_max}
 
     @_Compute._computed_property
     def box(self):
