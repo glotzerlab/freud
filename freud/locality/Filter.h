@@ -32,15 +32,14 @@ public:
     Filter(bool allow_incomplete_shell)
         : m_unfiltered_nlist(std::make_shared<NeighborList>()),
           m_filtered_nlist(std::make_shared<NeighborList>()), m_allow_incomplete_shell(allow_incomplete_shell)
-    {}
+    { }
 
     virtual ~Filter() = default;
 
     virtual void compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* query_points,
                          unsigned int num_query_points, std::shared_ptr<NeighborList> nlist,
                          const QueryArgs& qargs, const float* points_radii = nullptr,
-                         const float* query_points_radii = nullptr)
-        = 0;
+                         const float* query_points_radii = nullptr) = 0;
 
     std::shared_ptr<NeighborList> getFilteredNlist() const
     {

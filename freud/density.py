@@ -511,7 +511,7 @@ class LocalDensity(_PairCompute):
     def default_query_args(self):
         """The default query arguments are
         :code:`{'mode': 'ball', 'r_max': self.r_max + 0.5*self.diameter}`."""
-        return dict(mode="ball", r_max=self.r_max + 0.5 * self.diameter)
+        return {"mode": "ball", "r_max": self.r_max + 0.5 * self.diameter}
 
     @_Compute._computed_property
     def density(self):

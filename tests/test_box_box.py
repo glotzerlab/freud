@@ -380,12 +380,12 @@ class TestBox:
     @pytest.mark.parametrize(
         ("box_params", "answer"),
         [
-            (dict(Lx=1, Ly=1, Lz=1), True),
-            (dict(Lx=2, Ly=1, Lz=4), False),
-            (dict(Lx=1, Ly=1, Lz=1, xz=0.25), False),
-            (dict(Lx=3, Ly=3, Lz=3), True),
-            (dict(Lx=3, Ly=3, Lz=3, yz=0.01), False),
-            (dict(Lx=0.01, Ly=1, Lz=10000, xy=0.75), False),
+            ({"Lx": 1, "Ly": 1, "Lz": 1}, True),
+            ({"Lx": 2, "Ly": 1, "Lz": 4}, False),
+            ({"Lx": 1, "Ly": 1, "Lz": 1, "xz": 0.25}, False),
+            ({"Lx": 3, "Ly": 3, "Lz": 3}, True),
+            ({"Lx": 3, "Ly": 3, "Lz": 3, "yz": 0.01}, False),
+            ({"Lx": 0.01, "Ly": 1, "Lz": 10000, "xy": 0.75}, False),
         ],
     )
     def test_cubic(self, box_params, answer):

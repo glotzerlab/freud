@@ -82,7 +82,7 @@ public:
     explicit Steinhardt(const unsigned int l, bool average = false, bool wl = false, bool weighted = false,
                         bool wl_normalize = false)
         : Steinhardt(std::vector<unsigned int> {l}, average, wl, weighted, wl_normalize)
-    {}
+    { }
 
     //! Empty destructor
     ~Steinhardt() = default;

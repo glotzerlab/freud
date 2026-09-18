@@ -268,7 +268,7 @@ public:
                                         exclude_ii),
           m_linkcell(neighbor_query), m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
           m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_query_point)))
-    {}
+    { }
 
     //! Empty Destructor
     ~LinkCellIterator() override = default;
@@ -292,7 +292,7 @@ public:
                           bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
           m_num_neighbors(num_neighbors)
-    {}
+    { }
 
     //! Empty Destructor
     ~LinkCellQueryIterator() override = default;

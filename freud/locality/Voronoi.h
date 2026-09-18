@@ -18,7 +18,7 @@ class Voronoi
 {
 public:
     // default constructor
-    Voronoi() : m_neighbor_list(std::make_shared<NeighborList>()) {}
+    Voronoi() : m_neighbor_list(std::make_shared<NeighborList>()) { }
 
     void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq);
 

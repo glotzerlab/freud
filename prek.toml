@@ -47,7 +47,7 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/glotzerlab/fix-license-header"
-rev = "v0.4.1"
+rev = "96a6da2d22354ecb4dbc50809e9455c7f1e20fe8"  # frozen: v0.4.1
 hooks = [
   {
     id = "fix-license-header",
@@ -75,7 +75,7 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/astral-sh/ruff-pre-commit"
-rev = "v0.14.0"
+rev = "2eeb5678de71a00c0902cbda7105d328432f72cb"  # frozen: v0.16.8
 hooks = [
   { id = "ruff-format" },
   { id = "ruff-check" }
@@ -83,14 +83,14 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/cheshirekow/cmake-format-precommit"
-rev = "v0.6.13"
+rev = "e2c2116d86a80e72e7146a06e68b7c228afc6319"  # frozen: v0.6.13
 hooks = [
   { id = "cmake-format" }
 ]
 
 [[repos]]
 repo = "https://github.com/pre-commit/mirrors-clang-format"
-rev = "v21.1.2"
+rev = "e2b496dc2bd8340c2524cb9a2d2a943cde1bb6df"  # frozen: v23.1.1
 hooks = [
   {
     id = "clang-format",
@@ -103,7 +103,7 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/mit-d/check-unicode"
-rev = "v0.5.0"
+rev = "9d217f6f91d9e2de6bc31b54575ff35e595173f5"  # frozen: v0.6.0
 hooks = [
   { id = "check-unicode",
     args = [

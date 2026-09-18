@@ -5,15 +5,15 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## Next release
+## 3.6.0 -- 2026-09-18
 
 ### Added
-* Support for `StaticStructureFactorDirect` in 2D.
-* `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
+* Support 2D simulation boxes in `StaticStructureFactorDirect`.
+* Add `oblique`, `rectangular`, and `graphene` lattices to `freud.data.UnitCell`.
 * Support for RAD filtering in systems with particles of different sizes.
 
 ### Fixed
-* Access k points from `StaticStructureFactorDirect`.
+* Access k points in `StaticStructureFactorDirect`.
 * Unit tests pass with scipy 1.17 installed (#1413).
 * ManagedArray accessors no longer allocate unnecessarily (#1465)
 * `voronoi_plot` works with matplotlib 3.11, which removed `matplotlib.cm.get_cmap` (#1455).

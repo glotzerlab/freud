@@ -29,7 +29,7 @@ namespace freud { namespace environment {
 struct Environment
 {
     //! Constructor.
-    Environment(bool ghost = false) : ghost(ghost) {}
+    Environment(bool ghost = false) : ghost(ghost) { }
 
     //! Add a vector to define the local environment
     void addVec(const vec3<float>& vec)
@@ -239,7 +239,7 @@ public:
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given
      * particle.
      */
-    EnvironmentCluster() : MatchEnv() {}
+    EnvironmentCluster() : MatchEnv() { }
 
     //! Destructor
     ~EnvironmentCluster();
@@ -327,7 +327,7 @@ class EnvironmentMotifMatch : public MatchEnv
 {
 public:
     //! Constructor
-    EnvironmentMotifMatch() : MatchEnv() {}
+    EnvironmentMotifMatch() : MatchEnv() { }
 
     //! Determine whether particles match a given input motif.
     /*! Given a motif composed of vectors that represent the vectors connecting
@@ -387,7 +387,7 @@ public:
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given
      * particle.
      */
-    EnvironmentRMSDMinimizer() : MatchEnv() {}
+    EnvironmentRMSDMinimizer() : MatchEnv() { }
 
     //! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt
     //! a given input motif.

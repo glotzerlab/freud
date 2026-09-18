@@ -29,7 +29,7 @@ NeighborList::NeighborList()
       m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>()),
       m_segments(std::make_shared<util::ManagedArray<unsigned int>>()),
       m_counts(std::make_shared<util::ManagedArray<unsigned int>>())
-{}
+{ }
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false),
@@ -39,7 +39,7 @@ NeighborList::NeighborList(unsigned int num_bonds)
       m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds)),
       m_segments(std::make_shared<util::ManagedArray<unsigned int>>()),
       m_counts(std::make_shared<util::ManagedArray<unsigned int>>())
-{}
+{ }
 
 NeighborList::NeighborList(const NeighborList& other)
     : m_num_query_points(other.m_num_query_points), m_num_points(other.m_num_points),

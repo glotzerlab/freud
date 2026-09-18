@@ -52,10 +52,9 @@ class _Compute:
                 return return_value
 
             return compute_wrapper
-        if attr == "plot":
-            if not self._called_compute:
-                msg = "The compute method must be called before calling plot."
-                raise AttributeError(msg)
+        if attr == "plot" and not self._called_compute:
+            msg = "The compute method must be called before calling plot."
+            raise AttributeError(msg)
         return attribute
 
     @staticmethod
@@ -156,10 +155,7 @@ def _convert_box(box, dimensions=None):
         :class:`freud.box.Box`: freud box.
     """
     if not isinstance(box, freud.box.Box):
-        try:
-            box = freud.box.Box.from_box(box)
-        except ValueError:
-            raise
+        box = freud.box.Box.from_box(box)
 
     if dimensions is not None and box.dimensions != dimensions:
         msg = f"The box must be {dimensions}-dimensional."

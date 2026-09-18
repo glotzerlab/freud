@@ -70,7 +70,7 @@ class TestAngularSeparationGlobal:
     def test_nlist_lifetime(self):
         def _get_nlist(sys):
             asn = freud.environment.AngularSeparationNeighbor()
-            asn.compute(sys, orientations=np.zeros((100, 4)), neighbors=dict(r_max=2.0))
+            asn.compute(sys, orientations=np.zeros((100, 4)), neighbors={"r_max": 2.0})
             return asn.nlist
 
         conftest.nlist_lifetime_check(_get_nlist)
@@ -122,7 +122,7 @@ class TestAngularSeparationNeighbor:
         )
 
         ang = freud.environment.AngularSeparationNeighbor()
-        qargs = dict(num_neighbors=num_neighbors, r_guess=r_guess, exclude_ii=True)
+        qargs = {"num_neighbors": num_neighbors, "r_guess": r_guess, "exclude_ii": True}
         ang.compute(
             (box, points),
             ors,
@@ -164,7 +164,7 @@ class TestAngularSeparationNeighbor:
             (box, points),
             ors,
             equiv_orientations=equivalent_orientations,
-            neighbors=dict(num_neighbors=num_neighbors, r_guess=r_guess),
+            neighbors={"num_neighbors": num_neighbors, "r_guess": r_guess},
         )
 
         # Should find that the angular separation between the first particle

@@ -51,7 +51,6 @@ class Benchmark:
             N (int):
                 Size of the input.
         """
-        pass
 
     def bench_run(self, N):
         """Run function for benchmark.
@@ -62,7 +61,6 @@ class Benchmark:
             N (int):
                 Size of the input.
         """
-        pass
 
     def bench_run_parallel(self, N, num_threads):
         """Run :py:meth:`~.bench_run` with :code:`num_threads` threads.

@@ -14,9 +14,12 @@ class TestNeighborList:
         self.L = 10
         self.N = 40
 
-        self.query_args = dict(
-            mode="nearest", num_neighbors=6, r_guess=3, exclude_ii=True
-        )
+        self.query_args = {
+            "mode": "nearest",
+            "num_neighbors": 6,
+            "r_guess": 3,
+            "exclude_ii": True,
+        }
 
         # Initialize Box and cell list
         box, points = freud.data.make_random_system(self.L, self.N, seed=1)
@@ -304,7 +307,7 @@ class TestNeighborList:
                 self.nlist.distances,
             )
         )
-        sorted_tuples = list(sorted(tuples))
+        sorted_tuples = sorted(tuples)
 
         assert tuples == sorted_tuples
 
@@ -315,7 +318,7 @@ class TestNeighborList:
         tuples = list(
             zip(nlist.query_point_indices, nlist.distances, nlist.point_indices)
         )
-        sorted_tuples = list(sorted(tuples))
+        sorted_tuples = sorted(tuples)
 
         assert tuples == sorted_tuples
 

@@ -30,7 +30,7 @@ class BondHistogramCompute
 {
 public:
     //! Default constructor
-    BondHistogramCompute() : m_box(box::Box()), m_histogram(), m_local_histograms() {}
+    BondHistogramCompute() : m_box(box::Box()), m_histogram(), m_local_histograms() { }
 
     //! Destructor
     virtual ~BondHistogramCompute() = default;

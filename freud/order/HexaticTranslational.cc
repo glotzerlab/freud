@@ -59,7 +59,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<lo
         });
 }
 
-Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) {}
+Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) { }
 
 void Hexatic::compute(const std::shared_ptr<locality::NeighborList>& nlist,
                       const std::shared_ptr<locality::NeighborQuery>& points,

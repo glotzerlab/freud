@@ -21,7 +21,7 @@ public:
         : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
                                         exclude_ii),
           m_cell_query(neighbor_query), m_query_point_idx(query_point_idx)
-    {}
+    { }
 
     //! Empty Destructor
     ~CellIterator() override = default;

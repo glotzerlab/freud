@@ -74,7 +74,7 @@ class TestHexatic:
 
             npt.assert_allclose(hop.particle_order[0], 1.0 + 0.0j, atol=1e-1)
 
-    @pytest.mark.parametrize("k", range(0, 12))
+    @pytest.mark.parametrize("k", range(12))
     def test_weighted_random(self, k):
         boxlen = 10
         N = 5000
@@ -159,7 +159,7 @@ class TestHexatic:
         hop.compute(system=(box, points), neighbors=voro.nlist)
         npt.assert_allclose(np.absolute(hop.particle_order), 0.0, atol=1e-5)
 
-    @pytest.mark.parametrize("k", range(0, 12))
+    @pytest.mark.parametrize("k", range(12))
     def test_normalization(self, k):
         """Verify normalizations for weighted and unweighted systems."""
         box = freud.Box.square(L=10)

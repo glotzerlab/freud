@@ -162,7 +162,7 @@ inline void AlignVectorSets(matrix& P, matrix& Q, matrix* pRotation = nullptr)
 class RegisterBruteForce
 {
 public:
-    explicit RegisterBruteForce(std::vector<vec3<float>>& vecs) : m_ref_points(makeEigenMatrix(vecs)) {};
+    explicit RegisterBruteForce(std::vector<vec3<float>>& vecs) : m_ref_points(makeEigenMatrix(vecs)) { };
 
     ~RegisterBruteForce() = default;
 

@@ -498,7 +498,7 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
     ax.set_aspect("equal", "datalim")
 
     # Add colorbar for number of sides
-    color_by_labels = dict(sides="Number of sides", area="Polytope Area")
+    color_by_labels = {"sides": "Number of sides", "area": "Polytope Area"}
     if color_by is not None:
         ax_divider = make_axes_locatable(ax)
         cax = ax_divider.append_axes("right", size="7%", pad="10%")

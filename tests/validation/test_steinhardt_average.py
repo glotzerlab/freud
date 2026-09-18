@@ -50,7 +50,7 @@ def _compute_comparison_data(system, average=False, weighted=False):
         nlist = voro.nlist
     else:
         # Use neighbors within radius
-        nbQueryDict = dict(mode="ball", r_max=1.4, exclude_ii=True)
+        nbQueryDict = {"mode": "ball", "r_max": 1.4, "exclude_ii": True}
         nq = freud.locality.AABBQuery.from_system(system)
         nlist = (
             nq.from_system(system)
@@ -60,10 +60,22 @@ def _compute_comparison_data(system, average=False, weighted=False):
     return _compute_steinhardts(
         system,
         [
-            dict(average=average, weighted=weighted, l=4),
-            dict(average=average, weighted=weighted, l=6),
-            dict(average=average, weighted=weighted, l=4, wl=True, wl_normalize=True),
-            dict(average=average, weighted=weighted, l=6, wl=True, wl_normalize=True),
+            {"average": average, "weighted": weighted, "l": 4},
+            {"average": average, "weighted": weighted, "l": 6},
+            {
+                "average": average,
+                "weighted": weighted,
+                "l": 4,
+                "wl": True,
+                "wl_normalize": True,
+            },
+            {
+                "average": average,
+                "weighted": weighted,
+                "l": 6,
+                "wl": True,
+                "wl_normalize": True,
+            },
         ],
         nlist,
     )

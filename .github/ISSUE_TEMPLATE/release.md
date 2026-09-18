@@ -1,7 +1,7 @@
 ---
 name: Release checklist
 about: '[for maintainer use]'
-title: 'Release freud 3.5.0'
+title: 'Release freud 3.6.0'
 labels: ''
 
 ---
@@ -12,7 +12,7 @@ To make a new freud release:
 
 On that branch, take the following steps (committing after each step when needed):
 
-- [ ] Run `prek autoupdate`.
+- [ ] Run `prek autoupdate --freze`.
 - [ ] Check for new or duplicate contributors since the last release and add entries to `.mailmap` to remove duplicates.
   * bash/zsh:
     ```
