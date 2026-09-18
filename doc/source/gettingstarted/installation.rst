@@ -71,9 +71,18 @@ To build **freud** from source:
 3.
    .. tab:: uv
 
-      `Install with uv`_::
+      `Install with uv`_:
 
-          uv pip install .
+      .. code-block:: bash
+
+        uv pip install .
+
+      To `Run tests`_:
+
+      .. code-block:: bash
+
+         cd tests
+         python3 -m pytest
 
    .. tab:: CMake
 
@@ -81,7 +90,7 @@ To build **freud** from source:
 
       .. code-block:: bash
 
-         eval "$(pixi shell-hook --environment py313)"
+         eval "$(pixi shell-hook --environment py314)"
 
       .. code-block:: bash
 
@@ -89,32 +98,12 @@ To build **freud** from source:
          cd build
          ninja
 
-To run the tests:
+      To `Run tests`_:
 
-1. `Run tests`_:
+      .. code-block:: bash
 
-   .. code-block:: bash
-
-      cd tests
-      PYTHONPATH=../build python3 -m pytest
-
-To build the documentation from source:
-
-1. `Install prerequisites`_:
-
-   .. code-block:: bash
-
-      eval "$(pixi shell-hook --environment py313)"
-
-2. `Build the documentation`_:
-
-   .. code-block:: bash
-
-      cd {{ path/to/freud/repository }}
-
-   .. code-block:: bash
-
-      sphinx-build -b html doc html
+          cd ../tests
+          PYTHONPATH=../build python3 -m pytest
 
 The sections below provide details on each of these steps.
 
@@ -123,11 +112,13 @@ The sections below provide details on each of these steps.
 Install prerequisites
 ^^^^^^^^^^^^^^^^^^^^^
 
-**freud** requires a number of tools and libraries to build.
+**freud** requires a number of tools and libraries to build. You can use the provided
+``pixi.toml`` to activate a Pixi environment with all of these installed. If you use another
+environment provider, install the following tools and packages:
 
 **General requirements:**
 
-- A C++17-compliant compiler.
+- A **C++17** compliant compiler.
 - **CMake** >= 3.15.0
 - **Intel Threading Building Blocks** >= 2019.7
 - **nanobind** >= 2.0.0
@@ -144,6 +135,16 @@ Install prerequisites
 - **rowan**
 - **scipy**
 - **sympy**
+
+**To build the documentation:**
+
+- **sphinx**
+- **nbsphinx**
+- **furo**
+- **jupyter_sphinx**
+- **sphinxcontrib-bibtex**
+- **sphinx-copybutton**
+
 
 .. _Obtain the source:
 
@@ -241,28 +242,48 @@ Run tests
 
 Use `pytest`_ to execute unit tests:
 
-.. code-block:: bash
-
-    cd {{ path/to/freud/repository }}
-    cd tests
 
 .. code-block:: bash
 
-   PYTHONPATH=../build python3 -m pytest
+   cd {{ path/to/freud/repository }}
+   cd tests
+
+.. tab:: uv
+
+   .. code-block:: bash
+
+      python3 -m pytest
+
+.. tab:: CMake
+
+   .. code-block:: bash
+
+      PYTHONPATH=../build python3 -m pytest
 
 .. _pytest: https://docs.pytest.org/
 
 
 .. _Build the documentation:
 
-Build the documentation
-^^^^^^^^^^^^^^^^^^^^^^^
+Build the documentation (optional)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run `Sphinx`_ to build the HTML documentation:
 
-.. code-block:: bash
+.. tab:: uv
 
-   PYTHONPATH=build sphinx-build -b html doc/source html
+   .. code-block:: bash
+
+      cd {{ path/to/freud/repository }}
+      cd doc
+      make html
+
+.. tab:: CMake
+
+   .. code-block:: bash
+
+      cd {{ path/to/freud/repository }}
+      PYTHONPATH=build sphinx-build -b html doc/source html
 
 Open the file :file:`html/index.html` in your web browser to view the documentation.
 
