@@ -11,6 +11,7 @@ functions that are useful for testing and examples.
 x), existing freud scripts may need to be updated. The API will be finalized in
 a future release.
 """
+
 from __future__ import annotations
 
 import numpy as np

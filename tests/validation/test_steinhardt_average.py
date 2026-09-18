@@ -62,8 +62,20 @@ def _compute_comparison_data(system, average=False, weighted=False):
         [
             {"average": average, "weighted": weighted, "l": 4},
             {"average": average, "weighted": weighted, "l": 6},
-            {"average": average, "weighted": weighted, "l": 4, "wl": True, "wl_normalize": True},
-            {"average": average, "weighted": weighted, "l": 6, "wl": True, "wl_normalize": True},
+            {
+                "average": average,
+                "weighted": weighted,
+                "l": 4,
+                "wl": True,
+                "wl_normalize": True,
+            },
+            {
+                "average": average,
+                "weighted": weighted,
+                "l": 6,
+                "wl": True,
+                "wl_normalize": True,
+            },
         ],
         nlist,
     )

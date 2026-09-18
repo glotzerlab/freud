@@ -106,7 +106,8 @@ class TestLocalBondProjection:
         ang.compute((box, points), ors, proj_vecs, neighbors=query_args)
 
         nlist = freud.locality.AABBQuery(box, points).query(
-            points, {"num_neighbors": num_neighbors, "r_guess": r_guess, "exclude_ii": True}
+            points,
+            {"num_neighbors": num_neighbors, "r_guess": r_guess, "exclude_ii": True},
         )
         bonds = [(i[0], i[1]) for i in nlist]
 

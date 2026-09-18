@@ -15,7 +15,10 @@ class TestNeighborList:
         self.N = 40
 
         self.query_args = {
-            "mode": "nearest", "num_neighbors": 6, "r_guess": 3, "exclude_ii": True
+            "mode": "nearest",
+            "num_neighbors": 6,
+            "r_guess": 3,
+            "exclude_ii": True,
         }
 
         # Initialize Box and cell list

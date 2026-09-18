@@ -57,7 +57,11 @@ def make_raw_query_nlist_test_set(
     if mode == "nearest":
         nlist = aq.query(
             query_points,
-            {"num_neighbors": num_neighbors, "exclude_ii": exclude_ii, "r_guess": r_max},
+            {
+                "num_neighbors": num_neighbors,
+                "exclude_ii": exclude_ii,
+                "r_guess": r_max,
+            },
         ).toNeighborList()
     test_set.append(((box, points), nlist))
     return test_set

@@ -126,9 +126,7 @@ class NeighborQueryTest:
         nlist = nq.query(
             points, {"mode": "ball", "r_max": r_max, "exclude_ii": True}
         ).toNeighborList()
-        nlist_neighbors = sorted(
-            zip(nlist.query_point_indices, nlist.point_indices)
-        )
+        nlist_neighbors = sorted(zip(nlist.query_point_indices, nlist.point_indices))
         # When excluding, everything has one less neighbor.
         npt.assert_equal(len(nlist_neighbors), 10)
 
@@ -211,7 +209,8 @@ class NeighborQueryTest:
         with pytest.raises(RuntimeError):
             list(
                 nq.query(
-                    points, {"mode": "ball", "num_neighbors": num_neighbors, "r_max": r_max}
+                    points,
+                    {"mode": "ball", "num_neighbors": num_neighbors, "r_max": r_max},
                 )
             )
 
@@ -231,7 +230,9 @@ class NeighborQueryTest:
 
         # Test with ball query.
         result = list(
-            nq.query(points, {"mode": "ball", "r_max": 2.9, "r_min": 1.1, "exclude_ii": True})
+            nq.query(
+                points, {"mode": "ball", "r_max": 2.9, "r_min": 1.1, "exclude_ii": True}
+            )
         )
         npt.assert_equal(get_point_neighbors(result, 0), {3})
         npt.assert_equal(get_point_neighbors(result, 1), {2})
@@ -242,7 +243,12 @@ class NeighborQueryTest:
         result = list(
             nq.query(
                 points,
-                {"mode": "nearest", "num_neighbors": 3, "r_min": 1.1, "exclude_ii": True},
+                {
+                    "mode": "nearest",
+                    "num_neighbors": 3,
+                    "r_min": 1.1,
+                    "exclude_ii": True,
+                },
             )
         )
         npt.assert_equal(get_point_neighbors(result, 0), {2, 3})
@@ -271,7 +277,9 @@ class NeighborQueryTest:
 
         # All other points are neighbors when self-neighbors are excluded.
         result = list(
-            nq.query(points, {"mode": "nearest", "num_neighbors": 3, "exclude_ii": True})
+            nq.query(
+                points, {"mode": "nearest", "num_neighbors": 3, "exclude_ii": True}
+            )
         )
         npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
@@ -282,7 +290,9 @@ class NeighborQueryTest:
         # query is sorted by ref_point by construction.
         npt.assert_equal(
             list(
-                nq.query(points, {"mode": "nearest", "num_neighbors": 5, "exclude_ii": True})
+                nq.query(
+                    points, {"mode": "nearest", "num_neighbors": 5, "exclude_ii": True}
+                )
             ),
             result,
         )
@@ -291,7 +301,12 @@ class NeighborQueryTest:
         result = list(
             nq.query(
                 points,
-                {"mode": "nearest", "num_neighbors": 3, "r_max": 1.9, "exclude_ii": True},
+                {
+                    "mode": "nearest",
+                    "num_neighbors": 3,
+                    "r_max": 1.9,
+                    "exclude_ii": True,
+                },
             )
         )
         npt.assert_equal(get_point_neighbors(result, 0), {1})
@@ -410,7 +425,9 @@ class NeighborQueryTest:
         exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
         nq = self.build_query_object(box, points, r_max)
-        result = list(nq.query(points, {"mode": "ball", "r_max": r_max, "exclude_ii": True}))
+        result = list(
+            nq.query(points, {"mode": "ball", "r_max": r_max, "exclude_ii": True})
+        )
         ijs = {(x[1], x[0]) for x in result}
         counts = Counter([x[1] for x in result])
         counts_list = [counts[j] for j in range(N)]
@@ -625,7 +642,9 @@ class TestNeighborQueryAABB(NeighborQueryTest):
             .toNeighborList()
         )
         abq = freud.locality.AABBQuery(box, points)
-        nlist2 = abq.query(points, {"r_max": r_max, "exclude_ii": True}).toNeighborList()
+        nlist2 = abq.query(
+            points, {"r_max": r_max, "exclude_ii": True}
+        ).toNeighborList()
         assert nlist_equal(nlist1, nlist2)
 
     @pytest.mark.parametrize(
@@ -648,7 +667,12 @@ class TestNeighborQueryAABB(NeighborQueryTest):
 
         nlist = nq.query(
             positions,
-            {"num_neighbors": k, "exclude_ii": True, "r_guess": r_guess, "scale": scale},
+            {
+                "num_neighbors": k,
+                "exclude_ii": True,
+                "r_guess": r_guess,
+                "scale": scale,
+            },
         ).toNeighborList()
         if original_nlist is not None:
             assert nlist_equal(nlist, original_nlist)
@@ -741,7 +765,9 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
 
         # Test with ball query.
         result = list(
-            nq.query(points, {"mode": "ball", "r_max": 2.9, "r_min": 1.1, "exclude_ii": True})
+            nq.query(
+                points, {"mode": "ball", "r_max": 2.9, "r_min": 1.1, "exclude_ii": True}
+            )
         )
         npt.assert_equal(get_point_neighbors(result, 0), {3})
         npt.assert_equal(get_point_neighbors(result, 1), {2})
@@ -781,7 +807,9 @@ class TestNeighborQueryCellQuery(NeighborQueryTest):
         nq = self.build_query_object(box, positions, L / 10)
 
         with pytest.raises(RuntimeError, match="CellQuery only supports"):
-            nq.query(positions, {"num_neighbors": k, "exclude_ii": True}).toNeighborList()
+            nq.query(
+                positions, {"num_neighbors": k, "exclude_ii": True}
+            ).toNeighborList()
 
     def test_duplicate_cell_shells(self):
         """CellQuery does not support nearest queries."""
@@ -1107,8 +1135,12 @@ class TestAABBQueryVsCellQuery:
         rp = freud.CellQuery(box, points)
 
         # Query with exclude_ii=True
-        nlist_aq = aq.query(points, {"r_max": r_max, "exclude_ii": True}).toNeighborList()
-        nlist_rp = rp.query(points, {"r_max": r_max, "exclude_ii": True}).toNeighborList()
+        nlist_aq = aq.query(
+            points, {"r_max": r_max, "exclude_ii": True}
+        ).toNeighborList()
+        nlist_rp = rp.query(
+            points, {"r_max": r_max, "exclude_ii": True}
+        ).toNeighborList()
 
         # Convert to sets of (query_idx, point_idx) pairs for comparison
         aq_pairs = set(zip(nlist_aq[0], nlist_aq[1]))

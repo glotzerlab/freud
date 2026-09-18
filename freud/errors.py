@@ -10,7 +10,6 @@ class FreudDeprecationWarning(UserWarning):
     """Raised when a freud feature is pending deprecation."""
 
 
-
 NO_DEFAULT_QUERY_ARGS_MESSAGE = (
     "The {} class does not provide default query arguments. Query arguments "
     "or a neighbor list must be provided to this compute method."
