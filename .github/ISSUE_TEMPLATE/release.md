@@ -1,7 +1,7 @@
 ---
 name: Release checklist
 about: '[for maintainer use]'
-title: 'Release freud 3.5.0'
+title: 'Release freud 3.6.0'
 labels: ''
 
 ---
