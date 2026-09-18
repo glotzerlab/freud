@@ -14,26 +14,30 @@ on:
 
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   run_tests:
     name: Unit test [py${{ matrix.python }} ${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
+        os: [ubuntu-26.04]
         python: ['312', '313', '314']
         include:
           # Test macOS, windows, and ARM Linux on oldest and latest versions.
-          - os: 'ubuntu-24.04-arm'
+          - os: 'ubuntu-26.04-arm'
             python: '314'
-          - os: 'macos-15'
+          - os: 'macos-26'
             python: '314'
           - os: 'windows-2025'
             python: '314'
           - os: 'windows-2025'
             python: '312'
-          - os: 'macos-14'
+          - os: 'macos-26'
             python: '312'
 
     steps:
@@ -41,6 +45,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
+          persist-credentials: false
 
       - name: Create Python Environment
         uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
@@ -62,8 +67,11 @@ jobs:
     if: always()
     needs: [run_tests]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-    - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'
-    - name: Done
-      run: echo "Done."
+    - run: jq --exit-status 'all(.result == "success")' <<< "${NEEDS}"
+      env:
+        NEEDS: ${{ toJson(needs) }}
+    - run: exit 0
