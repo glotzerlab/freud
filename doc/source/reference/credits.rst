@@ -13,6 +13,7 @@ The following people contributed to the development of freud:
 * Antonio Osorio, University of Michigan
 * Ben Swerdlow, University of Michigan
 * Benjamin Schultz, University of Michigan
+* Benjamin Schwartz, University of Michigan
 * Bradley Dice, University of Michigan
 * Brandon Butler, University of Michigan
 * Bryan VanSaders, University of Michigan
