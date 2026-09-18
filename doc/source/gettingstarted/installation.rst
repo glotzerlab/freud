@@ -90,7 +90,7 @@ To build **freud** from source:
 
       .. code-block:: bash
 
-         eval "$(pixi shell-hook --environment py313)"
+         eval "$(pixi shell-hook --environment py314)"
 
       .. code-block:: bash
 
@@ -102,7 +102,7 @@ To build **freud** from source:
 
       .. code-block:: bash
 
-          cd tests
+          cd ../tests
           PYTHONPATH=../build python3 -m pytest
 
 The sections below provide details on each of these steps.
@@ -112,7 +112,9 @@ The sections below provide details on each of these steps.
 Install prerequisites
 ^^^^^^^^^^^^^^^^^^^^^
 
-**freud** requires a number of tools and libraries to build.
+**freud** requires a number of tools and libraries to build. You can use the provided
+``pixi.toml`` to activate a Pixi environment with all of these installed. If you use another
+environment provider, install the following tools and packages:
 
 **General requirements:**
 
