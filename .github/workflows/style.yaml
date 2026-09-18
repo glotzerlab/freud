@@ -34,6 +34,7 @@ jobs:
       - name: clang-tidy
         run: git ls-files | grep -E '^freud.*(.h|.hpp|.hh|.cc|.cpp)$' | xargs clang-tidy-20 -fix -p build --warnings-as-errors=*
       - run: git diff --color
+        if: always()
 
   prek:
     runs-on: ubuntu-26.04
