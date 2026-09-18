@@ -69,7 +69,7 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    explicit ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) {}
+    explicit ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) { }
 
     /**
      * Copy constructor

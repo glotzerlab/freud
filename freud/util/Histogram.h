@@ -31,7 +31,7 @@ namespace freud { namespace util {
 template<typename T> struct Weight
 {
     Weight() = default;
-    explicit Weight(T value) : value(value), is_default(false) {}
+    explicit Weight(T value) : value(value), is_default(false) { }
 
     Weight& operator=(Weight other)
     {
@@ -60,7 +60,7 @@ public:
 
     virtual ~Axis() = default;
 
-    Axis(size_t nbins, float min, float max) : m_nbins(nbins), m_min(min), m_max(max) {}
+    Axis(size_t nbins, float min, float max) : m_nbins(nbins), m_min(min), m_max(max) { }
 
     // Return the number of bins in the histogram.
     size_t size() const
@@ -212,7 +212,7 @@ public:
 
         explicit ThreadLocalHistogram(const Histogram& histogram)
             : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); })
-        {}
+        { }
 
         using const_iterator = typename tbb::enumerable_thread_specific<Histogram>::const_iterator;
         using iterator = typename tbb::enumerable_thread_specific<Histogram>::iterator;
@@ -473,7 +473,7 @@ public:
     void reduceOverThreads(ThreadLocalHistogram& local_histograms)
     {
         // Simply call the per-bin function with a nullary function.
-        reduceOverThreadsPerBin(local_histograms, [](size_t i) {});
+        reduceOverThreadsPerBin(local_histograms, [](size_t i) { });
     }
 
     //! Writeable index into array.

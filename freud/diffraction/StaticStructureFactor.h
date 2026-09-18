@@ -31,9 +31,9 @@ public:
 
     virtual void accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                             const vec3<float>* query_points, unsigned int n_query_points,
-                            unsigned int n_total) {}; // Note: this should be pure
+                            unsigned int n_total) { }; // Note: this should be pure
 
-    virtual void reset() {}; // Note: this should be pure
+    virtual void reset() { }; // Note: this should be pure
 
     //! Get the structure factor
     std::shared_ptr<const util::ManagedArray<float>> getStructureFactor()
@@ -63,7 +63,7 @@ public:
     }
 
 protected:
-    virtual void reduce() {};
+    virtual void reduce() { };
 
     //! Return thing_to_return after reducing if necessary.
     template<typename U> U& reduceAndReturn(U& thing_to_return)

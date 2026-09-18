@@ -30,7 +30,7 @@ namespace freud { namespace environment {
 LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m,
                                    LocalDescriptorOrientation orientation)
     : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0), m_orientation(orientation)
-{}
+{ }
 
 void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery>& nq,
                                const vec3<float>* query_points, unsigned int n_query_points,
