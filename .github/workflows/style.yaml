@@ -13,14 +13,19 @@ on:
 
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   clang-tidy:
     name: Check C++ Code Style
     runs-on: ubuntu-26.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
+          persist-credentials: false
       - name: Create Python Environment
         uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
         with:
@@ -38,22 +43,42 @@ jobs:
 
   prek:
     runs-on: ubuntu-26.04
+    permissions:
+      contents: read
     steps:
     - name: Checkout
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: prek
       uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece # v3.0.0
       with:
         prek-version: 'v0.5.3'
 
+  zizmor:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Run zizmor
+      uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+      with:
+        advanced-security: false
+
   # This job is used to provide a single requirement for branch merge conditions.
   tests_complete:
     name: All style checks
     if: always()
-    needs: [clang-tidy, prek]
+    needs: [clang-tidy, prek, zizmor]
     runs-on: ubuntu-26.04
 
     steps:
-    - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'
-    - name: Done
-      run: exit 0
+    - run: jq --exit-status 'all(.result == "success")' <<< "${NEEDS}"
+      env:
+        NEEDS: ${{ toJson(needs) }}
+    - run: exit 0

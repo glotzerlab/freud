@@ -1,8 +1,5 @@
 name: release
 
-permissions:
-  contents: write
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -19,6 +16,8 @@ on:
 
   workflow_dispatch:
 
+permissions: {}
+
 defaults:
   run:
     shell: bash
@@ -31,24 +30,26 @@ jobs:
   build_wheels:
     name: Build wheels [${{ matrix.os.base }}-${{ matrix.os.arch }}]
     runs-on: ${{ matrix.os.base }}-${{ matrix.os.version }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         os:
         - base: ubuntu
-          version: 24.04
+          version: 26.04
           arch: 'x86_64'
         - base: ubuntu
-          version: 24.04-arm
+          version: 26.04-arm
           arch: 'aarch64'
         - base: windows
           version: 2025
           arch: 'amd64'
         - base: macos
-          version: 15
+          version: 26
           arch: 'arm64'
         - base: macos
-          version: 15
+          version: 26
           arch: 'intel'
 
         python:
@@ -70,6 +71,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: "recursive"
+          persist-credentials: false
 
       - name: Build wheels
         uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae # v4.2.1
@@ -95,11 +97,14 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-26.04
+    permissions:
+      contents: read
     steps:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: "recursive"
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -126,6 +131,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: upload
     permissions:
+      contents: read
       id-token: write
 
     steps:
@@ -141,27 +147,22 @@ jobs:
 
       - name: Upload to PyPI
         # upload to PyPI on every tag starting with 'v'
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.ref_type == 'tag'
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
 
       - name: Upload to TestPyPI
         # upload to TestPyPI on non-tags
-        if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+        if: github.ref_type != 'tag'
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
 
-      - name: Slack notification
-        if: startsWith(github.ref, 'refs/tags/v') || failure()
-        uses: act10ns/slack@d96404edccc6d6467fc7f8134a420c851b1e9054 # v2.2.0
-        with:
-          status: ${{ job.status }}
-          channel: '#dev-freud'
-
   source:
     name: Build source tarball
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Checkout
@@ -169,6 +170,7 @@ jobs:
       with:
         path: code
         submodules: true
+        persist-credentials: false
 
     - name: Determine filename-safe ref from GITHUB_REF_NAME
       run: echo ref="$(echo "${GITHUB_REF_NAME}" | sed  -e 's/\//-/g')" >> "$GITHUB_ENV"
@@ -194,12 +196,15 @@ jobs:
   release-notes:
     name: Extract release notes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Checkout
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: code
+        persist-credentials: false
 
     - name: Write release-notes.md
       # 1. Search for the content from the start of the file to the 2nd version heading.
@@ -239,13 +244,8 @@ jobs:
       run: ls -lR
 
     - name: Create release
-      uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          *.zst
-        body_path: release-notes.md
-        make_latest: true
+      if: github.ref_type == 'tag'
+      run: gh release create "${GITHUB_REF_NAME}" ./*.zst* -F release-notes.md --verify-tag --repo "${GITHUB_REPOSITORY}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -256,6 +256,7 @@ jobs:
     runs-on: ubuntu-26.04
 
     steps:
-    - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'
-    - name: Done
-      run: exit 0
+    - run: jq --exit-status 'all(.result == "success")' <<< "${NEEDS}"
+      env:
+        NEEDS: ${{ toJson(needs) }}
+    - run: exit 0
