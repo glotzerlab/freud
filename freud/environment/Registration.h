@@ -64,6 +64,7 @@ inline std::vector<vec3<float>> makeVec3Matrix(const matrix& m)
         throw std::invalid_argument(msg.str());
     }
     std::vector<vec3<float>> vecs;
+    vecs.reserve(m.rows());
     for (unsigned int i = 0; i < m.rows(); i++)
     {
         vecs.emplace_back(m(i, 0), m(i, 1), m(i, 2));

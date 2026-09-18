@@ -67,12 +67,12 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@f03ac7617d6cff873ccf24cc0d567ef5ba5a9e6d # v4.0.0
+        uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae # v4.2.1
         env:
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
@@ -94,15 +94,15 @@ jobs:
 
   build_sdist:
     name: Build source distribution
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: "recursive"
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
 
@@ -142,12 +142,12 @@ jobs:
       - name: Upload to PyPI
         # upload to PyPI on every tag starting with 'v'
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
 
       - name: Upload to TestPyPI
         # upload to TestPyPI on non-tags
         if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
-        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
@@ -165,7 +165,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: code
         submodules: true
@@ -197,7 +197,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: code
 
@@ -239,7 +239,7 @@ jobs:
       run: ls -lR
 
     - name: Create release
-      uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3
+      uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
@@ -253,7 +253,7 @@ jobs:
     name: Release (all checks)
     if: always()
     needs: [build_wheels, build_sdist, release-notes]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
     - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'

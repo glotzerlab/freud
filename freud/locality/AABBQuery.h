@@ -4,7 +4,6 @@
 #ifndef AABBQUERY_H
 #define AABBQUERY_H
 
-#include <cmath>
 #include <map>
 #include <memory>
 #include <unordered_set>

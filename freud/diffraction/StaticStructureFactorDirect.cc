@@ -75,7 +75,7 @@ void StaticStructureFactorDirect::accumulate(const std::shared_ptr<locality::Nei
     // The minimum valid k value is 2 * pi / L, where L is the smallest side length.
     const auto box_L = box.getL();
     const auto min_box_length
-        = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
+        = box.is2D() ? std::min(box_L.x, box_L.y) : std::min({box_L.x, box_L.y, box_L.z});
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / min_box_length);
 
     // Compute F_k for the points.

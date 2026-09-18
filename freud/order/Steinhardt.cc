@@ -179,12 +179,10 @@ void Steinhardt::baseCompute(const std::shared_ptr<freud::locality::NeighborList
                 {
                     auto& qlmi = m_qlmi[l_index];
                     const auto& Ylm = Ylms[l_index];
-                    // Get the initial index and iterate using ++ for faster iteration
-                    // Profiling showed using operator() to slow the code significantly.
-                    const size_t index = qlmi->getIndex({i, 0});
+                    auto* const qlmi_row = &(*qlmi)(i, 0);
                     for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                     {
-                        (*qlmi)[index + k] += weight * Ylm[k];
+                        qlmi_row[k] += weight * Ylm[k];
                     }
                 }
                 // Accumulate weight for normalization
@@ -192,31 +190,26 @@ void Steinhardt::baseCompute(const std::shared_ptr<freud::locality::NeighborList
             } // End loop going over neighbor bonds
 
             // Normalize!
-            const size_t qli_i_start = m_qli->getIndex({i, 0});
             for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
             {
                 // get l specific vectors/arrays
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t first_qlmi_index = qlmi->getIndex({i, 0});
-                const size_t qli_index = qli_i_start + l_index;
+                auto* const qlmi_row = &(*qlmi)(i, 0);
 
                 for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                 {
-                    // Cache the index for efficiency.
-                    const size_t qlmi_index = first_qlmi_index + k;
-
-                    (*qlmi)[qlmi_index] /= total_weight;
+                    qlmi_row[k] /= total_weight;
                     // Add the norm, which is the (complex) squared magnitude
-                    (*m_qli)[qli_index] += norm((*qlmi)[qlmi_index]);
+                    (*m_qli)(i, l_index) += norm(qlmi_row[k]);
                     // This array gets populated by computeAve in the averaging case.
                     if (!m_average)
                     {
-                        qlm_local.local()[k] += (*qlmi)[qlmi_index] / float(m_Np);
+                        qlm_local.local()[k] += qlmi_row[k] / float(m_Np);
                     }
                 }
-                (*m_qli)[qli_index] *= normalizationfactor[l_index];
-                (*m_qli)[qli_index] = std::sqrt((*m_qli)[qli_index]);
+                (*m_qli)(i, l_index) *= normalizationfactor[l_index];
+                (*m_qli)(i, l_index) = std::sqrt((*m_qli)(i, l_index));
             }
         });
 }
@@ -247,14 +240,12 @@ void Steinhardt::computeAve(const std::shared_ptr<freud::locality::NeighborList>
                 {
                     auto& qlmiAve = m_qlmiAve[l_index];
                     auto& qlmi = m_qlmi[l_index];
-                    const auto ave_index = qlmiAve->getIndex({i, 0});
-                    const auto nb_index = qlmi->getIndex({nb.getPointIdx(), 0});
+                    auto* const ave_row = &(*qlmiAve)(i, 0);
+                    auto* const nb_row = &(*qlmi)(nb.getPointIdx(), 0);
                     for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                     {
-                        // Adding all the qlm of the neighbors. We use the
-                        // vector function signature for indexing into the
-                        // arrays for speed.
-                        (*qlmiAve)[ave_index + k] += (*qlmi)[nb_index + k];
+                        // Adding all the qlm of the neighbors.
+                        ave_row[k] += nb_row[k];
                     }
                 }
                 neighborcount++;
@@ -262,28 +253,25 @@ void Steinhardt::computeAve(const std::shared_ptr<freud::locality::NeighborList>
 
             // Normalize!
 
-            const size_t qliAve_i_start = m_qliAve->getIndex({i, 0});
             for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
             {
                 auto& qlmiAve = m_qlmiAve[l_index];
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t first_qlmi_index = qlmiAve->getIndex({i, 0});
-                const size_t qliAve_index = qliAve_i_start + l_index;
+                auto* const ave_row = &(*qlmiAve)(i, 0);
+                auto* const nb_row = &(*qlmi)(i, 0);
 
                 for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                 {
-                    // Cache the index for efficiency.
-                    const size_t qlmi_index = first_qlmi_index + k;
                     // Add the qlm of the particle i itself
-                    (*qlmiAve)[qlmi_index] += (*qlmi)[qlmi_index];
-                    (*qlmiAve)[qlmi_index] /= static_cast<float>(neighborcount);
-                    qlm_local.local()[k] += (*qlmiAve)[qlmi_index] / float(m_Np);
+                    ave_row[k] += nb_row[k];
+                    ave_row[k] /= static_cast<float>(neighborcount);
+                    qlm_local.local()[k] += ave_row[k] / float(m_Np);
                     // Add the norm, which is the complex squared magnitude
-                    (*m_qliAve)[qliAve_index] += norm((*qlmiAve)[qlmi_index]);
+                    (*m_qliAve)(i, l_index) += norm(ave_row[k]);
                 }
-                (*m_qliAve)[qliAve_index] *= normalizationfactor[l_index];
-                (*m_qliAve)[qliAve_index] = std::sqrt((*m_qliAve)[qliAve_index]);
+                (*m_qliAve)(i, l_index) *= normalizationfactor[l_index];
+                (*m_qliAve)(i, l_index) = std::sqrt((*m_qliAve)(i, l_index));
             }
         });
 }
@@ -334,8 +322,6 @@ void Steinhardt::aggregatewl(
     util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            const auto target_particle_index = target->getIndex({i, 0});
-            const auto norm_particle_index = normalization_source->getIndex({i, 0});
             for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
             {
                 const auto l = m_ls[l_index];
@@ -344,14 +330,12 @@ void Steinhardt::aggregatewl(
                 const auto normalizationfactor = static_cast<float>(4.0 * M_PI / m_num_ms[l_index]);
                 const auto wigner3j_values = getWigner3j(l);
 
-                (*target)[target_particle_index + l_index]
-                    = reduceWigner3j(&(*source_l)({i, 0}), l, wigner3j_values);
+                (*target)(i, l_index) = reduceWigner3j(&(*source_l)(i, 0), l, wigner3j_values);
                 if (m_wl_normalize)
                 {
-                    const float normalization = std::sqrt(normalizationfactor)
-                        / (*normalization_source)[norm_particle_index + l_index];
-                    (*target)[target_particle_index + l_index]
-                        *= normalization * normalization * normalization;
+                    const float normalization
+                        = std::sqrt(normalizationfactor) / (*normalization_source)(i, l_index);
+                    (*target)(i, l_index) *= normalization * normalization * normalization;
                 }
             }
         }
