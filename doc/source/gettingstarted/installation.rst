@@ -78,7 +78,7 @@ To build **freud** from source:
         uv pip install .
 
       To `Run tests`_:
-       
+
       .. code-block:: bash
 
          cd tests
@@ -244,10 +244,10 @@ Use `pytest`_ to execute unit tests:
 
 
 .. code-block:: bash
-    
+
    cd {{ path/to/freud/repository }}
    cd tests
-   
+
 .. tab:: uv
 
    .. code-block:: bash
@@ -275,7 +275,7 @@ Run `Sphinx`_ to build the HTML documentation:
    .. code-block:: bash
 
       cd {{ path/to/freud/repository }}
-      cd doc 
+      cd doc
       make html
 
 .. tab:: CMake
