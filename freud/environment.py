@@ -342,7 +342,7 @@ class BondOrder(_SpatialHistogram):
                 the new computation; if False, will accumulate data (Default
                 value: True).
         """
-        if orientations is None and self._cpp_obj.getMode() != "bod":
+        if orientations is None and self._cpp_obj.getMode() != self.known_modes["bod"]:
             msg = "mode must be 'bod' when orientations are not provided."
             raise ValueError(msg)
 

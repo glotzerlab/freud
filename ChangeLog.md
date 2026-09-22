@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog] and this project adheres to
 [Keep a ChangeLog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
+## Next release
+
+### Fixed
+* Fix `mode must be 'bod' when orientations are not provided` error when the mode *is* `bod` (#2339).
+
 ## 3.6.0 -- 2026-09-18
 
 ### Added
