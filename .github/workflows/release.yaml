@@ -128,7 +128,7 @@ jobs:
   upload_pypi:
     name: Publish [PyPI]
     needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     concurrency: upload
     permissions:
       contents: read
@@ -160,7 +160,7 @@ jobs:
 
   source:
     name: Build source tarball
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
 
@@ -195,7 +195,7 @@ jobs:
 
   release-notes:
     name: Extract release notes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
 
@@ -230,7 +230,7 @@ jobs:
   publish_github:
     name: Publish [GitHub]
     needs: [release-notes, source]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
 
