@@ -74,7 +74,7 @@ jobs:
           persist-credentials: false
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299 # v4.3.1
+        uses: pypa/cibuildwheel@f11181315571b24e4a3c67f1a828532793f2df55 # v4.3.2
         env:
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
