@@ -1,6 +1,8 @@
 # Copyright (c) 2010-2026 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+import itertools
+
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -12,8 +14,8 @@ import freud
 
 def _sf_params():
     params_list = []
-    params_list.append((182, 7, 0.1, 2e3))
-    params_list.append((100, 13, 0.456, 1e4))
+    params_list.append((182, 7, 0.1, 8e3))
+    params_list.append((100, 13, 0.456, 4e4))
     params_list.append((50, 10, 0, 3e4))
     params_list.append((100, 9, 0, 8e5))
     return params_list
@@ -502,6 +504,29 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             bins=sf_direct.bin_edges,
         )
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
+
+    @pytest.mark.parametrize(
+        "box",
+        [
+            freud.box.Box.cube(4),
+            freud.box.Box(4, 5, 6, 0.5, -0.3, 0.8),
+            freud.box.Box(4, 5, xy=0.5, is2D=True),
+        ],
+    )
+    def test_oriented_system_against_full_grid(self, box):
+        bins, k_max, k_min = 5, 6, 2
+        d = np.array([0.7, 0.3, 0])
+        sf = self.build_structure_factor_object(bins, k_max, k_min)
+        sf.compute((box, np.array([[0, 0, 0], d], dtype=np.float32)))
+
+        dim = box.dimensions
+        grid = np.array(list(itertools.product(range(-10, 11), repeat=dim)))
+        k = 2 * np.pi * grid @ np.linalg.inv(box.to_matrix()[:dim, :dim])
+        k_mag = np.linalg.norm(k, axis=1)
+        S_k = 1 + np.cos(k @ d[:dim])
+        S_sum, _ = np.histogram(k_mag, bins=sf.bin_edges, weights=S_k)
+        counts, _ = np.histogram(k_mag, bins=sf.bin_edges)
+        npt.assert_allclose(sf.S_k, S_sum / counts, rtol=1e-4, atol=1e-4)
 
     def test_random_system_2D(self, sf_params):
         _, k_max, _k_min, _num_sampled_k_points = sf_params
