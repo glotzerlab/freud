@@ -9,6 +9,7 @@ characterize the particle environment.
 """
 
 import collections.abc
+import os
 import warnings
 from importlib import import_module
 from importlib.util import find_spec
@@ -1340,8 +1341,21 @@ class PGOP(_PairCompute):
         if isinstance(sigma, (np.floating, np.integer)):
             sigma = float(sigma)  # Spatula does not accept scalar numpy types
 
+        self._sync_spatula_threads()
         self._spatula_pgop.compute(system, sigma, neighbors, query_points=query_points)
         return self
+
+    @staticmethod
+    def _sync_spatula_threads():
+        """Match spatula's thread pool to freud's parallelization settings."""
+        num_threads = freud.parallel.get_num_threads()
+        if num_threads == 0:
+            num_threads = os.cpu_count()
+        spatula = _import_spatula()
+        if spatula.util.get_num_threads() != num_threads:
+            # spatula's setter also propagates to freud.parallel, which is fine because
+            # we always set it to the same value.
+            spatula.util.set_num_threads(num_threads)
 
     @_Compute._computed_property
     def particle_order(self):
