@@ -1277,10 +1277,14 @@ class PGOP(_PairCompute):
     def _build_cpp(self):
         """(Re)build the wrapped spatula.PGOP with the current settings."""
         spatula = _import_spatula()
-        self._spatula_pgop = spatula.PGOP(
-            symmetries=self._symmetries,
-            optimizer=self._make_optimizer(self._mesh_quaternions),
-        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", message="Gimbal lock detected", category=UserWarning
+            )
+            self._spatula_pgop = spatula.PGOP(
+                symmetries=self._symmetries,
+                optimizer=self._make_optimizer(self._mesh_quaternions),
+            )
 
     @property
     def default_query_args(self):
