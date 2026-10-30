@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 ## Next release
 
 ###  Added
+* Add `freud.environment.PGOP`, a useful subset of the `spatula` order parameter.
 
 ### Changed
 
