@@ -10,12 +10,17 @@ The format is based on [Keep a Changelog] and this project adheres to
 ###  Added
 
 ### Changed
+* `StaticStructureFactorDirect` is ~3.5x slower when `num_sampled_k_points=0` because it now samples
+  all k vectors. Set a value for `num_sampled_k_points` to restore the previous speed performance (#1500).
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+* `StaticStructureFactorDirect` samples k vectors in all directions, not only the positive octant
+  (quadrant in 2D) (#1500).
+* `StaticStructureFactorDirect` samples the correct range of k vectors in triclinic boxes (#1500).
 
 ## 3.6.1 -- 2026-09-22
 
