@@ -1165,7 +1165,7 @@ class PGOP(_PairCompute):
     already symmetric in the box frame. For further control of optimizers, see
     the ``spatula`` package.
 
-    .. info::
+    .. note::
 
         Optimization of neighborhood rotations can be very expensive. The default
         mesh of 600 rotations (the identity rotation and a Fibonacci lattice of
