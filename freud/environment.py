@@ -10,6 +10,7 @@ characterize the particle environment.
 
 import collections.abc
 import warnings
+from importlib import import_module
 from importlib.util import find_spec
 
 import numpy as np
@@ -36,6 +37,27 @@ if _HAS_MPL:
     import freud.plot
 else:
     msg_mpl = "Plotting requires matplotlib."
+
+# The number of rotations in the mesh searched by PGOP's default optimizer
+_DEFAULT_MESH_ROTATION_COUNT = 600
+
+msg_spatula = (
+    "The freud.environment.PGOP class requires the optional dependency "
+    "spatula. Install it with 'pip install spatula-analysis' or "
+    "'pip install freud-analysis[spatula]'."
+)
+
+
+def _import_spatula():
+    """Import and return the optional dependency spatula.
+
+    Deferred to call time so that freud can be imported without spatula installed, and
+    so that importing freud never triggers a circular import (spatula imports freud).
+    """
+    try:
+        return import_module("spatula")
+    except ImportError as err:
+        raise ImportError(msg_spatula) from err
 
 
 class AngularSeparationNeighbor(_PairCompute):
@@ -1115,3 +1137,247 @@ class LocalBondProjection(_PairCompute):
 
     def __repr__(self):
         return f"freud.environment.{type(self).__name__}()"
+
+
+class PGOP(_PairCompute):
+    r"""Compute the point group order parameter of the environment around each particle.
+
+    The PGOP quantifies the degree to which the set of vectors from a particle to its
+    neighbors possesses each of a set of point group symmetries, on a continuous scale
+    from 0 (no symmetry) to 1 (perfect symmetry) :cite:`Fijan2026`. Each neighboring
+    particle position is treated as the mean of a Gaussian distribution of width
+    :code:`sigma`. All point groups of finite order are supported, and can be specified
+    using Schönflies notation.
+
+    .. note::
+
+        This class is a wrapper around :class:`spatula.PGOP` from the
+        optional dependency `spatula <https://spatula.readthedocs.io>`_, which
+        provides a variety of additional features. These include the optimal rotations
+        of each environment, per-symmetry-operator values, and a variant of PGOP on bond
+        orientational order diagrams.
+
+    Finding the PGOP requires optimizing over all possible orientations of each
+    environment. By default, this class searches over a mesh of rotations
+    followed by a final refinement via step gradient descent. We include the identity
+    rotation in the mesh so that the optimizer is exact for environments that are
+    already symmetric in the box frame. For further control of optimizers, see
+    the ``spatula`` package.
+
+    .. info::
+
+        Optimization of neighborhood rotations can be very expensive. The default
+        mesh of 600 rotations (the identity rotation and a Fibonacci lattice of
+        599 rotations) is generally sufficient for high-quality crystals with
+        :code:`sigma>=0.075`, but very fine Gaussians or noisy crystals may
+        require finer meshes. Set :code:`mesh_quaternions` to control this
+        effect. Note that the cost of the order parameter scales linearly with
+        the number of rotations.
+
+    Example::
+
+        >>> fcc = freud.data.UnitCell.fcc().generate_system(3, seed=0)
+        >>> pgop = freud.environment.PGOP(symmetries=["Oh", "D3h"])
+        >>> # An r_max of 1.3 covers the first three neighbor shells of fcc.
+        >>> pgop.compute(fcc, sigma=0.075, neighbors={"r_max": 1.3})
+        freud.environment.PGOP(symmetries=['Oh', 'D3h'], mesh_quaternions=600)
+        >>> print(np.round(pgop.order, 3))
+        [1. 0.615]
+
+    To evaluate only a set of known orientations, provide them as
+    :code:`mesh_quaternions`. A crystal aligned with the box is already in its most
+    symmetric orientation, so the identity rotation alone is optimal. However, other
+    symmetry groups not possessed by particle environments may not be maximized along
+    the crystal's orientation::
+
+        >>> pgop.mesh_quaternions = [1, 0, 0, 0] # Identity quaternion.
+        >>> pgop.compute(fcc, sigma=0.075, neighbors={"r_max": 1.3})
+        freud.environment.PGOP(symmetries=['Oh', 'D3h'],
+        mesh_quaternions=array([[1., 0., 0., 0.]]))
+        >>> print(np.round(pgop.order, 3))
+        [1. 0.447]
+
+    Args:
+        symmetries (sequence of str):
+            The point group symmetries to test each environment against, in
+            Schönflies notation (case-sensitive): :code:`Ci`, :code:`Cs`, :code:`Cn`,
+            :code:`Cnh`, :code:`Cnv`, :code:`Sn`, :code:`Dn`, :code:`Dnh`, :code:`Dnd`,
+            :code:`T`, :code:`Th`, :code:`Td`, :code:`O`, :code:`Oh`, :code:`I`, and
+            :code:`Ih`, where :code:`n` is the order of the principal axis. The columns
+            of :attr:`order` and :attr:`particle_order` follow the ordering of the
+            input sequence of symmetries.
+        mesh_quaternions (int or (:math:`N_{q}`, 4) :class:`numpy.ndarray`, optional):
+            The mesh of rotations searched before the final gradient descent
+            refinement. If an int, the mesh is the identity rotation followed
+            by :code:`mesh_quaternions - 1` rotations sampled pseudo-uniformly
+            on the 3-sphere. Pass an array of quaternions in :math:`[w, x, y, z]` order
+            to set the optimization mesh to a specific set of rotations. Quaternions are
+            normalized on input (Default value = :code:`600`).
+    """
+
+    def __init__(self, symmetries, mesh_quaternions=_DEFAULT_MESH_ROTATION_COUNT):
+        super().__init__()
+
+        if isinstance(symmetries, str):
+            msg = "symmetries must be a sequence of str instances, not a single str."
+            raise TypeError(msg)
+
+        self._symmetries = list(symmetries)
+        self._mesh_quaternions = self._parse_mesh_quaternions(mesh_quaternions)
+        self._build_cpp()
+
+    @staticmethod
+    def _parse_mesh_quaternions(mesh_quaternions):
+        """Normalize the mesh quaternions argument."""
+        if isinstance(mesh_quaternions, (int, np.integer)):
+            mesh_quaternions = int(mesh_quaternions)
+            if mesh_quaternions < 1:
+                msg = (
+                    "If an int, mesh_quaternions must be positive (the number "
+                    "of rotations in the default mesh)."
+                )
+                raise ValueError(msg)
+            return mesh_quaternions
+        try:
+            quaternions = np.atleast_2d(np.asarray(mesh_quaternions, dtype=np.float64))
+        except (TypeError, ValueError) as err:
+            msg = (
+                "mesh_quaternions must be an int, a quaternion of shape (4,) "
+                "or an array of quaternions of shape (N, 4)."
+            )
+            raise ValueError(msg) from err
+        if quaternions.ndim != 2 or quaternions.shape[1] != 4:
+            msg = (
+                "mesh_quaternions must be an int, a quaternion of shape (4,) "
+                "or an array of quaternions of shape (N, 4)."
+            )
+            raise ValueError(msg)
+        norms = np.linalg.norm(quaternions, axis=1)
+        if len(quaternions) == 0 or np.any(norms == 0):
+            msg = "mesh_quaternions must contain at least one nonzero quaternion."
+            raise ValueError(msg)
+        return quaternions / norms[:, np.newaxis]
+
+    @staticmethod
+    def _make_optimizer(mesh_quaternions):
+        """Build an optimizer from the mesh quaternions."""
+        spatula = _import_spatula()
+        if isinstance(mesh_quaternions, int):
+            # Use spatula's Fibonacci lattice so that the default mesh matches
+            # the lattice of spatula.optimize.Mesh.from_lattice.
+            lattice = spatula.optimize._quaternion_fibonacci_lattice(
+                mesh_quaternions - 1
+            )
+            quaternions = np.concatenate([[[1.0, 0.0, 0.0, 0.0]], lattice])
+        else:
+            quaternions = mesh_quaternions
+        mesh = spatula.optimize.Mesh(quaternions)
+        return spatula.optimize.Union.with_step_gradient_descent(mesh)
+
+    def _build_cpp(self):
+        """(Re)build the wrapped spatula.PGOP with the current settings."""
+        spatula = _import_spatula()
+        self._spatula_pgop = spatula.PGOP(
+            symmetries=self._symmetries,
+            optimizer=self._make_optimizer(self._mesh_quaternions),
+        )
+
+    @property
+    def default_query_args(self):
+        """No default query arguments."""
+        raise NotImplementedError(
+            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__)
+        )
+
+    def compute(self, system, sigma=None, neighbors=None, query_points=None):
+        r"""Compute the PGOP of the local environment of each query point.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            sigma (float or (:math:`N_{points}`,) :class:`numpy.ndarray`, optional):
+                The standard deviation of the Gaussian distribution of each
+                neighbor vector, in distance units. Smaller values are more
+                concentrated around the neighbor vectors, larger values are
+                more spread out. If an array, provide one value per point in the
+                system. If :code:`None`, a value is chosen automatically such
+                that the Gaussian evaluated at half of the smallest bond
+                distance has 25% of its maximum height (Default value: :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
+                Query arguments or a neighbor list must be provided; PGOP has
+                no default query arguments (Default value: None).
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                The points to compute the PGOP for. Uses the system's points
+                if :code:`None`. Ignored if :code:`neighbors` is a
+                :class:`~.locality.NeighborList` (Default value: :code:`None`).
+
+        Returns:
+            :class:`PGOP`: self
+        """  # noqa: E501
+        if neighbors is None:
+            raise NotImplementedError(
+                NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__)
+            )
+        if isinstance(neighbors, dict):
+            neighbors = neighbors.copy()
+            neighbors.setdefault("exclude_ii", query_points is None)
+        elif type(neighbors) is not freud.locality.NeighborList:
+            msg = (
+                "An invalid value was provided for neighbors, "
+                "which must be a dict or NeighborList object."
+            )
+            raise ValueError(msg)
+
+        if isinstance(sigma, (np.floating, np.integer)):
+            sigma = float(sigma)  # Spatula does not accept scalar numpy types
+
+        self._spatula_pgop.compute(system, sigma, neighbors, query_points=query_points)
+        return self
+
+    @_Compute._computed_property
+    def particle_order(self):
+        r""":math:`\left(N_{particles}, N_{symmetries}\right)` :class:`numpy.ndarray`:
+        The PGOP value in :math:`[0, 1]` of the environment of each particle for each of
+        the requested point group symmetries, in the order given by :code:`symmetries`.
+        Particles with no neighbors have a value of :code:`nan`."""
+        return self._spatula_pgop.order
+
+    @_Compute._computed_property
+    def order(self):
+        r""":math:`\left(N_{symmetries}\right)` :class:`numpy.ndarray`:
+        The average of :attr:`particle_order` over all particles, one value per
+        requested point group symmetry in the order given by :code:`symmetries`."""
+        return np.nanmean(self.particle_order, axis=0)
+
+    @property
+    def symmetries(self):
+        """list of str: The point group symmetries tested, in the order that
+        determines the columns of :attr:`order` and :attr:`particle_order`."""
+        return self._symmetries
+
+    @property
+    def mesh_quaternions(self):
+        r"""int or (:math:`\left(N_{quaternions}, 4\right)` :class:`numpy.ndarray`):
+        The mesh of rotations searched before the final gradient descent refinement.
+        An int is the number of rotations in the default mesh, the identity rotation
+        followed by a Fibonacci lattice of :code:`mesh_quaternions - 1` rotations. An
+        array of unit quaternions in :math:`[w, x, y, z]` order is searched as provided.
+        """
+        return self._mesh_quaternions
+
+    @mesh_quaternions.setter
+    def mesh_quaternions(self, value):
+        self._mesh_quaternions = self._parse_mesh_quaternions(value)
+        self._build_cpp()
+
+    def __repr__(self):
+        return (
+            f"freud.environment.{type(self).__name__}"
+            f"(symmetries={self._symmetries}, "
+            f"mesh_quaternions={self._mesh_quaternions!r})"
+        )
