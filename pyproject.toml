@@ -33,6 +33,9 @@ dependencies = ["numpy>=1.19", "rowan>=1.2.1", "scipy>=1.1", "parsnip-cif>=0.2.0
 keywords = ["simulation", "analysis", "molecular dynamics", "soft matter",
             "particle", "system", "computational", "physics"]
 
+[project.optional-dependencies]
+spatula = ["spatula-analysis>=0.2.0"]
+
 [project.urls]
 Documentation = "https://freud.readthedocs.io"
 Download = "https://pypi.org/project/freud-analysis/"

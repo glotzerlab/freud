@@ -16,6 +16,7 @@ Environment Module
     freud.environment.AngularSeparationGlobal
     freud.environment.AngularSeparationNeighbor
     freud.environment.LocalBondProjection
+    freud.environment.PGOP
 
 .. rubric:: Details
 

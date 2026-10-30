@@ -8,13 +8,23 @@ import pytest
 
 import freud
 
+try:
+    import spatula
+except ImportError:
+    spatula = None
+
+# Docstrings that require optional dependencies to execute.
+_OPTIONAL_DEPENDENCY_DOCTESTS = () if spatula else ("freud.environment.PGOP",)
+
 
 def fetch_doctests():
     finder = doctest.DocTestFinder()
     for _name, member in inspect.getmembers(freud):
         if inspect.ismodule(member):
             for docstring in finder.find(member):
-                if docstring.examples:
+                if docstring.examples and docstring.name not in (
+                    _OPTIONAL_DEPENDENCY_DOCTESTS
+                ):
                     yield docstring
 
 
