@@ -128,7 +128,6 @@ environment provider, install the following tools and packages:
 
 **To execute unit tests:**
 
-- **dynasor** (optional)
 - **gsd**
 - **matplotlib**
 - **pytest**
