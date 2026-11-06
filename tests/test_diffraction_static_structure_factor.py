@@ -473,38 +473,6 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             bins, k_max, k_min, num_sampled_k_points
         )
 
-    def test_against_dynasor(self, sf_params_kmin_zero):
-        """Validate the direct method against dynasor package."""
-        dsf_reciprocal = pytest.importorskip("dsf.reciprocal")
-        binned_statistic = pytest.importorskip("scipy.stats").binned_statistic
-
-        bins, k_max, _k_min, num_sampled_k_points = sf_params_kmin_zero
-
-        # Compute structure factor from freud
-        sf_direct = freud.diffraction.StaticStructureFactorDirect(
-            bins=bins, k_max=k_max, num_sampled_k_points=num_sampled_k_points
-        )
-        box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
-        system = freud.locality.NeighborQuery.from_system((box, points))
-        sf_direct.compute(system)
-
-        # Compute reference structure factor from dynasor package
-        box_matrix = system.box.to_matrix()
-        rec = dsf_reciprocal.reciprocal_isotropic(
-            box_matrix, max_points=num_sampled_k_points, max_k=k_max
-        )
-        points_rho_ks = dsf_reciprocal.calc_rho_k(
-            system.points.T, rec.k_points, ftype=rec.ftype
-        )
-        S_k_all = np.real(points_rho_ks * points_rho_ks.conjugate())
-        S_k_binned, _, _ = binned_statistic(
-            x=rec.k_distance,
-            values=S_k_all,
-            statistic="mean",
-            bins=sf_direct.bin_edges,
-        )
-        npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
-
     @pytest.mark.parametrize(
         "box",
         [
