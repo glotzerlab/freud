@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog] and this project adheres to
 ###  Added
 
 ### Changed
-* `StaticStructureFactorDirect` is ~3.5x slower when `num_sampled_k_points=0` because it now samples
-  all k vectors. Set a value for `num_sampled_k_points` to restore the previous speed performance (#1500).
 
 ### Deprecated
 
