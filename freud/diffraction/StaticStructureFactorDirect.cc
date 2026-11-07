@@ -304,7 +304,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
         // Above the pruning distance, the grid of k points is sampled isotropically
         // at a lower density.
         const auto q_prune_distance = get_prune_distance2D(num_sampled_k_points, q_max, q_area);
-        const auto N_kx = static_cast<int>(std::ceil(q_max * box_matrix.row(0).norm()));
+        const auto N_kx = static_cast<size_t>(std::ceil(q_max * box_matrix.row(0).norm()));
         const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), 0.0);
         const auto by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), 0.0);
         // Since S(k) = S(-k), we only sample the half plane kx > 0 or (kx = 0 and ky >= 0).
@@ -317,7 +317,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
             std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
             std::uniform_real_distribution<float> base_dist(0, 1);
             const auto add_all_k_points = std::isinf(q_prune_distance);
-            for (auto kx = static_cast<int>(begin); kx < static_cast<int>(end); ++kx)
+            for (size_t kx = begin; kx < end; ++kx)
             {
                 const auto k_vec_x = static_cast<float>(kx) * bx;
 
@@ -342,7 +342,8 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                 {
                     if (ky > ky_inner_min + 1 && ky < ky_inner_max - 1)
                     {
-                        continue;
+                        // Skip the k_min hole: jump to the first index past it.
+                        ky = ky_inner_max - 1;
                     }
                     const auto k_vec = k_vec_x + static_cast<float>(ky) * by;
                     const auto q_distance_sq
@@ -376,7 +377,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
         const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), B(0, 2));
         const auto by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), B(1, 2));
         const auto bz = freud::constants::TWO_PI * vec3<float>(B(2, 0), B(2, 1), B(2, 2));
-        const auto N_kx = static_cast<int>(std::ceil(q_max * box_matrix.row(0).norm()));
+        const auto N_kx = static_cast<size_t>(std::ceil(q_max * box_matrix.row(0).norm()));
         const auto N_ky = static_cast<int>(std::ceil(q_max * box_matrix.row(1).norm()));
         const auto q_prune_distance_sq = q_prune_distance * q_prune_distance;
         // Since S(k) = S(-k), we only sample the half space kx > 0, (kx = 0 and ky > 0), or
@@ -390,7 +391,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
             std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
             std::uniform_real_distribution<float> base_dist(0, 1);
             const auto add_all_k_points = std::isinf(q_prune_distance);
-            for (auto kx = static_cast<int>(begin); kx < static_cast<int>(end); ++kx)
+            for (size_t kx = begin; kx < end; ++kx)
             {
                 const auto k_vec_x = static_cast<float>(kx) * bx;
                 for (int ky = (kx == 0) ? 0 : -N_ky; ky <= N_ky; ++ky)
@@ -417,7 +418,8 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                     {
                         if (kz > kz_inner_min + 1 && kz < kz_inner_max - 1)
                         {
-                            continue;
+                            // Skip the k_min hole: jump to the first index past it.
+                            kz = kz_inner_max - 1;
                         }
                         const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
                         const auto q_distance_sq
