@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog] and this project adheres to
 ###  Added
 
 ### Changed
+* `StaticStructureFactorDirect` and `Hexatic` compute complex exponentials with Euler's
+  formula instead of `std::exp` on complex numbers with real parts always zero (#1516).
 
 ### Deprecated
 
