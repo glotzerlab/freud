@@ -143,7 +143,7 @@ StaticStructureFactorDirect::compute_F_k(const vec3<float>* points, unsigned int
                 const auto& k_vec(k_points[k_index]);
                 const auto& r_vec(points[r_index]);
                 const auto alpha(dot(k_vec, r_vec));
-                F_ki += std::exp(std::complex<float>(0, alpha));
+                F_ki += std::complex<float>(std::cos(alpha), std::sin(alpha));
             }
             F_k[k_index] = F_ki * normalization;
         }
