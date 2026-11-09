@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog] and this project adheres to
 ### Removed
 
 ### Fixed
+* `StaticStructureFactorDirect` samples k vectors in all directions, not only the positive octant
+  (quadrant in 2D) (#1500).
+* `StaticStructureFactorDirect` samples the correct range of k vectors in triclinic boxes (#1500).
 
 ## 3.6.1 -- 2026-09-22
 
