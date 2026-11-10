@@ -22,6 +22,7 @@ The following people contributed to the development of freud:
 * Carolyn Phillips, University of Michigan
 * Charlotte Zhao, University of Michigan
 * Chrisy Du, University of Michigan
+* Chris Jones, Heriot-Watt University
 * Domagoj Fijan, University of Michigan
 * Dylan Marx, University of Michigan
 * Emily Siew, University of Michigan
