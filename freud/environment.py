@@ -15,6 +15,7 @@ from importlib import import_module
 from importlib.util import find_spec
 
 import numpy as np
+import spatula
 
 import freud._environment
 import freud.box
@@ -41,24 +42,6 @@ else:
 
 # The number of rotations in the mesh searched by PGOP's default optimizer
 _DEFAULT_MESH_ROTATION_COUNT = 600
-
-msg_spatula = (
-    "The freud.environment.PGOP class requires the optional dependency "
-    "spatula. Install it with 'pip install spatula-analysis' or "
-    "'pip install freud-analysis[spatula]'."
-)
-
-
-def _import_spatula():
-    """Import and return the optional dependency spatula.
-
-    Deferred to call time so that freud can be imported without spatula installed, and
-    so that importing freud never triggers a circular import (spatula imports freud).
-    """
-    try:
-        return import_module("spatula")
-    except ImportError as err:
-        raise ImportError(msg_spatula) from err
 
 
 class AngularSeparationNeighbor(_PairCompute):
@@ -1262,7 +1245,6 @@ class PGOP(_PairCompute):
     @staticmethod
     def _make_optimizer(mesh_quaternions):
         """Build an optimizer from the mesh quaternions."""
-        spatula = _import_spatula()
         if isinstance(mesh_quaternions, int):
             # Use spatula's Fibonacci lattice so that the default mesh matches
             # the lattice of spatula.optimize.Mesh.from_lattice.
@@ -1277,7 +1259,6 @@ class PGOP(_PairCompute):
 
     def _build_cpp(self):
         """(Re)build the wrapped spatula.PGOP with the current settings."""
-        spatula = _import_spatula()
         with warnings.catch_warnings():
             warnings.filterwarnings(
                 "ignore", message="Gimbal lock detected", category=UserWarning
@@ -1351,7 +1332,6 @@ class PGOP(_PairCompute):
         num_threads = freud.parallel.get_num_threads()
         if num_threads == 0:
             num_threads = os.cpu_count()
-        spatula = _import_spatula()
         if spatula.util.get_num_threads() != num_threads:
             # spatula's setter also propagates to freud.parallel, which is fine because
             # we always set it to the same value.

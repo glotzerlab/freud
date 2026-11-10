@@ -3,11 +3,9 @@
 
 import numpy as np
 import pytest
+import spatula
 
 import freud
-
-spatula = pytest.importorskip("spatula")
-
 
 class TestPGOP:
     def test_defaults(self):
