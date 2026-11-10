@@ -8,6 +8,7 @@ import pytest
 
 import freud
 
+
 def fetch_doctests():
     finder = doctest.DocTestFinder()
     for _name, member in inspect.getmembers(freud):
