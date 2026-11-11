@@ -57,13 +57,7 @@ jobs:
 
       - name: Build and Install freud
         run: |
-          uv pip install . --no-build-isolation --no-deps -v --system
-
-      - name: Install optional test dependencies
-        # Not fatal: spatula does not publish wheels for every tested platform, so
-        # we continue if it is missing.
-        continue-on-error: true
-        run: uv pip install spatula-analysis --system
+          uv pip install . --no-build-isolation --no-deps -v
 
       - name: Run Tests
         run: pytest tests/ -v
