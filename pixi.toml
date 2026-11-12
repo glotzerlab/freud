@@ -33,6 +33,7 @@ jupyter_sphinx = "*"
 sphinxcontrib-bibtex = "*"
 sphinx-copybutton = "*"
 prek = "*"
+spatula = "*"
 
 [feature.py312.dependencies]
 python = "3.12.*"

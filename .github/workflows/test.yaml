@@ -57,7 +57,7 @@ jobs:
 
       - name: Build and Install freud
         run: |
-          uv pip install . --no-build-isolation --no-deps -v --system
+          uv pip install . --no-build-isolation --no-deps -v
 
       - name: Run Tests
         run: pytest tests/ -v
