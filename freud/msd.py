@@ -274,12 +274,14 @@ class MSD(_Compute):
         """:class:`freud.box.Box`: Box used in the calculation."""
         return self._box
 
+    @property
     @_Compute._computed_property
     def msd(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
         squared displacement."""
         return np.concatenate(self._particle_msd, axis=1).mean(axis=-1)
 
+    @property
     @_Compute._computed_property
     def particle_msd(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{frames}, N_{particles} \\right)` :class:`numpy.ndarray`: The per

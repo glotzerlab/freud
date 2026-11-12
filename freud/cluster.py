@@ -90,17 +90,20 @@ class Cluster(_PairCompute):
         self._cpp_obj.compute(nq._cpp_obj, nlist._cpp_obj, qargs._cpp_obj, keys)
         return self
 
+    @property
     @_Compute._computed_property
     def num_clusters(self) -> int:
         """int: The number of clusters."""
         return self._cpp_obj.getNumClusters()
 
+    @property
     @_Compute._computed_property
     def cluster_idx(self) -> npt.NDArray[np.integer]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: The cluster index for
         each point."""
         return self._cpp_obj.getClusterIdx().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def cluster_keys(self) -> list[list[int]]:
         """list(list): A list of lists of the keys contained in each
@@ -199,6 +202,7 @@ class ClusterProperties(_Compute):
         self._cpp_obj.compute(nq._cpp_obj, cluster_idx, masses)
         return self
 
+    @property
     @_Compute._computed_property
     def centers(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The geometric centers
@@ -214,6 +218,7 @@ class ClusterProperties(_Compute):
         """
         return self._cpp_obj.getClusterCenters().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def centers_of_mass(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of mass
@@ -230,6 +235,7 @@ class ClusterProperties(_Compute):
         """
         return self._cpp_obj.getClusterCentersOfMass().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def gyrations(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
@@ -248,6 +254,7 @@ class ClusterProperties(_Compute):
         """
         return self._cpp_obj.getClusterGyrations().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def inertia_tensors(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The inertia
@@ -266,11 +273,13 @@ class ClusterProperties(_Compute):
         """
         return self._cpp_obj.getClusterMomentsOfInertia().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def sizes(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The cluster sizes."""
         return self._cpp_obj.getClusterSizes().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def cluster_masses(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The total mass of
@@ -278,6 +287,7 @@ class ClusterProperties(_Compute):
         """
         return self._cpp_obj.getClusterMasses().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def radii_of_gyration(self) -> npt.NDArray[np.floating]:
         r"""(:math:`N_{clusters}`,) :class:`numpy.ndarray`: The radius of

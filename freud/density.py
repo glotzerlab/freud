@@ -143,6 +143,7 @@ class CorrelationFunction(_SpatialHistogram1D):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def correlation(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
@@ -245,6 +246,7 @@ class GaussianDensity(_Compute):
             width_vector[0], width_vector[1], width_vector[2], r_max, sigma
         )
 
+    @property
     @_Compute._computed_property
     def box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: Box used in the calculation."""
@@ -275,6 +277,7 @@ class GaussianDensity(_Compute):
         self._cpp_obj.compute(nq._cpp_obj, l_values)
         return self
 
+    @property
     @_Compute._computed_property
     def density(self) -> npt.NDArray[np.floating]:
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
@@ -366,6 +369,7 @@ class SphereVoxelization(_Compute):
             width_vector[0], width_vector[1], width_vector[2], r_max
         )
 
+    @property
     @_Compute._computed_property
     def box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: Box used in the calculation."""
@@ -383,6 +387,7 @@ class SphereVoxelization(_Compute):
         self._cpp_obj.compute(nq._cpp_obj)
         return self
 
+    @property
     @_Compute._computed_property
     def voxels(self) -> npt.NDArray[np.floating]:
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
@@ -477,6 +482,7 @@ class LocalDensity(_PairCompute):
         """float: Diameter of particle circumsphere."""
         return self._cpp_obj.getDiameter()
 
+    @property
     @_Compute._computed_property
     def box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: Box used in the calculation."""
@@ -533,12 +539,14 @@ class LocalDensity(_PairCompute):
         :code:`{'mode': 'ball', 'r_max': self.r_max + 0.5*self.diameter}`."""
         return dict(mode="ball", r_max=self.r_max + 0.5 * self.diameter)
 
+    @property
     @_Compute._computed_property
     def density(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
         query point."""
         return self._cpp_obj.density.toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def num_neighbors(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
@@ -678,12 +686,14 @@ class RDF(_SpatialHistogram1D):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def rdf(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
         values."""
         return self._cpp_obj.getRDF().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def n_r(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative

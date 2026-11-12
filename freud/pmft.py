@@ -132,6 +132,7 @@ class _PMFT(_SpatialHistogram):
         # abstract class
         pass
 
+    @property
     @_Compute._computed_property
     def pmft(self) -> npt.NDArray[np.floating]:
         """:class:`np.ndarray`: The discrete potential of mean force and
@@ -139,6 +140,7 @@ class _PMFT(_SpatialHistogram):
         with np.errstate(divide="ignore"):
             return -np.log(np.copy(self._pcf))
 
+    @property
     @_Compute._computed_property
     def _pcf(self) -> npt.NDArray[np.floating]:
         """:class:`np.ndarray`: The discrete pair correlation function."""
@@ -450,6 +452,7 @@ class PMFTXY(_PMFT):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def bin_counts(self) -> npt.NDArray[np.floating]:
         """:class:`numpy.ndarray`: The bin counts in the histogram."""

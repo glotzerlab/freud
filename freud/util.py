@@ -60,6 +60,7 @@ class _Compute:
             def compute(...)
                 ...
 
+            @property
             @_Compute._computed_property
             def cluster_idx(self):
                 return ...
@@ -95,7 +96,7 @@ class _Compute:
         return attribute
 
     @staticmethod
-    def _computed_property(prop: Callable[[C], R]) -> property:
+    def _computed_property(prop: Callable[[C], R]) -> Callable[[C], R]:
         r"""Decorator that makes a class method to be a property with limited access.
 
         Args:
@@ -112,7 +113,7 @@ class _Compute:
                 raise AttributeError(msg)
             return prop(self)
 
-        return property(wrapper)
+        return wrapper
 
     def __str__(self) -> str:
         return repr(self)

@@ -62,6 +62,7 @@ class _StaticStructureFactor(_Compute):
         # abstract class
         pass
 
+    @property
     @_Compute._computed_property
     def S_k(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
@@ -80,6 +81,7 @@ class _StaticStructureFactor(_Compute):
         factor."""
         return self.bounds[0]
 
+    @property
     @_Compute._computed_property
     def min_valid_k(self) -> float:
         return self._cpp_obj.getMinValidK()
@@ -269,6 +271,7 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
     def _reset(self) -> None:
         self._cpp_obj.reset()
 
+    @property
     @_Compute._computed_property
     def min_valid_k(self) -> float:
         """float: Minimum valid value of k for the computed system box, equal
@@ -505,6 +508,7 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
     def _reset(self) -> None:
         self._cpp_obj.reset()
 
+    @property
     @_Compute._computed_property
     def min_valid_k(self) -> float:
         """float: Minimum valid value of k for the computed system box, equal
@@ -518,6 +522,7 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
         constructing :math:`k` space grid."""
         return self._cpp_obj.getNumSampledKPoints()
 
+    @property
     @_Compute._computed_property
     def k_points(self) -> npt.NDArray[np.floating]:
         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
@@ -853,6 +858,7 @@ class DiffractionPattern(_Compute):
         """int: Resolution of the output diffraction image."""
         return self._output_size
 
+    @property
     @_Compute._computed_property
     def diffraction(self) -> npt.NDArray[np.floating]:
         """
@@ -861,11 +867,13 @@ class DiffractionPattern(_Compute):
         """
         return np.asarray(self._diffraction) / self._frame_counter
 
+    @property
     @_Compute._computed_property
     def N_points(self) -> int:
         """int: Number of points used in the last computation."""
         return self._N_points
 
+    @property
     @_Compute._computed_property
     def k_values(self) -> npt.NDArray[np.floating]:
         """(``output_size``,) :class:`numpy.ndarray`: k-values."""
@@ -874,6 +882,7 @@ class DiffractionPattern(_Compute):
             self._k_values_cached = True
         return np.asarray(self._k_values)
 
+    @property
     @_Compute._computed_property
     def k_vectors(self) -> npt.NDArray[np.floating]:
         """(``output_size``, ``output_size``, 3) :class:`numpy.ndarray`: \

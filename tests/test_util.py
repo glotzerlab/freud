@@ -11,6 +11,27 @@ import freud
 
 
 class TestCommon:
+    def test_computed_property(self):
+        class Compute(freud.util._Compute):
+            def compute(self, value):
+                self._value = value
+
+            @property
+            @freud.util._Compute._computed_property
+            def value(self) -> int:
+                """The computed value."""
+                return self._value
+
+        compute = Compute()
+        assert Compute.value.__doc__ == "The computed value."
+        with pytest.raises(AttributeError, match="Property not computed"):
+            compute.value
+
+        compute.compute(3)
+        assert compute.value == 3
+        with pytest.raises(AttributeError):
+            compute.value = 4
+
     def test_convert_array(self):
         # create array
         x = np.arange(100)

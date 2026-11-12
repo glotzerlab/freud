@@ -132,6 +132,7 @@ class AngularSeparationNeighbor(_PairCompute):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def angles(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: The
@@ -142,6 +143,7 @@ class AngularSeparationNeighbor(_PairCompute):
     def __repr__(self) -> str:
         return f"freud.environment.{type(self).__name__}()"
 
+    @property
     @_Compute._computed_property
     def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: The neighbor list from the
@@ -196,6 +198,7 @@ class AngularSeparationGlobal(_Compute):
         self._cpp_obj.compute(global_orientations, orientations, equiv_orientations)
         return self
 
+    @property
     @_Compute._computed_property
     def angles(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{orientations}, N_{global\\_orientations}\\right)` :class:`numpy.ndarray`:
@@ -378,11 +381,13 @@ class BondOrder(_SpatialHistogram):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def bond_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
         return self._cpp_obj.getBondOrder().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: Box used in the calculation."""
@@ -515,6 +520,7 @@ class LocalDescriptors(_PairCompute):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: The neighbor list from the
@@ -523,12 +529,14 @@ class LocalDescriptors(_PairCompute):
         nlist._compute = self
         return nlist
 
+    @property
     @_Compute._computed_property
     def sph(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`
         :class:`numpy.ndarray`: The last computed spherical harmonic array."""
         return self._cpp_obj.getSph().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def num_sphs(self) -> int:
         """unsigned int: The last number of spherical harmonics computed. This
@@ -681,6 +689,7 @@ class _MatchEnv(_PairCompute):
         # Abstract class
         self._cpp_obj = freud._environment.MatchEnv()
 
+    @property
     @_Compute._computed_property
     def point_environments(self) -> list[npt.NDArray[np.floating]]:
         """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
@@ -834,17 +843,20 @@ class EnvironmentCluster(_MatchEnv):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def cluster_idx(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
         per-particle index indicating cluster membership."""
         return self._cpp_obj.getClusters().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def num_clusters(self) -> int:
         """unsigned int: The number of clusters."""
         return self._cpp_obj.getNumClusters()
 
+    @property
     @_Compute._computed_property
     def cluster_environments(self) -> list[npt.NDArray[np.floating]]:
         """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
@@ -962,6 +974,7 @@ class EnvironmentMotifMatch(_MatchEnv):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def matches(self) -> npt.NDArray[np.bool_]:
         """(:math:`N_{points}`) :class:`numpy.ndarray`: A boolean array indicating
@@ -1032,6 +1045,7 @@ class _EnvironmentRMSDMinimizer(_MatchEnv):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def rmsds(self) -> npt.NDArray[np.floating]:
         """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
@@ -1118,6 +1132,7 @@ class LocalBondProjection(_PairCompute):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: The neighbor list from the
@@ -1126,6 +1141,7 @@ class LocalBondProjection(_PairCompute):
         nlist._compute = self
         return nlist
 
+    @property
     @_Compute._computed_property
     def projections(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
@@ -1133,6 +1149,7 @@ class LocalBondProjection(_PairCompute):
         onto each of the projection vectors."""  # noqa: E501
         return self._cpp_obj.getProjections().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def normed_projections(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:

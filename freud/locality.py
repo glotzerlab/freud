@@ -1241,12 +1241,14 @@ class _SpatialHistogram(_PairCompute):
         :code:`{'mode': 'ball', 'r_max': self.r_max}`."""
         return dict(mode="ball", r_max=self.r_max)
 
+    @property
     @_Compute._computed_property
     def box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: The box object used in the last
         computation."""
         return freud.box.BoxFromCPP(self._cpp_obj.getBox())
 
+    @property
     @_Compute._computed_property
     def bin_counts(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_0, N_1 \\right)` :class:`numpy.ndarray`: The bin counts in the histogram."""  # noqa: E501
@@ -1365,6 +1367,7 @@ class PeriodicBuffer(_Compute):
         self._cpp_obj.compute(nq._cpp_obj, buffer_vec, images, include_input_points)
         return self
 
+    @property
     @_Compute._computed_property
     def buffer_points(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
@@ -1372,12 +1375,14 @@ class PeriodicBuffer(_Compute):
         return self._cpp_obj.getBufferPoints().toNumpyArray()
         # return np.asarray([[p.x, p.y, p.z] for p in points])
 
+    @property
     @_Compute._computed_property
     def buffer_ids(self) -> npt.NDArray[np.integer]:
         """:math:`\\left(N_{buffer}\\right)` :class:`numpy.ndarray`: The buffer
         point ids."""
         return self._cpp_obj.getBufferIds().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def buffer_box(self) -> freud.box.Box:
         """:class:`freud.box.Box`: The buffer box, expanded to hold the
@@ -1424,6 +1429,7 @@ class Voronoi(_Compute):
         self._box = nq.box
         return self
 
+    @property
     @_Compute._computed_property
     def polytopes(self) -> list[npt.NDArray[np.floating]]:
         """list[:class:`numpy.ndarray`]: A list of :class:`numpy.ndarray`
@@ -1443,12 +1449,14 @@ class Voronoi(_Compute):
             polytopes.append(np.asarray(polytope_vertices))
         return polytopes
 
+    @property
     @_Compute._computed_property
     def volumes(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`: Returns
         an array of Voronoi cell volumes (areas in 2D)."""
         return self._cpp_obj.getVolumes().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def nlist(self) -> NeighborList:
         r"""Returns the computed :class:`~.locality.NeighborList`.
@@ -1592,11 +1600,13 @@ class Filter(_PairCompute):
         )
         return self
 
+    @property
     @_Compute._computed_property
     def filtered_nlist(self) -> NeighborList:
         """:class:`.NeighborList`: The filtered neighbor list."""
         return _nlist_from_cnlist(self._cpp_obj.getFilteredNlist())
 
+    @property
     @_Compute._computed_property
     def unfiltered_nlist(self) -> NeighborList:
         """:class:`.NeighborList`: The unfiltered neighbor list."""

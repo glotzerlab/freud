@@ -56,22 +56,26 @@ class Interface(_PairCompute):
         self._query_point_ids = np.unique(nlist.query_point_indices)
         return self
 
+    @property
     @_Compute._computed_property
     def point_count(self) -> int:
         """int: Number of particles from :code:`points` on the interface."""
         return len(self._point_ids)
 
+    @property
     @_Compute._computed_property
     def point_ids(self) -> npt.NDArray[np.integer]:
         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
         return np.asarray(self._point_ids)
 
+    @property
     @_Compute._computed_property
     def query_point_count(self) -> int:
         """int: Number of particles from :code:`query_points` on the
         interface."""
         return len(self._query_point_ids)
 
+    @property
     @_Compute._computed_property
     def query_point_ids(self) -> npt.NDArray[np.integer]:
         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""

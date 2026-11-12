@@ -64,6 +64,7 @@ Here is how the cluster indices are exposed in :class:`freud.cluster.Cluster`:
 
 .. code-block:: python
 
+    @property
     @_Compute._computed_property
     def cluster_idx(self):
         """:math:`N_{points}` :class:`numpy.ndarray`: The cluster index for

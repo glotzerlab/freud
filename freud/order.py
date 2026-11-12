@@ -112,11 +112,13 @@ class Cubatic(_Compute):
         """unsigned int: Random seed to use in calculations."""
         return self._cpp_obj.getSeed()
 
+    @property
     @_Compute._computed_property
     def order(self) -> float:
         """float: Cubatic order parameter of the system."""
         return self._cpp_obj.getCubaticOrderParameter()
 
+    @property
     @_Compute._computed_property
     def orientation(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(4 \\right)` :class:`numpy.ndarray`: The quaternion of
@@ -124,12 +126,14 @@ class Cubatic(_Compute):
         q = self._cpp_obj.getCubaticOrientation()
         return np.asarray(q, dtype=np.float32)
 
+    @property
     @_Compute._computed_property
     def particle_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
         parameter."""
         return self._cpp_obj.getParticleOrderParameter().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def global_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
@@ -137,6 +141,7 @@ class Cubatic(_Compute):
         orientations."""
         return self._cpp_obj.getGlobalTensor().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def cubatic_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
@@ -215,17 +220,20 @@ class Nematic(_Compute):
         self._cpp_obj.compute(orientations)
         return self
 
+    @property
     @_Compute._computed_property
     def order(self) -> float:
         """float: Nematic order parameter of the system."""
         return self._cpp_obj.getNematicOrderParameter()
 
+    @property
     @_Compute._computed_property
     def director(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3 \\right)` :class:`numpy.ndarray`: The average
         nematic director."""
         return np.asarray([*self._cpp_obj.getNematicDirector()], dtype=np.float32)
 
+    @property
     @_Compute._computed_property
     def particle_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`:
@@ -233,6 +241,7 @@ class Nematic(_Compute):
         particle orientation."""
         return self._cpp_obj.getParticleTensor().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def nematic_tensor(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`: 3x3 matrix
@@ -339,6 +348,7 @@ class Hexatic(_PairCompute):
         :code:`{'mode': 'nearest', 'num_neighbors': self.k}`."""
         return dict(mode="nearest", num_neighbors=self.k)
 
+    @property
     @_Compute._computed_property
     def particle_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
@@ -548,6 +558,7 @@ class Steinhardt(_PairCompute):
         ls = self._cpp_obj.getL()
         return ls[0] if len(ls) == 1 else ls
 
+    @property
     @_Compute._computed_property
     def order(self) -> npt.NDArray[np.floating] | float:
         r"""float: The system wide normalization of the order parameter,
@@ -558,6 +569,7 @@ class Steinhardt(_PairCompute):
         order = self._cpp_obj.getOrder()
         return order[0] if len(order) == 1 else order
 
+    @property
     @_Compute._computed_property
     def particle_order(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, N_l \\right)` :class:`numpy.ndarray`:
@@ -566,6 +578,7 @@ class Steinhardt(_PairCompute):
         p_orders = self._cpp_obj.getParticleOrder().toNumpyArray()
         return np.ravel(p_orders) if p_orders.shape[1] == 1 else p_orders
 
+    @property
     @_Compute._computed_property
     def ql(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, N_l\\right)` :class:`numpy.ndarray`:
@@ -577,6 +590,7 @@ class Steinhardt(_PairCompute):
         ql = self._cpp_obj.getQl().toNumpyArray()
         return np.ravel(ql) if ql.shape[1] == 1 else ql
 
+    @property
     @_Compute._computed_property
     def particle_harmonics(
         self,
@@ -778,12 +792,14 @@ class SolidLiquid(_PairCompute):
         """bool: Whether the dot product is normalized."""
         return self._cpp_obj.getNormalizeQ()
 
+    @property
     @_Compute._computed_property
     def cluster_idx(self) -> npt.NDArray[np.integer]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
         Solid-like cluster indices for each particle."""
         return self._cpp_obj.getClusterIdx().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def ql_ij(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: Bond dot
@@ -791,6 +807,7 @@ class SolidLiquid(_PairCompute):
         :code:`self.nlist`."""
         return self._cpp_obj.getQlij().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def particle_harmonics(self) -> npt.NDArray[np.floating]:
         """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
@@ -798,23 +815,27 @@ class SolidLiquid(_PairCompute):
         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
         return self._cpp_obj.getQlm().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def cluster_sizes(self) -> npt.NDArray[np.integer]:
         """:math:`(N_{clusters}, )` :class:`np.ndarray`: The sizes of all
         clusters."""
         return self._cpp_obj.getClusterSizes().toNumpyArray()
 
+    @property
     @_Compute._computed_property
     def largest_cluster_size(self) -> int:
         """unsigned int: The largest cluster size."""
         return self._cpp_obj.getLargestClusterSize()
 
+    @property
     @_Compute._computed_property
     def nlist(self) -> freud.locality.NeighborList:
         """:class:`freud.locality.NeighborList`: Neighbor list of solid-like
         bonds."""
         return freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
 
+    @property
     @_Compute._computed_property
     def num_connections(self) -> npt.NDArray[np.integer]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
@@ -910,11 +931,13 @@ class RotationalAutocorrelation(_Compute):
         self._cpp_obj.compute(ref_orientations, orientations)
         return self
 
+    @property
     @_Compute._computed_property
     def order(self) -> float:
         """float: Autocorrelation of the system."""
         return self._cpp_obj.getRotationalAutocorrelation()
 
+    @property
     @_Compute._computed_property
     def particle_order(self) -> npt.NDArray[np.floating]:
         """(:math:`N_{orientations}`) :class:`numpy.ndarray`: Rotational
@@ -1032,6 +1055,7 @@ class ContinuousCoordination(_PairCompute):
         self._cpp_obj.compute(cpp_voronoi._cpp_obj)
         return self
 
+    @property
     @_Compute._computed_property
     def particle_order(self) -> npt.NDArray[np.floating]:
         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
@@ -1041,6 +1065,7 @@ class ContinuousCoordination(_PairCompute):
         """
         return self.coordination
 
+    @property
     @_Compute._computed_property
     def coordination(self) -> npt.NDArray[np.floating]:
         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`): \
