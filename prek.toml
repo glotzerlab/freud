@@ -12,7 +12,7 @@ hooks = [
     exclude = '''
 (?x)^(
   ^.*\.ai|
-  ^.*\.txt\
+  ^.*\.txt|
   ^extern/
 )
 '''

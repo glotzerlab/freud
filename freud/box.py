@@ -67,7 +67,6 @@ BoxLike: TypeAlias = (
     "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping"
     " | Mapping[str, ScalarLike | None] | _BoxLikeAttributes"
 )
-_BoxInput: TypeAlias = BoxLike
 
 
 def _has_box_lengths(box: object) -> TypeGuard[_BoxLikeAttributes]:

@@ -260,7 +260,7 @@ class TestNeighborList:
 
     def test_indexing_arrays(self):
         # Make sure indexing the NeighborList is the same as indexing arrays
-        assert isinstance(self.nlist[0, 0], np.uint32)
+        assert isinstance(self.nlist[0, 0], np.unsignedinteger)
         assert self.nlist[0].shape == (2,)
         assert self.nlist[:].dtype == np.uint32
         for i, (idx_i, idx_j) in enumerate(self.nlist):

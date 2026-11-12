@@ -7,7 +7,10 @@ freud, determining how many threads the TBB-enabled parts of freud will use.
 freud uses all available threads for parallelization unless directed otherwise.
 """
 
+from __future__ import annotations
+
 from types import TracebackType
+from typing import Self
 
 import freud._parallel
 
@@ -53,7 +56,7 @@ class NumThreads:
         self.restore_N = _num_threads
         self.N = N
 
-    def __enter__(self) -> "NumThreads":
+    def __enter__(self) -> Self:
         set_num_threads(self.N)
         return self
 

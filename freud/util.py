@@ -162,7 +162,7 @@ def _convert_array(
 def _convert_array(
     array: ArrayLike | None,
     shape: ShapeLike | None = None,
-    dtype: type[bool] | type[np.bool_] | np.dtype[np.bool_] = ...,
+    dtype: type[bool | np.bool_] | np.dtype[np.bool_] = ...,
     requirements: Sequence[RequirementFlag] = ("C",),
     allow_copy: bool = True,
 ) -> npt.NDArray[np.bool_]: ...

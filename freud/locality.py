@@ -166,15 +166,6 @@ class _SnapshotLike(Protocol):
     particles: _ParticlesWithPosition
 
 
-class _GarnettFrame(Protocol):
-    box: freud.box.BoxLike
-    positions: ArrayLike
-
-
-class _GarnettFrameNew(_GarnettFrame, Protocol):
-    position: ArrayLike
-
-
 class _Hoomd2Box(Protocol):
     dimensions: int
     Lx: float

@@ -282,8 +282,8 @@ class UnitCell:
     @classmethod
     def oblique(
         cls,
-        aspect: int | float | np.integer | np.floating = 1.0,
-        theta: int | float | np.integer | np.floating = 45.0,
+        aspect: ScalarLike = 1.0,
+        theta: ScalarLike = 45.0,
     ) -> UnitCell:
         r"""Create an oblique unit cell with aspect :math:`b/a` and angle :math:`\theta`
 
