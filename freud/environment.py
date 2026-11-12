@@ -1134,10 +1134,10 @@ class PGOP(_PairCompute):
 
     .. note::
 
-        This class is a wrapper around :class:`spatula.PGOP` from the
-        optional dependency `spatula <https://spatula.readthedocs.io>`_, which
-        provides a variety of additional features. These include the optimal rotations
-        of each environment, per-symmetry-operator values, and a variant of PGOP on bond
+        This class is a wrapper around :class:`spatula.PGOP` from `spatula
+        <https://spatula.readthedocs.io>`_, which provides a variety of
+        additional features. These include the optimal rotations of each
+        environment, per-symmetry-operator values, and a variant of PGOP on bond
         orientational order diagrams.
 
     Finding the PGOP requires optimizing over all possible orientations of each
