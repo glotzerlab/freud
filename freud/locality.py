@@ -11,7 +11,7 @@ from __future__ import annotations
 import inspect
 from collections.abc import Iterator, Mapping, Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Literal, Protocol, TypeAlias, cast
+from typing import TYPE_CHECKING, Literal, Protocol, TypeAlias, cast, overload
 
 import numpy as np
 import numpy.typing as npt
@@ -89,21 +89,25 @@ class _CPPFloatArray(Protocol):
 
 
 class _CPPIntArray(Protocol):
-    def toNumpyArray(self) -> npt.NDArray[np.integer]: ...
+    def toNumpyArray(self) -> npt.NDArray[np.uint32]: ...
+
+
+class _CPPComplexArray(Protocol):
+    def toNumpyArray(self) -> npt.NDArray[np.complex128]: ...
 
 
 class _CPPSpatialHistogram(Protocol):
     mode: int
 
     def getBox(self) -> freud.box._CPPBox: ...
-    def getBinCounts(self) -> _CPPFloatArray: ...
+    def getBinCounts(self) -> _CPPIntArray: ...
     def getBinCenters(self) -> Sequence[npt.NDArray[np.floating]]: ...
     def getBinEdges(self) -> Sequence[npt.NDArray[np.floating]]: ...
     def getBounds(self) -> list[tuple[float, float]] | tuple[float, float]: ...
     def getAxisSizes(self) -> list[int] | int: ...
     def reset(self) -> None: ...
     def accumulate(self, *args: object) -> None: ...
-    def getCorrelation(self) -> _CPPFloatArray: ...
+    def getCorrelation(self) -> _CPPComplexArray: ...
     def getNBins(self) -> int: ...
     def accumulateRDF(self, *args: object) -> None: ...
     def getRDF(self) -> _CPPFloatArray: ...
@@ -843,9 +847,22 @@ class NeighborList:
         new_copy.copy(self)
         return new_copy
 
+    @overload
+    def __getitem__(self, key: tuple[int, int]) -> np.uint32: ...
+
+    @overload
+    def __getitem__(
+        self, key: int | slice | tuple[int, slice] | tuple[slice, int | slice]
+    ) -> npt.NDArray[np.uint32]: ...
+
+    @overload
+    def __getitem__(
+        self, key: tuple[int | slice, ...]
+    ) -> npt.NDArray[np.uint32] | np.uint32: ...
+
     def __getitem__(
         self, key: int | slice | tuple[int | slice, ...]
-    ) -> npt.NDArray[np.integer]:
+    ) -> npt.NDArray[np.uint32] | np.uint32:
         r"""Access the bond array by index or slice."""
         return self.get_ptr().getNeighbors().toNumpyArray()[key]
 
@@ -1250,7 +1267,7 @@ class _SpatialHistogram(_PairCompute):
 
     @property
     @_Compute._computed_property
-    def bin_counts(self) -> npt.NDArray[np.floating]:
+    def bin_counts(self) -> npt.NDArray[np.uint32]:
         """:math:`\\left(N_0, N_1 \\right)` :class:`numpy.ndarray`: The bin counts in the histogram."""  # noqa: E501
         return self._cpp_obj.getBinCounts().toNumpyArray()
 
