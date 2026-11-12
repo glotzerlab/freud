@@ -11,7 +11,7 @@ from __future__ import annotations
 import inspect
 from collections.abc import Iterator, Mapping, Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Literal, Protocol, TypeAlias, cast, overload
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeAlias, cast, overload
 
 import numpy as np
 import numpy.typing as npt
@@ -597,7 +597,7 @@ class NeighborQuery:
         return np.asarray(self._points)
 
     def query(
-        self, query_points: ArrayLike, query_args: dict[str, object]
+        self, query_points: ArrayLike, query_args: dict[str, Any]
     ) -> NeighborQueryResult:
         r"""Query for nearest neighbors of the provided point.
 
@@ -1045,7 +1045,7 @@ def _make_default_nq(neighbor_query: object) -> NeighborQuery:
 
 def _make_default_nlist(
     system: object,
-    neighbors: NeighborList | dict[str, object] | None,
+    neighbors: NeighborList | dict[str, Any] | None,
     query_points: ArrayLike | None = None,
 ) -> NeighborList:
     r"""Helper function to return a neighbor list object if is given, or to
@@ -1072,7 +1072,7 @@ def _make_default_nlist(
     if isinstance(neighbors, NeighborList):
         return neighbors
     if neighbors is None:
-        query_args: dict[str, object] = {}
+        query_args: dict[str, Any] = {}
     else:
         query_args = neighbors.copy()
     query_args.setdefault("exclude_ii", query_points is None)
@@ -1162,7 +1162,7 @@ class _PairCompute(_Compute):
         self,
         system: object,
         query_points: ArrayLike | None = None,
-        neighbors: NeighborList | dict[str, object] | None = None,
+        neighbors: NeighborList | dict[str, Any] | None = None,
     ) -> tuple[
         NeighborQuery,
         NeighborList,
@@ -1206,7 +1206,7 @@ class _PairCompute(_Compute):
 
     def _resolve_neighbors(
         self,
-        neighbors: NeighborList | dict[str, object] | None,
+        neighbors: NeighborList | dict[str, Any] | None,
         query_points: ArrayLike | None = None,
     ) -> tuple[NeighborList, _QueryArgs]:
         if type(neighbors) is NeighborList:
@@ -1568,7 +1568,7 @@ class Filter(_PairCompute):
         self,
         system: object,
         query_points: ArrayLike | None = None,
-        neighbors: NeighborList | dict[str, object] | None = None,
+        neighbors: NeighborList | dict[str, Any] | None = None,
     ) -> tuple[
         NeighborQuery,
         NeighborList,
@@ -1585,7 +1585,7 @@ class Filter(_PairCompute):
     def compute(
         self,
         system: object,
-        neighbors: NeighborList | dict[str, object] | None = None,
+        neighbors: NeighborList | dict[str, Any] | None = None,
         query_points: ArrayLike | None = None,
     ) -> Filter:
         r"""Filter a :class:`.Neighborlist`.
@@ -1735,7 +1735,7 @@ class FilterRAD(Filter):
     def compute(
         self,
         system: object,
-        neighbors: NeighborList | dict[str, object] | None = None,
+        neighbors: NeighborList | dict[str, Any] | None = None,
         query_points: ArrayLike | None = None,
         points_radii: ArrayLike | None = None,
         query_points_radii: ArrayLike | None = None,

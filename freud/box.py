@@ -64,7 +64,8 @@ class _BoxLikeMapping(_BoxLikeMappingRequired, total=False):
 
 _BoxLikeSequence: TypeAlias = Sequence[ScalarLike] | Sequence[Sequence[ScalarLike]]
 BoxLike: TypeAlias = (
-    "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping | _BoxLikeAttributes"
+    "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping"
+    " | Mapping[str, ScalarLike | None] | _BoxLikeAttributes"
 )
 _BoxInput: TypeAlias = BoxLike
 
@@ -140,7 +141,7 @@ class Box:  # noqa: PLW1641
         )
 
     @L.setter
-    def L(self, value: ScalarLike | Sequence[ScalarLike]) -> None:
+    def L(self, value: ArrayLike) -> None:
         try:
             values = cast(Sequence[ScalarLike], value)
             if len(values) != 3:

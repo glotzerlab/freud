@@ -9,7 +9,7 @@ of clusters of points in a system.
 from __future__ import annotations
 
 from importlib.util import find_spec
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import numpy.typing as npt
@@ -62,7 +62,7 @@ class Cluster(_PairCompute):
         self,
         system: object,
         keys: ArrayLike | None = None,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
     ) -> Cluster:
         r"""Compute the clusters for the given set of points.
 

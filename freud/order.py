@@ -18,7 +18,7 @@ import time
 import warnings
 from importlib.util import find_spec
 from math import floor
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import numpy.typing as npt
@@ -309,7 +309,7 @@ class Hexatic(_PairCompute):
     def compute(
         self,
         system: object,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
     ) -> Hexatic:
         r"""Calculates the hexatic order parameter.
 
@@ -518,7 +518,7 @@ class Steinhardt(_PairCompute):
 
     def __init__(
         self,
-        l: int | list[int],
+        l: int | collections.abc.Sequence[int],
         average: bool = False,
         wl: bool = False,
         weighted: bool = False,
@@ -604,7 +604,7 @@ class Steinhardt(_PairCompute):
     def compute(
         self,
         system: object,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
     ) -> Steinhardt:
         r"""Compute the order parameter.
 
@@ -750,7 +750,7 @@ class SolidLiquid(_PairCompute):
     def compute(
         self,
         system: object,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
     ) -> SolidLiquid:
         r"""Compute the order parameter.
 

@@ -42,7 +42,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -180,7 +180,7 @@ class PMFTR12(_PMFT):
         orientations: ArrayLike,
         query_points: ArrayLike | None = None,
         query_orientations: ArrayLike | None = None,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
         reset: bool = True,
     ) -> PMFTR12:
         r"""Calculates the PMFT.
@@ -286,7 +286,7 @@ class PMFTXYT(_PMFT):
         orientations: ArrayLike,
         query_points: ArrayLike | None = None,
         query_orientations: ArrayLike | None = None,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
         reset: bool = True,
     ) -> PMFTXYT:
         r"""Calculates the PMFT.
@@ -397,7 +397,7 @@ class PMFTXY(_PMFT):
         system: object,
         query_orientations: ArrayLike,
         query_points: ArrayLike | None = None,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
         reset: bool = True,
     ) -> PMFTXY:
         r"""Calculates the PMFT.
@@ -552,7 +552,7 @@ class PMFTXYZ(_PMFT):
         query_orientations: ArrayLike,
         query_points: ArrayLike | None = None,
         equiv_orientations: ArrayLike | None = None,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
         reset: bool = True,
     ) -> PMFTXYZ:
         r"""Calculates the PMFT.

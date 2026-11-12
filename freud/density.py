@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -74,7 +74,7 @@ class CorrelationFunction(_SpatialHistogram1D):
         values: ArrayLike,
         query_points: ArrayLike | None = None,
         query_values: ArrayLike | None = None,
-        neighbors: dict[str, object] | freud.locality.NeighborList | None = None,
+        neighbors: dict[str, Any] | freud.locality.NeighborList | None = None,
         reset: bool = True,
     ) -> CorrelationFunction:
         r"""Calculates the correlation function and adds to the current
@@ -492,7 +492,7 @@ class LocalDensity(_PairCompute):
         self,
         system: object,
         query_points: ArrayLike | None = None,
-        neighbors: dict[str, object] | freud.locality.NeighborList | None = None,
+        neighbors: dict[str, Any] | freud.locality.NeighborList | None = None,
     ) -> LocalDensity:
         r"""Calculates the local density for the specified points.
 
@@ -650,7 +650,7 @@ class RDF(_SpatialHistogram1D):
         self,
         system: object,
         query_points: ArrayLike | None = None,
-        neighbors: dict[str, object] | freud.locality.NeighborList | None = None,
+        neighbors: dict[str, Any] | freud.locality.NeighborList | None = None,
         reset: bool = True,
     ) -> RDF:
         r"""Calculates the RDF and adds to the current RDF histogram.

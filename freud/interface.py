@@ -8,6 +8,8 @@ between sets of points.
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import numpy.typing as npt
 
@@ -31,7 +33,7 @@ class Interface(_PairCompute):
         self,
         system: object,
         query_points: ArrayLike,
-        neighbors: freud.locality.NeighborList | dict[str, object] | None = None,
+        neighbors: freud.locality.NeighborList | dict[str, Any] | None = None,
     ) -> Interface:
         r"""Compute the particles at the interface between two sets of points.
 

@@ -229,8 +229,8 @@ def system_plot(
 
 
 def bar_plot(
-    x: Sequence[Any],
-    height: Sequence[float],
+    x: Sequence[Any] | np.ndarray,
+    height: Sequence[float] | np.ndarray,
     title: str | None = None,
     xlabel: str | None = None,
     ylabel: str | None = None,
@@ -265,8 +265,8 @@ def bar_plot(
 
 
 def clusters_plot(
-    keys: Sequence[Any],
-    freqs: Sequence[int],
+    keys: Sequence[Any] | np.ndarray,
+    freqs: Sequence[int] | np.ndarray,
     num_clusters_to_plot: int = 10,
     ax: Axes | None = None,
 ) -> Axes:
@@ -301,8 +301,8 @@ def clusters_plot(
 
 
 def line_plot(
-    x: Sequence[float],
-    y: Sequence[float],
+    x: Sequence[float] | np.ndarray,
+    y: Sequence[float] | np.ndarray,
     title: str | None = None,
     xlabel: str | None = None,
     ylabel: str | None = None,
@@ -335,7 +335,7 @@ def line_plot(
 
 
 def histogram_plot(
-    values: Sequence[float],
+    values: Sequence[float] | np.ndarray,
     title: str | None = None,
     xlabel: str | None = None,
     ylabel: str | None = None,

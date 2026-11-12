@@ -13,7 +13,7 @@ from __future__ import annotations
 import collections.abc
 import warnings
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, ClassVar, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeAlias
 
 import numpy as np
 import numpy.typing as npt
@@ -45,7 +45,7 @@ if _HAS_MPL:
 else:
     msg_mpl = "Plotting requires matplotlib."
 
-NeighborArg: TypeAlias = freud.locality.NeighborList | dict[str, object] | None
+NeighborArg: TypeAlias = freud.locality.NeighborList | dict[str, Any] | None
 
 
 class AngularSeparationNeighbor(_PairCompute):
@@ -285,7 +285,9 @@ class BondOrder(_SpatialHistogram):
         "oocd": freud._environment.oocd,
     }
 
-    def __init__(self, bins: int | tuple[int, int], mode: str = "bod") -> None:
+    def __init__(
+        self, bins: int | collections.abc.Sequence[int], mode: str = "bod"
+    ) -> None:
         if isinstance(bins, collections.abc.Sequence):
             n_bins_theta, n_bins_phi = bins
         else:
