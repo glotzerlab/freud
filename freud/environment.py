@@ -531,7 +531,7 @@ class LocalDescriptors(_PairCompute):
 
     @property
     @_Compute._computed_property
-    def sph(self) -> npt.NDArray[np.floating]:
+    def sph(self) -> npt.NDArray[np.complex64]:
         """:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`
         :class:`numpy.ndarray`: The last computed spherical harmonic array."""
         return self._cpp_obj.getSph().toNumpyArray()
@@ -845,7 +845,7 @@ class EnvironmentCluster(_MatchEnv):
 
     @property
     @_Compute._computed_property
-    def cluster_idx(self) -> npt.NDArray[np.floating]:
+    def cluster_idx(self) -> npt.NDArray[np.uint32]:
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
         per-particle index indicating cluster membership."""
         return self._cpp_obj.getClusters().toNumpyArray()

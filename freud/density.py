@@ -145,7 +145,7 @@ class CorrelationFunction(_SpatialHistogram1D):
 
     @property
     @_Compute._computed_property
-    def correlation(self) -> npt.NDArray[np.floating]:
+    def correlation(self) -> npt.NDArray[np.float64] | npt.NDArray[np.complex128]:
         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
         product of all values at a given radial distance."""
         output = self._cpp_obj.getCorrelation().toNumpyArray()
@@ -389,7 +389,7 @@ class SphereVoxelization(_Compute):
 
     @property
     @_Compute._computed_property
-    def voxels(self) -> npt.NDArray[np.floating]:
+    def voxels(self) -> npt.NDArray[np.uint32]:
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         voxel grid indicating overlap with the computed spheres."""
         data = self._cpp_obj.voxels.toNumpyArray()

@@ -275,7 +275,7 @@ class ClusterProperties(_Compute):
 
     @property
     @_Compute._computed_property
-    def sizes(self) -> npt.NDArray[np.floating]:
+    def sizes(self) -> npt.NDArray[np.uint32]:
         """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The cluster sizes."""
         return self._cpp_obj.getClusterSizes().toNumpyArray()
 

@@ -454,7 +454,7 @@ class PMFTXY(_PMFT):
 
     @property
     @_Compute._computed_property
-    def bin_counts(self) -> npt.NDArray[np.floating]:
+    def bin_counts(self) -> npt.NDArray[np.uint32]:
         """:class:`numpy.ndarray`: The bin counts in the histogram."""
         # Currently the parent function returns a 3D array that must be
         # squeezed due to the internal choices in the histogramming; this will

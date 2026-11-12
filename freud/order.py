@@ -350,7 +350,7 @@ class Hexatic(_PairCompute):
 
     @property
     @_Compute._computed_property
-    def particle_order(self) -> npt.NDArray[np.floating]:
+    def particle_order(self) -> npt.NDArray[np.complex64]:
         """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
         parameter."""
         return self._cpp_obj.getOrder().toNumpyArray()
@@ -560,12 +560,12 @@ class Steinhardt(_PairCompute):
 
     @property
     @_Compute._computed_property
-    def order(self) -> npt.NDArray[np.floating] | float:
-        r"""float: The system wide normalization of the order parameter,
+    def order(self) -> float | list[float]:
+        r"""float or list[float]: The system wide normalization of the order parameter,
         computed by averaging the :math:`q_{lm}` values (or
         :math:`\overline{q}_{lm}` values if ``average`` is enabled) over all
         particles before computing the rotationally-invariant order
-        parameter."""
+        parameter. Returns a list when multiple :math:`l` values are requested."""
         order = self._cpp_obj.getOrder()
         return order[0] if len(order) == 1 else order
 
@@ -594,7 +594,7 @@ class Steinhardt(_PairCompute):
     @_Compute._computed_property
     def particle_harmonics(
         self,
-    ) -> list[npt.NDArray[np.floating]] | npt.NDArray[np.floating]:
+    ) -> list[npt.NDArray[np.complex64]] | npt.NDArray[np.complex64]:
         """:math:`\\left(N_{particles}, 2l+1\\right)` :class:`numpy.ndarray`:
         The raw array of :math:`q_{lm}(i)`. The array is provided in the
         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
@@ -809,7 +809,7 @@ class SolidLiquid(_PairCompute):
 
     @property
     @_Compute._computed_property
-    def particle_harmonics(self) -> npt.NDArray[np.floating]:
+    def particle_harmonics(self) -> npt.NDArray[np.complex64]:
         """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
         The raw array of \\overline{q}_{lm}(i). The array is provided in the
         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
@@ -939,7 +939,7 @@ class RotationalAutocorrelation(_Compute):
 
     @property
     @_Compute._computed_property
-    def particle_order(self) -> npt.NDArray[np.floating]:
+    def particle_order(self) -> npt.NDArray[np.complex64]:
         """(:math:`N_{orientations}`) :class:`numpy.ndarray`: Rotational
         autocorrelation values calculated for each orientation."""
         return self._cpp_obj.getRAArray().toNumpyArray()
