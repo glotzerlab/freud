@@ -468,7 +468,6 @@ class NeighborQuery:
         * :class:`MDAnalysis.coordinates.timestep.Timestep`
         * :class:`gsd.hoomd.Snapshot`
         * :class:`gsd.hoomd.Frame`
-        * :class:`garnett.trajectory.Frame`
         * :class:`ovito.data.DataCollection`
         * :class:`hoomd.Snapshot`
 
@@ -523,17 +522,6 @@ class NeighborQuery:
             if snap.configuration.dimensions == 2:
                 box[[2, 4, 5]] = 0
             system_tuple = (box, snap.particles.position)
-
-        # garnett compatibility (garnett >=0.5)
-        elif _match_class_path(system, "garnett.trajectory.Frame"):
-            garnett_frame = cast(_GarnettFrame, system)
-            try:
-                # garnett >= 0.7
-                position = cast(_GarnettFrameNew, system).position
-            except AttributeError:
-                # garnett < 0.7
-                position = garnett_frame.positions
-            system_tuple = (garnett_frame.box, position)
 
         # OVITO compatibility
         elif _match_class_path(
@@ -1147,6 +1135,30 @@ class LinkCell(NeighborQuery):
         return cast(_CPPLinkCell, self._cpp_obj).getCellWidth()
 
 
+class CellQuery(NeighborQuery):
+    r"""Use the CellQuery algorithm to find neighbors.
+
+    Also available as ``freud.CellQuery``.
+
+    .. note::
+
+        CellQuery only supports ball queries (``r_max``). For ``num_neighbors``
+        (nearest neighbor) queries, use :class:`freud.locality.AABBQuery`.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            The points to use to build the cell list.
+    """
+
+    def __init__(self, box, points):
+        # Assume valid set of arguments is passed
+        b = freud.util._convert_box(box)
+        self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
+        self._cpp_obj = freud._locality.CellQuery(b._cpp_obj, self._points)
+
+
 class _PairCompute(_Compute):
     r"""Parent class for all compute classes in freud that depend on finding
     nearest neighbors.
@@ -1216,15 +1228,12 @@ class _PairCompute(_Compute):
             # The default_query_args property must raise a NotImplementedError
             # if no query arguments were passed in and the class has no
             # reasonable choice of defaults.
-            try:
-                query_args = (
-                    self.default_query_args if neighbors is None else neighbors.copy()
-                )
-                query_args.setdefault("exclude_ii", query_points is None)
-                qargs = _QueryArgs.from_dict(query_args)
-                nlist = NeighborList(_null=True)
-            except NotImplementedError:
-                raise
+            query_args = (
+                self.default_query_args if neighbors is None else neighbors.copy()
+            )
+            query_args.setdefault("exclude_ii", query_points is None)
+            qargs = _QueryArgs.from_dict(query_args)
+            nlist = NeighborList(_null=True)
         else:
             msg = (
                 "An invalid value was provided for neighbors, "
@@ -1256,7 +1265,7 @@ class _SpatialHistogram(_PairCompute):
     def default_query_args(self) -> dict[str, object]:
         """The default query arguments are
         :code:`{'mode': 'ball', 'r_max': self.r_max}`."""
-        return dict(mode="ball", r_max=self.r_max)
+        return {"mode": "ball", "r_max": self.r_max}
 
     @property
     @_Compute._computed_property

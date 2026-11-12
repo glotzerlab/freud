@@ -59,7 +59,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<lo
         });
 }
 
-Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) {}
+Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) { }
 
 void Hexatic::compute(const std::shared_ptr<locality::NeighborList>& nlist,
                       const std::shared_ptr<locality::NeighborQuery>& points,
@@ -68,7 +68,8 @@ void Hexatic::compute(const std::shared_ptr<locality::NeighborList>& nlist,
     computeGeneral(
         [this](const vec3<float>& delta) {
             const float theta_ij = std::atan2(delta.y, delta.x);
-            return std::exp(std::complex<float>(0, static_cast<float>(m_k) * theta_ij));
+            return std::complex<float>(std::cos(static_cast<float>(m_k) * theta_ij),
+                                       std::sin(static_cast<float>(m_k) * theta_ij));
         },
         nlist, points, qargs, false);
 }

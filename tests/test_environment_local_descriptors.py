@@ -120,7 +120,7 @@ class TestLocalDescriptors:
         box, positions = freud.data.make_random_system(L, N, seed=1)
 
         comp = freud.environment.LocalDescriptors(l_max, True, "global")
-        comp.compute((box, positions), neighbors=dict(num_neighbors=num_neighbors))
+        comp.compute((box, positions), neighbors={"num_neighbors": num_neighbors})
 
         sphs = comp.sph
 
@@ -131,7 +131,7 @@ class TestLocalDescriptors:
 
         def _get_nlist(system):
             ld = freud.environment.LocalDescriptors(l_max=3)
-            ld.compute(system, neighbors=dict(r_max=2))
+            ld.compute(system, neighbors={"r_max": 2})
             return ld.nlist
 
         conftest.nlist_lifetime_check(_get_nlist)
@@ -149,12 +149,12 @@ class TestLocalDescriptors:
         comp = freud.environment.LocalDescriptors(l_max, True, mode="particle_local")
 
         with pytest.raises(RuntimeError):
-            comp.compute((box, positions), neighbors=dict(num_neighbors=num_neighbors))
+            comp.compute((box, positions), neighbors={"num_neighbors": num_neighbors})
 
         comp.compute(
             (box, positions),
             orientations=orientations,
-            neighbors=dict(num_neighbors=num_neighbors),
+            neighbors={"num_neighbors": num_neighbors},
         )
 
         sphs = comp.sph
@@ -239,7 +239,7 @@ class TestLocalDescriptors:
         # bonded to which ones, we precompute the neighborlist
         lc = freud.locality.AABBQuery(box, points)
         nl = lc.query(
-            points, dict(exclude_ii=True, num_neighbors=num_neighbors)
+            points, {"exclude_ii": True, "num_neighbors": num_neighbors}
         ).toNeighborList()
         ld = freud.environment.LocalDescriptors(l_max, mode="global")
         ld.compute((box, points), neighbors=nl)
@@ -281,7 +281,7 @@ class TestLocalDescriptors:
         # bonded to which ones, we precompute the neighborlist
         lc = freud.locality.AABBQuery(box, points)
         nl = lc.query(
-            points, dict(exclude_ii=True, num_neighbors=num_neighbors)
+            points, {"exclude_ii": True, "num_neighbors": num_neighbors}
         ).toNeighborList()
         ld = freud.environment.LocalDescriptors(l_max, mode="global")
         ld.compute((box, points), neighbors=nl)
@@ -330,7 +330,7 @@ class TestLocalDescriptors:
         # bonded to which ones, we precompute the neighborlist
         lc = freud.locality.AABBQuery(box, points)
         nl = lc.query(
-            points, dict(exclude_ii=True, num_neighbors=num_neighbors)
+            points, {"exclude_ii": True, "num_neighbors": num_neighbors}
         ).toNeighborList()
         ld = freud.environment.LocalDescriptors(l_max, mode="global")
         ld.compute((box, points), neighbors=nl)
@@ -360,7 +360,7 @@ class TestLocalDescriptors:
         # again later anyway.
         lc = freud.locality.AABBQuery(box, points)
         nl = lc.query(
-            points, dict(exclude_ii=True, num_neighbors=num_neighbors)
+            points, {"exclude_ii": True, "num_neighbors": num_neighbors}
         ).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(l_max, mode="global")
@@ -415,7 +415,7 @@ class TestLocalDescriptors:
         # again later anyway.
         lc = freud.locality.AABBQuery(box, points)
         nl = lc.query(
-            query_points, dict(exclude_ii=False, num_neighbors=num_neighbors)
+            query_points, {"exclude_ii": False, "num_neighbors": num_neighbors}
         ).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(l_max, mode="global")

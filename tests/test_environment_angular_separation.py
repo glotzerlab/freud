@@ -54,10 +54,23 @@ class TestAngularSeparationGlobal:
             for j in [0, 1]:
                 npt.assert_allclose(ang.angles[i][j], np.pi / 16, atol=1e-6)
 
+    def test_compute_defaults(self):
+        # Check that the default call to compute returns the correct angle
+        global_ors = np.array([[1, 0, 0, 0]], dtype=np.float32)
+        ors = np.array([[1, 0, 0, 0], [-1, 0, 0, 0], [0, 1, 0, 0], [0, -1, 0, 0]])
+
+        ang = freud.environment.AngularSeparationGlobal()
+        ang.compute(global_ors, ors)
+        for i in range(4):
+            if i < 2:
+                npt.assert_allclose(ang.angles[i][0], 0, atol=1e-6)
+            else:
+                npt.assert_allclose(ang.angles[i][0], np.pi, atol=1e-6)
+
     def test_nlist_lifetime(self):
         def _get_nlist(sys):
             asn = freud.environment.AngularSeparationNeighbor()
-            asn.compute(sys, orientations=np.zeros((100, 4)), neighbors=dict(r_max=2.0))
+            asn.compute(sys, orientations=np.zeros((100, 4)), neighbors={"r_max": 2.0})
             return asn.nlist
 
         conftest.nlist_lifetime_check(_get_nlist)
@@ -109,7 +122,7 @@ class TestAngularSeparationNeighbor:
         )
 
         ang = freud.environment.AngularSeparationNeighbor()
-        qargs = dict(num_neighbors=num_neighbors, r_guess=r_guess, exclude_ii=True)
+        qargs = {"num_neighbors": num_neighbors, "r_guess": r_guess, "exclude_ii": True}
         ang.compute(
             (box, points),
             ors,
@@ -151,7 +164,7 @@ class TestAngularSeparationNeighbor:
             (box, points),
             ors,
             equiv_orientations=equivalent_orientations,
-            neighbors=dict(num_neighbors=num_neighbors, r_guess=r_guess),
+            neighbors={"num_neighbors": num_neighbors, "r_guess": r_guess},
         )
 
         # Should find that the angular separation between the first particle

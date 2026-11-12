@@ -346,7 +346,7 @@ class Hexatic(_PairCompute):
     def default_query_args(self) -> dict[str, object]:
         """The default query arguments are
         :code:`{'mode': 'nearest', 'num_neighbors': self.k}`."""
-        return dict(mode="nearest", num_neighbors=self.k)
+        return {"mode": "nearest", "num_neighbors": self.k}
 
     @property
     @_Compute._computed_property
@@ -958,8 +958,8 @@ class ContinuousCoordination(_PairCompute):
     r"""Computes the continuous local coordination number.
 
     The :class:`ContinuousCoordination` class implements extensions of the Voronoi
-    discrete coordination number to the real numbers. The formulas for the
-    various implementations are:
+    discrete coordination number to the real numbers :cite:`Butler:2024`. The formulas
+    for the various implementations are:
 
     Power:
 

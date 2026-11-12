@@ -229,7 +229,8 @@ class TestDiffractionPattern:
         assert all(ideal_peaks.values())
 
     @pytest.mark.parametrize(
-        "noncubic_box_params", [dict(Lx=3, Ly=4, Lz=1), dict(Lx=3, Ly=3, Lz=3, xy=0.21)]
+        "noncubic_box_params",
+        [{"Lx": 3, "Ly": 4, "Lz": 1}, {"Lx": 3, "Ly": 3, "Lz": 3, "xy": 0.21}],
     )
     def test_noncubic_system(self, noncubic_box_params):
         box = freud.box.Box(**noncubic_box_params)

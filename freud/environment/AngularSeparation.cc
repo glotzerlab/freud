@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2026 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <memory>
@@ -49,10 +50,7 @@ float computeMinSeparationAngle(const quat<float>& ref_q, const quat<float>& q, 
 
         const float angle_test = computeSeparationAngle(ref_q, qtest);
 
-        if (angle_test < min_angle)
-        {
-            min_angle = angle_test;
-        }
+        min_angle = std::min(angle_test, min_angle);
     }
 
     return min_angle;

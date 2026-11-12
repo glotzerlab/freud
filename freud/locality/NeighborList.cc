@@ -29,7 +29,7 @@ NeighborList::NeighborList()
       m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>()),
       m_segments(std::make_shared<util::ManagedArray<unsigned int>>()),
       m_counts(std::make_shared<util::ManagedArray<unsigned int>>())
-{}
+{ }
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false),
@@ -39,7 +39,7 @@ NeighborList::NeighborList(unsigned int num_bonds)
       m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds)),
       m_segments(std::make_shared<util::ManagedArray<unsigned int>>()),
       m_counts(std::make_shared<util::ManagedArray<unsigned int>>())
-{}
+{ }
 
 NeighborList::NeighborList(const NeighborList& other)
     : m_num_query_points(other.m_num_query_points), m_num_points(other.m_num_points),
@@ -144,17 +144,11 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
         MaxIndex::reference max_query_idx(max_idx_query.local());
         for (auto i = begin; i < end; ++i)
         {
-            auto bond = bonds[i];
+            const auto& bond = bonds[i];
 
             // update max bond indices
-            if (max_point_idx < bond.getPointIdx())
-            {
-                max_point_idx = bond.getPointIdx();
-            }
-            if (max_query_idx < bond.getQueryPointIdx())
-            {
-                max_query_idx = bond.getQueryPointIdx();
-            }
+            max_point_idx = std::max(max_point_idx, bond.getPointIdx());
+            max_query_idx = std::max(max_query_idx, bond.getQueryPointIdx());
 
             // fill in array data
             (*m_distances)(i) = bond.getDistance();
@@ -388,7 +382,7 @@ void NeighborList::sort(bool by_distance = false)
     util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
         for (auto bond = begin; bond < end; ++bond)
         {
-            auto nb = bond_vector[bond];
+            const auto& nb = bond_vector[bond];
             (*m_neighbors)(bond, 0) = nb.getQueryPointIdx();
             (*m_neighbors)(bond, 1) = nb.getPointIdx();
             (*m_distances)(bond) = nb.getDistance();

@@ -29,7 +29,7 @@ class PMFT : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    PMFT() : BondHistogramCompute() {}
+    PMFT() : BondHistogramCompute() { }
 
     //! Destructor
     ~PMFT() override = default;

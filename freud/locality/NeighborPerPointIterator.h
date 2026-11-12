@@ -42,7 +42,7 @@ public:
     NeighborPerPointIterator() = default;
 
     //! Constructor
-    NeighborPerPointIterator(unsigned int query_point_idx) : m_query_point_idx(query_point_idx) {}
+    NeighborPerPointIterator(unsigned int query_point_idx) : m_query_point_idx(query_point_idx) { }
 
     //! Empty Destructor
     virtual ~NeighborPerPointIterator() = default;

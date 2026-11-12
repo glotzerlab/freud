@@ -61,7 +61,10 @@ class AngularSeparationNeighbor(_PairCompute):
         orientations: ArrayLike,
         query_points: ArrayLike | None = None,
         query_orientations: ArrayLike | None = None,
-        equiv_orientations: ArrayLike = ((1, 0, 0, 0),),
+        equiv_orientations: ArrayLike = (
+            (1, 0, 0, 0),
+            (-1, 0, 0, 0),
+        ),
         neighbors: NeighborArg = None,
     ) -> AngularSeparationNeighbor:
         r"""Calculates the minimum angles of separation between :code:`orientations`
@@ -94,7 +97,7 @@ class AngularSeparationNeighbor(_PairCompute):
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
                 share the same set of equivalent orientations.
-                (Default value = :code:`((1, 0, 0, 0),)`)
+                (Default value = :code:`((1, 0, 0, 0), (-1, 0, 0, 0),)`)
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -164,7 +167,10 @@ class AngularSeparationGlobal(_Compute):
         self,
         global_orientations: ArrayLike,
         orientations: ArrayLike,
-        equiv_orientations: ArrayLike = ((1, 0, 0, 0),),
+        equiv_orientations: ArrayLike = (
+            (1, 0, 0, 0),
+            (-1, 0, 0, 0),
+        ),
     ) -> AngularSeparationGlobal:
         r"""Calculates the minimum angles of separation between
         :code:`global_orientations` and :code:`orientations`, checking for
@@ -184,7 +190,7 @@ class AngularSeparationGlobal(_Compute):
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
                 share the same set of equivalent orientations.
-                (Default value = :code:`((1, 0, 0, 0),)`)
+                (Default value = :code:`((1, 0, 0, 0), (-1, 0, 0, 0),)`)
         """  # noqa: E501
         equiv_orientations = np.asarray(equiv_orientations)
         global_orientations = freud.util._convert_array(
@@ -328,7 +334,8 @@ class BondOrder(_SpatialHistogram):
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
                 calculate bonds. Uses identity quaternions if :code:`None`
-                (Default value = :code:`None`).
+                (Default value = :code:`None`). Required if ``mode`` is not
+                "bod".
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`,
                           optional):
                 Query points used to calculate the correlation function.  Uses
@@ -350,6 +357,10 @@ class BondOrder(_SpatialHistogram):
                 the new computation; if False, will accumulate data (Default
                 value: True).
         """
+        if orientations is None and self._cpp_obj.getMode() != self.known_modes["bod"]:
+            msg = "mode must be 'bod' when orientations are not provided."
+            raise ValueError(msg)
+
         if reset:
             self._reset()
 
@@ -1070,7 +1081,10 @@ class LocalBondProjection(_PairCompute):
         orientations: ArrayLike,
         proj_vecs: ArrayLike,
         query_points: ArrayLike | None = None,
-        equiv_orientations: ArrayLike = ((1, 0, 0, 0),),
+        equiv_orientations: ArrayLike = (
+            (1, 0, 0, 0),
+            (-1, 0, 0, 0),
+        ),
         neighbors: NeighborArg = None,
     ) -> LocalBondProjection:
         r"""Calculates the maximal projections of nearest neighbor bonds
@@ -1103,7 +1117,7 @@ class LocalBondProjection(_PairCompute):
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
                 share the same set of equivalent orientations.
-                (Default value = :code:`((1, 0, 0, 0),)`)
+                (Default value = :code:`((1, 0, 0, 0), (-1, 0, 0, 0),)`)
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of

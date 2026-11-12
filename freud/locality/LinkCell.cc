@@ -217,7 +217,7 @@ void IteratorCellShell::reset(unsigned int range)
  ********************/
 
 // Default constructor
-LinkCell::LinkCell() : NeighborQuery() {}
+LinkCell::LinkCell() : NeighborQuery() { }
 
 LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width)
     : NeighborQuery(box, points, n_points), m_cell_width(cell_width)

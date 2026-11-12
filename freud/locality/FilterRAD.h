@@ -20,7 +20,7 @@ public:
     //<! Construct with an empty NeighborList, fill it upon calling compute
     FilterRAD(bool allow_incomplete_shell, bool terminate_after_blocked)
         : Filter(allow_incomplete_shell), m_terminate_after_blocked(terminate_after_blocked)
-    {}
+    { }
 
     void compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* query_points,
                  unsigned int num_query_points, std::shared_ptr<NeighborList> nlist, const QueryArgs& qargs,

@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2026 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -46,10 +47,7 @@ float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local
 
         const float proj_test = dot(equiv_proj_vec, local_bond);
 
-        if (proj_test > max_proj)
-        {
-            max_proj = proj_test;
-        }
+        max_proj = std::max(proj_test, max_proj);
     }
 
     return max_proj;

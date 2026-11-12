@@ -35,4 +35,6 @@ Checks: 'bugprone-*,
          -bugprone-easily-swappable-parameters,
          -performance-enum-size,
          -portability-simd-intrinsics,
+         -readability-math-missing-parentheses,
+         -misc-use-internal-linkage,
          '

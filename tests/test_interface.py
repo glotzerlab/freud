@@ -40,7 +40,7 @@ class TestInterface:
         with pytest.raises(AttributeError):
             inter.query_point_ids
 
-        test_one = inter.compute((box, point), others, neighbors=dict(r_max=1.5))
+        test_one = inter.compute((box, point), others, neighbors={"r_max": 1.5})
 
         # Test attribute access
         inter.point_count
@@ -51,7 +51,7 @@ class TestInterface:
         assert test_one.point_count == 1
         assert len(test_one.point_ids) == 1
 
-        test_twelve = inter.compute((box, others), point, neighbors=dict(r_max=1.5))
+        test_twelve = inter.compute((box, others), point, neighbors={"r_max": 1.5})
         assert test_twelve.point_count == 12
         assert len(test_twelve.point_ids) == 12
 
@@ -70,7 +70,7 @@ class TestInterface:
 
         # Creates a NeighborList with r_max larger than the interface size
         aq = freud.locality.AABBQuery(box, others)
-        nlist = aq.query(point, dict(r_max=r_max)).toNeighborList()
+        nlist = aq.query(point, {"r_max": r_max}).toNeighborList()
 
         # Filter NeighborList
         nlist.filter_r(1.5)

@@ -17,7 +17,7 @@ class TestLocalBondProjection:
         N = 500
         num_neighbors = 8
         r_guess = 3
-        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
+        query_args = {"num_neighbors": num_neighbors, "r_guess": r_guess}
 
         N_query = N // 3
 
@@ -43,7 +43,7 @@ class TestLocalBondProjection:
                 sys,
                 np.zeros((100, 4)),
                 proj_vecs=np.zeros((100, 3)),
-                neighbors=dict(r_max=2),
+                neighbors={"r_max": 2},
             )
             return lbp.nlist
 
@@ -54,7 +54,7 @@ class TestLocalBondProjection:
         N = 100
         num_neighbors = 8
         r_guess = 3
-        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
+        query_args = {"num_neighbors": num_neighbors, "r_guess": r_guess}
 
         box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=1)
         ors = rowan.random.rand(N)
@@ -79,7 +79,7 @@ class TestLocalBondProjection:
         boxlen = 4
         num_neighbors = 1
         r_guess = 2
-        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
+        query_args = {"num_neighbors": num_neighbors, "r_guess": r_guess}
 
         box = freud.box.Box.cube(boxlen)
 
@@ -106,7 +106,8 @@ class TestLocalBondProjection:
         ang.compute((box, points), ors, proj_vecs, neighbors=query_args)
 
         nlist = freud.locality.AABBQuery(box, points).query(
-            points, dict(num_neighbors=num_neighbors, r_guess=r_guess, exclude_ii=True)
+            points,
+            {"num_neighbors": num_neighbors, "r_guess": r_guess, "exclude_ii": True},
         )
         bonds = [(i[0], i[1]) for i in nlist]
 

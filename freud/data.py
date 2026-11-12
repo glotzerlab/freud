@@ -133,7 +133,7 @@ class UnitCell:
             msg = "The number of replicas in z must be 1 for a 2D unit cell."
             raise ValueError(msg)
 
-        if any([n > 1 for n in (nx, ny, nz)]):
+        if any(n > 1 for n in (nx, ny, nz)):
             pbuff = freud.locality.PeriodicBuffer()
             abs_positions = self.box.make_absolute(self.basis_positions)
             pbuff.compute(
@@ -261,7 +261,7 @@ class UnitCell:
     @classmethod
     def rectangular(
         cls,
-        aspect: int | float | np.integer | np.floating = 2.0,
+        aspect: float | np.integer | np.floating = 2.0,
         centered: bool = False,
     ) -> UnitCell:
         """Create a simple or centered rectangular unit cell with aspect :math:`b / a`.

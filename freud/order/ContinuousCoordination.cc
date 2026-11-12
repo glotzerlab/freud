@@ -24,7 +24,7 @@ namespace freud { namespace order {
 
 ContinuousCoordination::ContinuousCoordination(std::vector<float> powers, bool compute_log, bool compute_exp)
     : m_powers(std::move(powers)), m_compute_exp(compute_exp), m_compute_log(compute_log)
-{}
+{ }
 
 void ContinuousCoordination::compute(const std::shared_ptr<freud::locality::Voronoi>& voronoi)
 {

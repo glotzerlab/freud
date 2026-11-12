@@ -7,19 +7,51 @@ The format is based on [Keep a Changelog] and this project adheres to
 
 ## Next release
 
+###  Added
+
+### Changed
+* `StaticStructureFactorDirect` and `Hexatic` compute complex exponentials with Euler's
+  formula instead of `std::exp` on complex numbers with real parts always zero (#1516).
+
+### Deprecated
+
+### Removed
+
+### Fixed
+* `StaticStructureFactorDirect` samples k vectors in all directions, not only the positive octant
+  (quadrant in 2D) (#1500).
+* `StaticStructureFactorDirect` samples the correct range of k vectors in triclinic boxes (#1500).
+
+## 3.6.1 -- 2026-09-22
+
+### Fixed
+* Fix `mode must be 'bod' when orientations are not provided` error when the mode *is* `bod` (#2339).
+
+## 3.6.0 -- 2026-09-18
+
 ### Added
-* Support for `StaticStructureFactorDirect` in 2D.
-* `oblique`, `rectangular`, and `graphene` lattices in `freud.data.UnitCell`.
+* Support 2D simulation boxes in `StaticStructureFactorDirect`.
+* Add `oblique`, `rectangular`, and `graphene` lattices to `freud.data.UnitCell`.
 * Support for RAD filtering in systems with particles of different sizes.
 * Added Python type hints across Python modules.
 
 ### Fixed
-* Access k points from `StaticStructureFactorDirect`.
+* Access k points in `StaticStructureFactorDirect`.
 * Unit tests pass with scipy 1.17 installed (#1413).
+* ManagedArray accessors no longer allocate unnecessarily (#1465)
+* `voronoi_plot` works with matplotlib 3.11, which removed `matplotlib.cm.get_cmap` (#1455).
+* Input validation for orientations in `BondOrder.compute()` (#1444).
 
 ### Changed
 
 * MSD with `mode=="direct"` is now slightly faster (#1414).
+* Nematic order parameter is now ~40x faster. (#1428)
+* Steinhardt-type order parameters are now slightly faster (#1465)
+* `Histogram::operator()` no longer allocates per call (#1465)
+* `Histogram::operator()` no longer supports weight arguments: prefer `increment`
+  when accumulating non-unit values (#1465)
+* Removed garnett from documentation. (#1443)
+* Changed default equivalent orientations to include (-1,0,0,0) for `AngularSeparationNeighbor`, `AngularSeparationGlobal`, and `LocalBondProjection`(#1447)
 
 ## 3.5.0 -- 2025-10-08
 

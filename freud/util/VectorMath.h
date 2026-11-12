@@ -31,13 +31,13 @@ template<class Real> struct vec3
         \param _y y-component
         \param _z z-component
     */
-    constexpr vec3(const Real& _x, const Real& _y, const Real& _z) : x(_x), y(_y), z(_z) {}
+    constexpr vec3(const Real& _x, const Real& _y, const Real& _z) : x(_x), y(_y), z(_z) { }
 
     //! Implicit cast from vec3<double> to the current Real
-    constexpr vec3(const vec3<double>& a) : x(a.x), y(a.y), z(a.z) {}
+    constexpr vec3(const vec3<double>& a) : x(a.x), y(a.y), z(a.z) { }
 
     //! Implicit cast from vec3<float> to the current Real
-    constexpr vec3(const vec3<float>& a) : x(a.x), y(a.y), z(a.z) {}
+    constexpr vec3(const vec3<float>& a) : x(a.x), y(a.y), z(a.z) { }
 
     //! Default construct a 0 vector
     constexpr vec3() = default;
@@ -302,16 +302,16 @@ template<class Real> struct vec2
     /*! \param _x x-component
         \param _y y-component
     */
-    constexpr vec2(const Real& _x, const Real& _y) : x(_x), y(_y) {}
+    constexpr vec2(const Real& _x, const Real& _y) : x(_x), y(_y) { }
 
     //! Default construct a 0 vector
-    constexpr vec2() : x(0), y(0) {}
+    constexpr vec2() : x(0), y(0) { }
 
     //! Implicit cast from vec2<double> to the current Real
-    constexpr vec2(const vec2<double>& a) : x(a.x), y(a.y) {}
+    constexpr vec2(const vec2<double>& a) : x(a.x), y(a.y) { }
 
     //! Implicit cast from vec2<float> to the current Real
-    constexpr vec2(const vec2<float>& a) : x(a.x), y(a.y) {}
+    constexpr vec2(const vec2<float>& a) : x(a.x), y(a.y) { }
 
     //! Swap with another vector
     void swap(vec2<Real>& v) noexcept
@@ -597,16 +597,16 @@ template<class Real> struct quat
     /*! \param _s scalar component
         \param _v vector component
     */
-    constexpr quat(const Real& _s, const vec3<Real>& _v) : s(_s), v(_v) {}
+    constexpr quat(const Real& _s, const vec3<Real>& _v) : s(_s), v(_v) { }
 
     //! Implicit cast from quat<double> to the current Real
-    constexpr quat(const quat<double>& a) : s(a.s), v(a.v) {}
+    constexpr quat(const quat<double>& a) : s(a.s), v(a.v) { }
 
     //! Implicit cast from quat<float> to the current Real
-    constexpr quat(const quat<float>& a) : s(a.s), v(a.v) {}
+    constexpr quat(const quat<float>& a) : s(a.s), v(a.v) { }
 
     //! Default construct a unit quaternion
-    constexpr quat() : s(1), v(vec3<Real>(0, 0, 0)) {}
+    constexpr quat() : s(1), v(vec3<Real>(0, 0, 0)) { }
 
     //! Construct a quaternion from a rotation matrix
     constexpr explicit quat(const rotmat3<Real>& r);
@@ -875,7 +875,7 @@ template<class Real> struct rotmat2
     /*! \param _row0 First row
         \param _row1 Second row
     */
-    rotmat2(const vec2<Real>& _row0, const vec2<Real>& _row1) : row0(_row0), row1(_row1) {}
+    rotmat2(const vec2<Real>& _row0, const vec2<Real>& _row1) : row0(_row0), row1(_row1) { }
 
     //! Construct a rotmat2 from a quat
     /*! \param q quaternion to represent
@@ -900,7 +900,7 @@ template<class Real> struct rotmat2
     }
 
     //! Default construct an identity matrix
-    rotmat2() : row0(vec2<Real>(1, 0)), row1(vec2<Real>(0, 1)) {}
+    rotmat2() : row0(vec2<Real>(1, 0)), row1(vec2<Real>(0, 1)) { }
 
     //! Construct a rotmat2 from a float. formula from http://en.wikipedia.org/wiki/Rotation_matrix
     /*! \param theta angle to represent
@@ -972,7 +972,7 @@ template<class Real> struct rotmat3
     */
     rotmat3(const vec3<Real>& _row0, const vec3<Real>& _row1, const vec3<Real>& _row2)
         : row0(_row0), row1(_row1), row2(_row2)
-    {}
+    { }
 
     //! Construct a rotmat3 from a quat
     /*! \param q quaternion to represent
@@ -1002,7 +1002,7 @@ template<class Real> struct rotmat3
     }
 
     //! Default construct an identity matrix
-    rotmat3() : row0(vec3<Real>(1, 0, 0)), row1(vec3<Real>(0, 1, 0)), row2(vec3<Real>(0, 0, 1)) {}
+    rotmat3() : row0(vec3<Real>(1, 0, 0)), row1(vec3<Real>(0, 1, 0)), row2(vec3<Real>(0, 0, 1)) { }
 
     //! Construct a rotmat3 from an axis and an angle.
     /*! \param axis angle to represent

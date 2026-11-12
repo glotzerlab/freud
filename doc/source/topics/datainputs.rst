@@ -29,7 +29,7 @@ GSD Trajectories
 
 Using the GSD Python API, GSD files can be easily integrated with **freud** as shown in the :ref:`quickstart`.
 This format is natively supported by `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__.
-Note: the GSD format can also be read by :ref:`MDAnalysis <mdanalysisreaders>` and :ref:`garnett <garnetttrajectories>`.
+Note: the GSD format can also be read by :ref:`MDAnalysis <mdanalysisreaders>`.
 Here, we provide an example that reads data from a GSD file.
 
 .. code-block:: python
@@ -75,23 +75,6 @@ Here, we provide an example of how to construct a system:
 
     for system in zip(np.asarray(traj.unitcell_vectors), traj.xyz):
         rdf.compute(system=system, reset=False)
-
-.. _garnetttrajectories:
-
-garnett Trajectories
---------------------
-
-The `garnett <https://garnett.readthedocs.io/>`__ package can read `several trajectory formats <https://garnett.readthedocs.io/en/stable/readerswriters.html#file-formats>`__ that have historically been supported by the HOOMD-blue simulation engine, as well as other common types such as DCD and CIF.
-The **garnett** package will auto-detect supported file formats by the file extension.
-Here, we provide an example that reads data from a POS file.
-
-.. code-block:: python
-
-    import garnett
-
-    with garnett.read('trajectory.pos') as traj:
-        for frame in traj:
-            rdf.compute(system=frame, reset=False)
 
 OVITO Modifiers
 ---------------

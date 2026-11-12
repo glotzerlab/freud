@@ -34,7 +34,7 @@ public:
 
     RawPoints(const box::Box& box, const vec3<float>* points, unsigned int n_points)
         : NeighborQuery(box, points, n_points)
-    {}
+    { }
 
     ~RawPoints() override = default;
 

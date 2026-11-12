@@ -34,7 +34,6 @@ if TYPE_CHECKING:
 
 _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
-    import matplotlib.cm
     import matplotlib.colors
 
     import freud.plot

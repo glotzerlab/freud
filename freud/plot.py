@@ -17,7 +17,6 @@ _HAS_MPL = find_spec("matplotlib") is not None
 if _HAS_MPL:
     import matplotlib.colors
     import matplotlib.pyplot as plt
-    from matplotlib import cm
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.collections import PatchCollection
     from matplotlib.colorbar import Colorbar
@@ -534,7 +533,9 @@ def voronoi_plot(
                 )
             cmap = "tab20"
 
-    cmap = cm.get_cmap(cmap, num_colors)
+    cmap = matplotlib.colormaps.get_cmap(cmap)
+    if num_colors is not None:
+        cmap = cmap.resampled(num_colors)
     bounds = np.arange(np.min(colors), np.max(colors) + 1)
 
     patch_collection.set_array(np.array(colors) - 0.5)
@@ -556,7 +557,7 @@ def voronoi_plot(
     ax.set_aspect("equal", "datalim")
 
     # Add colorbar for number of sides
-    color_by_labels = dict(sides="Number of sides", area="Polytope Area")
+    color_by_labels = {"sides": "Number of sides", "area": "Polytope Area"}
     if color_by is not None:
         ax_divider = make_axes_locatable(ax)
         cax = ax_divider.append_axes("right", size="7%", pad="10%")

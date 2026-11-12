@@ -17,18 +17,19 @@ from . import (
     pmft,
 )
 from .box import Box
-from .locality import AABBQuery, LinkCell, NeighborList
+from .locality import AABBQuery, CellQuery, LinkCell, NeighborList
 from .parallel import NumThreads, get_num_threads, set_num_threads
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
 set_num_threads(0)
 
-__version__ = "3.5.0"
+__version__ = "3.6.1"
 
 __all__ = [
     "AABBQuery",
     "Box",
+    "CellQuery",
     "LinkCell",
     "NeighborList",
     "NumThreads",

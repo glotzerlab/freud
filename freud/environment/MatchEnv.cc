@@ -26,7 +26,7 @@ namespace freud { namespace environment {
 /*****************
  * EnvDisjoinSet *
  *****************/
-EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)) {}
+EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)) { }
 
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float>& rotation)
