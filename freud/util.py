@@ -142,6 +142,16 @@ def _convert_array(
 def _convert_array(
     array: ArrayLike | None,
     shape: ShapeLike | None = None,
+    dtype: type[np.complex128] | np.dtype[np.complex128] = ...,
+    requirements: Sequence[RequirementFlag] = ("C",),
+    allow_copy: bool = True,
+) -> npt.NDArray[np.complex128]: ...
+
+
+@overload
+def _convert_array(
+    array: ArrayLike | None,
+    shape: ShapeLike | None = None,
     dtype: type[np.int32] | np.dtype[np.int32] = ...,
     requirements: Sequence[RequirementFlag] = ("C",),
     allow_copy: bool = True,

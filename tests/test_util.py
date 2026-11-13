@@ -75,6 +75,13 @@ class TestCommon:
         with pytest.raises(ValueError, match="expected shape"):
             freud.util._convert_array(z, shape=(None, 9))
 
+    @pytest.mark.parametrize("dtype", [np.complex128, np.dtype(np.complex128)])
+    def test_convert_array_complex(self, dtype):
+        values = np.array([1 + 2j, 3 - 4j], dtype=np.complex64)
+        result = freud.util._convert_array(values, shape=(2,), dtype=dtype)
+        assert result.dtype == np.complex128
+        npt.assert_array_equal(result, values)
+
     def test_convert_matrix_box(self):
         matrix_box = np.array([[1, 2, 3], [0, 2, 3], [0, 0, 3]])
         box = freud.util._convert_box(matrix_box)
