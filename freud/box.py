@@ -7,12 +7,22 @@ natively supports periodicity by providing the fundamental features for
 wrapping vectors outside the box back into it.
 """
 
+# ruff: noqa: PYI019 - Jedi needs TypeVar for classmethod subclass inference.
+
 from __future__ import annotations
 
 import warnings
 from collections.abc import Mapping, Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Protocol, TypeAlias, TypedDict, TypeGuard, cast
+from typing import (
+    TYPE_CHECKING,
+    Protocol,
+    TypeAlias,
+    TypedDict,
+    TypeGuard,
+    TypeVar,
+    cast,
+)
 
 import numpy as np
 import numpy.typing as npt
@@ -62,6 +72,7 @@ class _BoxLikeMapping(_BoxLikeMappingRequired, total=False):
     dimensions: int
 
 
+_BoxT = TypeVar("_BoxT", bound="Box")
 _BoxLikeSequence: TypeAlias = Sequence[ScalarLike] | Sequence[Sequence[ScalarLike]]
 BoxLike: TypeAlias = (
     "Box | ArrayLike | _BoxLikeSequence | _BoxLikeMapping"
@@ -836,7 +847,9 @@ class Box:  # noqa: PLW1641
         return freud.plot.box_plot(self, *args, **plot_kwargs)
 
     @classmethod
-    def from_box(cls: type[Box], box: BoxLike, dimensions: int | None = None) -> Box:
+    def from_box(
+        cls: type[_BoxT], box: BoxLike, dimensions: int | None = None
+    ) -> _BoxT:
         r"""Initialize a Box instance from a box-like object.
 
         Args:
@@ -944,8 +957,8 @@ class Box:  # noqa: PLW1641
 
     @classmethod
     def from_matrix(
-        cls: type[Box], box_matrix: ArrayLike, dimensions: int | None = None
-    ) -> Box:
+        cls: type[_BoxT], box_matrix: ArrayLike, dimensions: int | None = None
+    ) -> _BoxT:
         r"""Initialize a Box instance from a box matrix.
 
         For more information and the source for this code, see:
@@ -984,7 +997,7 @@ class Box:  # noqa: PLW1641
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
-    def cube(cls: type[Box], L: ScalarLike | None = None) -> Box:
+    def cube(cls: type[_BoxT], L: ScalarLike | None = None) -> _BoxT:
         r"""Construct a cubic box with equal lengths.
 
         Args:
@@ -1002,7 +1015,7 @@ class Box:  # noqa: PLW1641
         return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
 
     @classmethod
-    def square(cls: type[Box], L: ScalarLike | None = None) -> Box:
+    def square(cls: type[_BoxT], L: ScalarLike | None = None) -> _BoxT:
         r"""Construct a 2-dimensional (square) box with equal lengths.
 
         Args:
@@ -1021,7 +1034,7 @@ class Box:  # noqa: PLW1641
 
     @classmethod
     def from_box_lengths_and_angles(
-        cls: type[Box],
+        cls: type[_BoxT],
         L1: ScalarLike,
         L2: ScalarLike,
         L3: ScalarLike,
@@ -1029,7 +1042,7 @@ class Box:  # noqa: PLW1641
         beta: ScalarLike,
         gamma: ScalarLike,
         dimensions: int | None = None,
-    ) -> Box:
+    ) -> _BoxT:
         r"""Construct a box from lengths and angles (in radians).
 
         All the angles provided must be between 0 and :math:`\pi`.

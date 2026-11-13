@@ -12,9 +12,11 @@ x), existing freud scripts may need to be updated. The API will be finalized in
 a future release.
 """
 
+# ruff: noqa: PYI019 - Jedi needs TypeVar for classmethod subclass inference.
+
 from __future__ import annotations
 
-from typing import cast
+from typing import TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -23,6 +25,8 @@ import parsnip
 import freud
 import freud.util
 from freud._typing import ArrayLike, ScalarLike
+
+_UnitCellT = TypeVar("_UnitCellT", bound="UnitCell")
 
 
 class UnitCell:
@@ -204,7 +208,7 @@ class UnitCell:
         return self.box.dimensions
 
     @classmethod
-    def hcp(cls) -> UnitCell:
+    def hcp(cls: type[_UnitCellT]) -> _UnitCellT:
         """Create a hexagonal close-packed (hcp) unit cell.
 
         Returns:
@@ -219,7 +223,7 @@ class UnitCell:
         return cls(box, fractions)
 
     @classmethod
-    def fcc(cls) -> UnitCell:
+    def fcc(cls: type[_UnitCellT]) -> _UnitCellT:
         """Create a face-centered cubic (fcc) unit cell.
 
         Returns:
@@ -229,7 +233,7 @@ class UnitCell:
         return cls([1, 1, 1], fractions)
 
     @classmethod
-    def bcc(cls) -> UnitCell:
+    def bcc(cls: type[_UnitCellT]) -> _UnitCellT:
         """Create a body-centered cubic (bcc) unit cell.
 
         Returns:
@@ -239,7 +243,7 @@ class UnitCell:
         return cls([1, 1, 1], fractions)
 
     @classmethod
-    def sc(cls) -> UnitCell:
+    def sc(cls: type[_UnitCellT]) -> _UnitCellT:
         """Create a simple cubic (sc) unit cell.
 
         Returns:
@@ -249,7 +253,7 @@ class UnitCell:
         return cls([1, 1, 1], fractions)
 
     @classmethod
-    def square(cls) -> UnitCell:
+    def square(cls: type[_UnitCellT]) -> _UnitCellT:
         """Create a square unit cell.
 
         Returns:
@@ -260,10 +264,10 @@ class UnitCell:
 
     @classmethod
     def rectangular(
-        cls,
+        cls: type[_UnitCellT],
         aspect: float | np.integer | np.floating = 2.0,
         centered: bool = False,
-    ) -> UnitCell:
+    ) -> _UnitCellT:
         """Create a simple or centered rectangular unit cell with aspect :math:`b / a`.
 
         Args:
@@ -281,10 +285,10 @@ class UnitCell:
 
     @classmethod
     def oblique(
-        cls,
+        cls: type[_UnitCellT],
         aspect: ScalarLike = 1.0,
         theta: ScalarLike = 45.0,
-    ) -> UnitCell:
+    ) -> _UnitCellT:
         r"""Create an oblique unit cell with aspect :math:`b/a` and angle :math:`\theta`
 
         Args:
@@ -308,7 +312,7 @@ class UnitCell:
         )
 
     @classmethod
-    def hex(cls) -> UnitCell:
+    def hex(cls: type[_UnitCellT]) -> _UnitCellT:
         """Create a hexagonal unit cell.
 
         Returns:
@@ -318,7 +322,7 @@ class UnitCell:
         return cls([1, np.sqrt(3)], fractions)
 
     @classmethod
-    def graphene(cls) -> UnitCell:
+    def graphene(cls: type[_UnitCellT]) -> _UnitCellT:
         """Create a graphene (hexagonal honeycomb) unit cell.
 
         Returns:
@@ -335,7 +339,7 @@ class UnitCell:
         return cls([1, np.sqrt(3)], fractions)
 
     @classmethod
-    def from_cif(cls, filename: str) -> UnitCell:
+    def from_cif(cls: type[_UnitCellT], filename: str) -> _UnitCellT:
         """Create a unit cell from a `CIF`_ file.
 
         This method reads the Wyckoff sites and symmetry operations from a CIF file,

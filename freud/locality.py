@@ -6,12 +6,23 @@ The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
 
+# ruff: noqa: PYI019 - Jedi needs TypeVar for classmethod subclass inference.
+
 from __future__ import annotations
 
 import inspect
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from importlib.util import find_spec
-from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeAlias, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Protocol,
+    TypeAlias,
+    TypeVar,
+    cast,
+    overload,
+)
 
 import numpy as np
 import numpy.typing as npt
@@ -121,11 +132,9 @@ class _CPPModeEnum(Protocol):
     name: str
 
 
+_NeighborQueryT = TypeVar("_NeighborQueryT", bound="NeighborQuery")
+_NeighborListT = TypeVar("_NeighborListT", bound="NeighborList")
 _SystemTuple: TypeAlias = tuple[object, ArrayLike]
-
-
-class _NeighborQueryConstructor(Protocol):
-    def __call__(self, box: freud.box.BoxLike, points: ArrayLike) -> NeighborQuery: ...
 
 
 class _CPPVoronoi(Protocol):
@@ -438,8 +447,8 @@ class NeighborQuery:
 
     @classmethod
     def from_system(
-        cls, system: object, dimensions: int | None = None
-    ) -> NeighborQuery:
+        cls: type[_NeighborQueryT], system: object, dimensions: int | None = None
+    ) -> _NeighborQueryT:
         r"""Create a :class:`~.NeighborQuery` from any system-like object.
 
         The standard concept of a system in **freud** is any object that
@@ -559,9 +568,13 @@ class NeighborQuery:
         if cls == NeighborQuery:
             # If called from this abstract parent class, always make
             # :class:`~._RawPoints`.
-            return _RawPoints(cast(freud.box.BoxLike, box), points)
+            return cast(
+                _NeighborQueryT, _RawPoints(cast(freud.box.BoxLike, box), points)
+            )
         # Otherwise, use the current class.
-        constructor = cast(_NeighborQueryConstructor, cls)
+        constructor = cast(
+            Callable[[freud.box.BoxLike, ArrayLike], _NeighborQueryT], cls
+        )
         return constructor(cast(freud.box.BoxLike, box), points)
 
     @property
@@ -676,14 +689,14 @@ class NeighborList:
 
     @classmethod
     def from_arrays(
-        cls,
+        cls: type[_NeighborListT],
         num_query_points: int,
         num_points: int,
         query_point_indices: ArrayLike,
         point_indices: ArrayLike,
         vectors: ArrayLike,
         weights: ArrayLike | None = None,
-    ) -> NeighborList:
+    ) -> _NeighborListT:
         r"""Create a NeighborList from a set of bond information arrays.
 
         Example::
@@ -753,11 +766,11 @@ class NeighborList:
 
     @classmethod
     def all_pairs(
-        cls,
+        cls: type[_NeighborListT],
         system: object,
         query_points: ArrayLike | None = None,
         exclude_ii: bool = True,
-    ) -> NeighborList:
+    ) -> _NeighborListT:
         R"""Create a NeighborList where all pairs of points are neighbors.
 
         More explicitly, this method returns a NeighborList in which all pairs of
