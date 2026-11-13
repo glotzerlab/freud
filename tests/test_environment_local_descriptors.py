@@ -2,6 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from functools import cache
+from typing import ClassVar
 
 import conftest
 import numpy as np
@@ -213,14 +214,14 @@ class TestLocalDescriptors:
         comp = freud.environment.LocalDescriptors(8, True)
         assert str(comp) == str(eval(repr(comp)))
 
-    unit_cell = [
+    unit_cell: ClassVar[tuple[str, tuple[object, ...]]] = (
         "unit_cell",
-        [
+        (
             freud.data.UnitCell.sc,
             freud.data.UnitCell.bcc,
             freud.data.UnitCell.fcc,
-        ],
-    ]
+        ),
+    )
 
     @pytest.mark.parametrize(*unit_cell)
     def test_ql(self, unit_cell):

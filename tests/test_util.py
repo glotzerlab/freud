@@ -11,6 +11,27 @@ import freud
 
 
 class TestCommon:
+    def test_computed_property(self):
+        class Compute(freud.util._Compute):
+            def compute(self, value):
+                self._value = value
+
+            @property
+            @freud.util._Compute._computed_property
+            def value(self) -> int:
+                """The computed value."""
+                return self._value
+
+        compute = Compute()
+        assert Compute.value.__doc__ == "The computed value."
+        with pytest.raises(AttributeError, match="Property not computed"):
+            compute.value
+
+        compute.compute(3)
+        assert compute.value == 3
+        with pytest.raises(AttributeError):
+            compute.value = 4
+
     def test_convert_array(self):
         # create array
         x = np.arange(100)
@@ -53,6 +74,13 @@ class TestCommon:
 
         with pytest.raises(ValueError, match="expected shape"):
             freud.util._convert_array(z, shape=(None, 9))
+
+    @pytest.mark.parametrize("dtype", [np.complex128, np.dtype(np.complex128)])
+    def test_convert_array_complex(self, dtype):
+        values = np.array([1 + 2j, 3 - 4j], dtype=np.complex64)
+        result = freud.util._convert_array(values, shape=(2,), dtype=dtype)
+        assert result.dtype == np.complex128
+        npt.assert_array_equal(result, values)
 
     def test_convert_matrix_box(self):
         matrix_box = np.array([[1, 2, 3], [0, 2, 3], [0, 0, 3]])

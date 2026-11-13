@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog] and this project adheres to
 * Support 2D simulation boxes in `StaticStructureFactorDirect`.
 * Add `oblique`, `rectangular`, and `graphene` lattices to `freud.data.UnitCell`.
 * Support for RAD filtering in systems with particles of different sizes.
+* Added Python type hints across Python modules.
 
 ### Fixed
 * Access k points in `StaticStructureFactorDirect`.
